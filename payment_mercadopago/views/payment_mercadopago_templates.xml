@@ -8,6 +8,12 @@
 				<input name="cmd" t-att-value="cmd" type="hidden"/>
 				<input name="mercadopago_data" t-att-value="mercadopago_data" type="hidden"/>
 			</div>
+			<script type="text/javascript">
+                odoo.define(function (require) {
+                    var ajax = require('web.ajax');
+                    ajax.loadJS("/payment_mercadopago/static/src/js/payment_form.js");
+                });
+            </script>
 		</template>
 
 		<template id="payment_mercadopago_redirect" name="Payment MercadoPago">
@@ -26,13 +32,37 @@
 			<input class="d-none" name="csrf_token" t-att-value="request.csrf_token()"/>
 			<input t-if="return_url" type="hidden" name="return_url" t-att-value="return_url"/>
 			<input t-if="partner_id" type="hidden" name="partner_id" t-att-value="partner_id"/>
+			<input type="hidden" name="mercadopago_publishable_key" t-att-value="acq.sudo().mercadopago_publishable_key"/>
+			<input type="hidden" name="order_amount" t-att-value="order.amount_total"/>
+
+            <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>-->
+			<!--<script-->
+				<!--src="https://www.mercadopago.com.ar/integrations/v1/web-tokenize-checkout.js"-->
+				<!--t-att-data-public-key="acq.sudo().mercadopago_publishable_key"-->
+				<!--t-att-data-transaction-amount="order.amount_total">-->
+			<!--</script>-->
+
 		</template>
 
-		<!-- <template id="assets_frontend" inherit_id="web.assets_frontend">
-			<xpath expr="script[last()]" position="after">
-				<script type="text/javascript" src="/payment_authorize/static/src/js/payment_form.js"></script>
+		<template id="assets_frontend" inherit_id="web.assets_frontend">
+            <xpath expr="script[last()]" position="after">
+                <script type="text/javascript" src="/payment_mercadopago/static/src/js/payment_form.js"/>
+            </xpath>
+        </template>
+
+		<template id="payment_tokens_list_mercadopago" inherit_id="payment.payment_tokens_list" name="Payment Tokens list MercadoPago">
+			<xpath expr="form[hasclass('o_payment_form')]" position="after">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+				<form action="/shop/payment/mercadopago" method="POST" class="o_payment_mercadopago">
+					<script
+						src="https://www.mercadopago.com.ar/integrations/v1/web-tokenize-checkout.js"
+						data-public-key="TEST-6cb31e18-4db7-45c5-8035-d8b20a2d899e"
+						data-transaction-amount="120">
+					</script>
+				</form>
 			</xpath>
-		</template> -->
+		</template>
+
 	</data>
 </odoo>
 

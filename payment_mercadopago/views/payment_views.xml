@@ -9,6 +9,7 @@
                     <group attrs="{'invisible': [('provider', '!=', 'mercadopago')]}">
                         <field name="mercadopago_client_id" attrs="{'required':[ ('provider', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
                         <field name="mercadopago_secret_key" password="True" attrs="{'required':[ ('provider', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
+                        <field name="mercadopago_publishable_key" password="True" attrs="{'required':[ ('provider', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
                         <a colspan="2" href="https://www.mercadopago.com/mla/account/credentials" target="_blank">How to generate this credentials</a>
                     </group>
                 </xpath>
