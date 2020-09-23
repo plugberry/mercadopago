@@ -22,9 +22,7 @@
             <field name="inherit_id" ref="payment.payment_token_form_view"/>
             <field name="arch" type="xml">
                 <xpath expr='//field[@name="acquirer_ref"]' position='after'>
-                    <field name="mercadopago_profile" attrs="{'invisible':['|', ('provider', '!=', 'mercadopago'), ('save_token', '=', 'none')]}"/>
-                    <field name="provider" invisible='1'/>
-                    <field name="save_token" invisible='1'/>
+                    <field name="save_token" invisible='0'/>
                 </xpath>
             </field>
         </record>

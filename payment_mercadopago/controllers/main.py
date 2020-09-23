@@ -3,10 +3,10 @@
 # directory
 ##############################################################################
 
-import logging
 import pprint
+import logging
+from werkzeug import urls, utils
 
-import werkzeug
 from odoo import http, fields
 from odoo.addons.payment.controllers.portal import PaymentProcessing
 from odoo.http import request
@@ -18,62 +18,78 @@ try:
 except ImportError:
     _logger.debug('Cannot import external_dependency mercadopago')
 
-from odoo.addons.website_sale.controllers.main import WebsiteSale
+class MercadoPagoController(http.Controller):
+    _return_url = '/payment/mercadopago/return/'
+    _cancel_url = '/payment/mercadopago/cancel/'
 
+    @http.route([
+        '/payment/mercadopago/return/',
+        '/payment/mercadopago/cancel/',
+    ], type='http', auth='public', csrf=False)
+    def mercadopago_form_feedback(self, **post):
+        import pdb; pdb.set_trace()
+        _logger.info('MercadoPago: entering form_feedback with post data %s', pprint.pformat(post))
+        if post:
+            request.env['payment.transaction'].sudo().form_feedback(post, 'mercadopago')
+        base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        # Authorize.Net is expecting a response to the POST sent by their server.
+        # This response is in the form of a URL that Authorize.Net will pass on to the
+        # client's browser to redirect them to the desired location need javascript.
+        return request.render('payment_mercadopago.payment_mercadopago_redirect', {
+            'return_url': urls.url_join(base_url, "/payment/process")
+        })
 
-class ExtendedWebsiteSale(WebsiteSale):
+    @http.route(['/payment/mercadopago/s2s/create_json_3ds'], type='json', auth='public', csrf=False)
+    def mercadopago_s2s_create_json_3ds(self, verify_validity=False, **kwargs):
+        import pdb; pdb.set_trace()
+        token = False
+        acquirer = request.env['payment.acquirer'].browse(int(kwargs.get('acquirer_id')))
+        try:
+            if not kwargs.get('partner_id'):
+                kwargs = dict(kwargs, partner_id=request.env.user.partner_id.id)
+            token = acquirer.s2s_process(kwargs)
+        except:
+            raise UserError(_("Error: mercadopago_s2s_create_json_3ds"))
+        # except ValidationError as e:
+        #     message = e.args[0]
+        #     if isinstance(message, dict) and 'missing_fields' in message:
+        #         if request.env.user._is_public():
+        #             message = _("Please sign in to complete the payment.")
+        #             # update message if portal mode = b2b
+        #             if request.env['ir.config_parameter'].sudo().get_param('auth_signup.allow_uninvited', 'False').lower() == 'false':
+        #                 message += _(" If you don't have any account, ask your salesperson to grant you a portal access. ")
+        #         else:
+        #             msg = _("The transaction cannot be processed because some contact details are missing or invalid: ")
+        #             message = msg + ', '.join(message['missing_fields']) + '. '
+        #             message += _("Please complete your profile. ")
 
-    @http.route(
-        '/shop/payment/mercadopago',
-        type='http',
-        auth='public',
-        website=True,
-        sitemap=False
-    )
-    def mercadopago(self, **kwargs):
-        """ Method that handles payment using saved tokens
-            :param int pm_id: id of the payment.token that we want to use
-        """
-        order_id = request.website.sale_get_order()
-        partner_id = int(kwargs.get('partner_id'))
-        payment_id = request.env['payment.acquirer'].browse(int(kwargs.get('acquirer_id')))
-        transaction_id = request.env['payment.transaction'].sudo().search([('reference', '=', order_id.name)], limit=1)
-        if not transaction_id:
-            transaction_id = request.env['payment.transaction'].sudo().create(
-                {
-                    'reference': order_id.name,
-                    'sale_order_ids': [(4, order_id.id, False)],
-                    'amount': order_id.amount_total,
-                    'return_url': '/shop/payment/validate',
-                    'currency_id': order_id.currency_id.id,
-                    'partner_id': partner_id,
-                    'acquirer_id': payment_id.id,
-                    'date': fields.Datetime.now(),
-                    'state': 'draft',
-                }
-            )
-        # transaction_id.confirm_sale_token(order)
-        PaymentProcessing.add_payment_transaction(transaction_id)
-        mp = mercadopago.MP('TEST-6cb31e18-4db7-45c5-8035-d8b20a2d899e')
-        payment_data = {
-            "token": kwargs.get('token'),
-            "installments": int(kwargs.get('installments')),
-            "transaction_amount": float(kwargs.get('order_amount')),
-            "description": "Point Mini a maquininha que dá o dinheiro de suas vendas na hora",
-            "payment_method_id": kwargs.get('payment_method_id'),
-            "issuer_id": int(kwargs.get('issuer_id')),
-            "payer": {
-                "email": "test_user_123456@testuser.com",
+        #     return {
+        #         'error': message
+        #     }
+        # except UserError as e:
+        #     return {
+        #         'error': e.name,
+        #     }
+        if not token:
+            res = {
+                'result': False,
             }
+            # return res
+            raise UserError(_("Error: mercadopago_s2s_create_json_3ds no token"))
+        res = {
+            'result': True,
+            'id': token.id,
+            'short_name': token.short_name,
+            '3d_secure': False,
+            'verified': True,
         }
-        payment_result = mp.post("/v1/payments", payment_data)
-        if payment_result.get('status') == 201:
-            response = payment_result.get('response')
-            if response['status'] == 'approved':
-                order_id.action_confirm()
-                transaction_id.state = 'done'
+        return res
 
-        # return request.redirect(
-        #     '/shop/payment/token?%s' % urllib.parse.urlencode(vals)
-        # )
-        return request.redirect('/payment/process')
+    @http.route(['/payment/mercadopago/s2s/create'], type='http', auth='public')
+    def mercadopago_s2s_create(self, **post):
+        import pdb; pdb.set_trace()
+        acquirer_id = 13 #int(post.get('acquirer_id'))
+        acquirer = request.env['payment.acquirer'].browse(acquirer_id)
+        acquirer.s2s_process(post)
+        return utils.redirect("/payment/process")
+

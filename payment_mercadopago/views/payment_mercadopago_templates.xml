@@ -4,7 +4,7 @@
 		<template id="mercadopago_form">
 			<div>
 				<!-- TODO: change this -->
-				<input data-remove-me="" name="data_set" t-att-data-action-url="tx_url" type="hidden"/>
+				<input type="hidden" name="data_set" t-att-data-action-url="tx_url" data-remove-me=""/>
 				<input name="cmd" t-att-value="cmd" type="hidden"/>
 				<input name="mercadopago_data" t-att-value="mercadopago_data" type="hidden"/>
 			</div>
@@ -53,7 +53,7 @@
 		<template id="payment_tokens_list_mercadopago" inherit_id="payment.payment_tokens_list" name="Payment Tokens list MercadoPago">
 			<xpath expr="form[hasclass('o_payment_form')]" position="after">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-				<form action="/shop/payment/mercadopago" method="POST" class="o_payment_mercadopago">
+				<form action="/payment/mercadopago/s2s/create" method="POST" class="o_payment_mercadopago">
 					<script
 						src="https://www.mercadopago.com.ar/integrations/v1/web-tokenize-checkout.js"
 						data-public-key="TEST-6cb31e18-4db7-45c5-8035-d8b20a2d899e"

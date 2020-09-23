@@ -105,24 +105,25 @@ class PaymentAcquirerMercadoPago(models.Model):
 
     @api.model
     def mercadopago_s2s_form_process(self, data):
-        # values = {
-        #     'opaqueData': data.get('opaqueData'),
-        #     'encryptedCardData': data.get('encryptedCardData'),
-        #     'acquirer_id': int(data.get('acquirer_id')),
-        #     'partner_id': int(data.get('partner_id'))
-        # }
-        # PaymentMethod = self.env['payment.token'].sudo().create(values)
         import pdb; pdb.set_trace()
-        return False
+        values = {
+            'acquirer_id': 13,#int(data.get('acquirer_id')),
+            'partner_id': int(data.get('partner_id')),
+            'token': data.get('token'),
+            'payment_method_id': data.get('payment_method_id'),
+            'issuer_id': data.get('issuer_id')
+        }
+        PaymentMethod = self.env['payment.token'].sudo().create(values)
+        return PaymentMethod
 
     def mercadopago_s2s_form_validate(self, data):
-        error = dict()
-        # mandatory_fields = ["opaqueData", "encryptedCardData"]
-        # # Validation
-        # for field_name in mandatory_fields:
-        #     if not data.get(field_name):
-        #         error[field_name] = 'missing'
         import pdb; pdb.set_trace()
+        error = dict()
+        mandatory_fields = ["token", "payment_method_id", "installments", "issuer_id"]
+        # Validation
+        for field_name in mandatory_fields:
+            if not data.get(field_name):
+                error[field_name] = 'missing'
         return False if error else True
 
 
@@ -140,7 +141,8 @@ class PaymentTransactionMercadoPago(models.Model):
     @api.model
     def _mercadopago_form_get_tx_from_data(self, data):
         """ Given a data dict coming from mercadopago, verify it and find the related
-        transaction record. """
+        transaction record.
+        """
         import pdb; pdb.set_trace()
         pass
 
@@ -186,27 +188,17 @@ class PaymentTransactionMercadoPago(models.Model):
 class PaymentToken(models.Model):
     _inherit = 'payment.token'
 
-    mercadopago_profile = fields.Char(string='MercadoPago Profile ID', help='This contains the unique reference '
-                                                                            'for this partner/payment token combination in the mercadopago backend')
-    provider = fields.Selection(string='Provider', related='acquirer_id.provider', readonly=False)
-    save_token = fields.Selection(string='Save Cards', related='acquirer_id.save_token', readonly=False)
+    save_token = fields.Char(string='Token', readonly=True)
 
-    # @api.model
-    # def mercadopago_create(self, values):
-    #     if values.get('opaqueData') and values.get('encryptedCardData'):
-    #         acquirer = self.env['payment.acquirer'].browse(values['acquirer_id'])
-    #         partner = self.env['res.partner'].browse(values['partner_id'])
-    #         # transaction = AuthorizeAPI(acquirer)
-    #         res = transaction.create_customer_profile(partner, values['opaqueData'])
-    #         if res.get('profile_id') and res.get('payment_profile_id'):
-    #             return {
-    #                 'authorize_profile': res.get('profile_id'),
-    #                 'name': values['encryptedCardData'].get('cardNumber'),
-    #                 'acquirer_ref': res.get('payment_profile_id'),
-    #                 'verified': True
-    #             }
-    #         else:
-    #             raise ValidationError(_('The Customer Profile creation in Authorize.NET failed.'))
-    #     else:
-    #         return values
-    #     # raise ValidationError(_('MercadoPago token create is not available yet.'))
+    @api.model
+    def mercadopago_create(self, values):
+        import pdb; pdb.set_trace()
+        if values.get('token') and values.get('payment_method_id'):
+            return {
+                'name': 'MercadoPago - ' + values['payment_method_id'],
+                'save_token': values['token'],
+                'acquirer_ref': values['payment_method_id'],
+                'verified': True
+            }
+        else:
+            raise ValidationError(_('The Customer Profile creation in MercadoPago failed.'))
