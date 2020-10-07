@@ -203,7 +203,8 @@ PaymentForm.include({
 
         // first we check that the user has selected a authorize as add payment method
         if ($checkedRadio.length === 1 && this.isNewPaymentRadio($checkedRadio) && $checkedRadio.data('provider') === 'mercadopago') {
-            this._createMercadoPagoToken(ev, $checkedRadio, true);
+            // this._createMercadoPagoToken(ev, $checkedRadio, true);
+            $('.mercadopago-button').click();
         } else {
             this._super.apply(this, arguments);
         }

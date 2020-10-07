@@ -91,5 +91,6 @@ class MercadoPagoController(http.Controller):
         acquirer_id = 13 #int(post.get('acquirer_id'))
         acquirer = request.env['payment.acquirer'].browse(acquirer_id)
         acquirer.s2s_process(post)
+        import pdb; pdb.set_trace()
         return utils.redirect("/payment/process")
 

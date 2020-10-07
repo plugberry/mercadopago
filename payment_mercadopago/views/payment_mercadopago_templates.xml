@@ -7,20 +7,21 @@
 				<input type="hidden" name="data_set" t-att-data-action-url="tx_url" data-remove-me=""/>
 				<input name="cmd" t-att-value="cmd" type="hidden"/>
 				<input name="mercadopago_data" t-att-value="mercadopago_data" type="hidden"/>
+				<input type="hidden" name='x_amount' t-att-value='x_amount'/>
 			</div>
-			<script type="text/javascript">
+			<!-- <script type="text/javascript">
                 odoo.define(function (require) {
                     var ajax = require('web.ajax');
                     ajax.loadJS("/payment_mercadopago/static/src/js/payment_form.js");
                 });
-            </script>
+            </script> -->
 		</template>
 
-		<template id="payment_mercadopago_redirect" name="Payment MercadoPago">
+		<!-- <template id="payment_mercadopago_redirect" name="Payment MercadoPago">
 			<script type="text/javascript">
 				window.location.href = '<t t-esc="return_url"/>';
 			</script>
-		</template>
+		</template> -->
 
 		<template id="mercadopago_s2s_form">
 			<!-- TODO: change this -->
@@ -33,7 +34,7 @@
 			<input t-if="return_url" type="hidden" name="return_url" t-att-value="return_url"/>
 			<input t-if="partner_id" type="hidden" name="partner_id" t-att-value="partner_id"/>
 			<input type="hidden" name="mercadopago_publishable_key" t-att-value="acq.sudo().mercadopago_publishable_key"/>
-			<input type="hidden" name="order_amount" t-att-value="order.amount_total"/>
+			<!-- <input type="hidden" name="order_amount" t-att-value="order.amount_total"/> -->
 
             <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>-->
 			<!--<script-->
@@ -57,7 +58,7 @@
 					<script
 						src="https://www.mercadopago.com.ar/integrations/v1/web-tokenize-checkout.js"
 						data-public-key="TEST-6cb31e18-4db7-45c5-8035-d8b20a2d899e"
-						data-transaction-amount="120">
+						data-transaction-amount="1">
 					</script>
 				</form>
 			</xpath>

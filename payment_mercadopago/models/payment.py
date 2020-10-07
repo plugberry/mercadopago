@@ -1,6 +1,7 @@
 # coding: utf-8
 from werkzeug import urls
 
+from .mercadopago_request import MercadoPagoAPI
 import hashlib
 import hmac
 import logging
@@ -105,7 +106,6 @@ class PaymentAcquirerMercadoPago(models.Model):
 
     @api.model
     def mercadopago_s2s_form_process(self, data):
-        import pdb; pdb.set_trace()
         values = {
             'acquirer_id': 13,#int(data.get('acquirer_id')),
             'partner_id': int(data.get('partner_id')),
@@ -113,11 +113,12 @@ class PaymentAcquirerMercadoPago(models.Model):
             'payment_method_id': data.get('payment_method_id'),
             'issuer_id': data.get('issuer_id')
         }
+        # Una vez cargada la tarjeta y validado el pago
+        # Creamos un customer asociado a la tarjeta y creamos el token
         PaymentMethod = self.env['payment.token'].sudo().create(values)
         return PaymentMethod
 
     def mercadopago_s2s_form_validate(self, data):
-        import pdb; pdb.set_trace()
         error = dict()
         mandatory_fields = ["token", "payment_method_id", "installments", "issuer_id"]
         # Validation
@@ -194,11 +195,36 @@ class PaymentToken(models.Model):
     def mercadopago_create(self, values):
         import pdb; pdb.set_trace()
         if values.get('token') and values.get('payment_method_id'):
+            acquirer = self.env['payment.acquirer'].browse(values['acquirer_id'])
+            partner = self.env['res.partner'].browse(values['partner_id'])
+            token = values.get('token')
+
+            # buscamos / creamos un customer
+            MP = MercadoPagoAPI(acquirer)
+            customer_id = MP.get_customer_profile(partner)
+            if not customer_id:
+                res = MP.create_customer_profile(partner)
+                customer_id = res['id']
+
+            # buscamos / guardamos la tarjeta
+            card = None  # TODO: delete this
+            cards = MP.get_customer_cards(customer_id)
+            if card not in cards:
+                card = MP.create_customer_card(customer_id, token)
+
+            if not card:
+                raise ValidationError(_('The Card creation in MercadoPago failed.'))
+
+
+            # creo el token
             return {
-                'name': 'MercadoPago - ' + values['payment_method_id'],
-                'save_token': values['token'],
+                'name': 'MercadoPago: ' + 'XXXXXXXXXXXX' + card['last_four_digits'],
+                'save_token': card['id'],
                 'acquirer_ref': values['payment_method_id'],
                 'verified': True
             }
         else:
-            raise ValidationError(_('The Customer Profile creation in MercadoPago failed.'))
+            raise ValidationError(_('The Token creation in MercadoPago failed.'))
+        # TODO: Here Authorize does the following:
+        # else:
+            # return values
