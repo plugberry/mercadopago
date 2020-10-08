@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+    <template id="mercadopago_form_external_payment" name="Mercadopago External Form">
+        <t t-name="payment_mercadopago.mercadopago_form_external_payment">
+            <form action="/process_payment" method="post" id="paymentForm" style="background-color: lightgray;">
+                <div class="creditCardForm">
+                    <div class="heading">
+                        <h3>Detalles del comprador</h3>
+                    </div>
+                    <div>
+                        <div class="payment">
+                            <div class="row">
+                                <div class="form-group" id="email">
+                                    <label for="email">E-mail</label>
+                                    <input id="email" class="form-control" name="email" type="text" value="test@test.com"/>
+                               </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group tipo_doc" >
+                                    <label for="docType">Tipo de documento</label>
+                                    <select id="docType" class="form-control" name="docType" data-checkout="docType" type="text"></select>
+                                </div>
+                                <div class="form-group num_doc" >
+                                    <label for="docNumber">Número de documento</label>
+                                    <input id="docNumber" class="form-control" name="docNumber" data-checkout="docNumber" type="text"/>
+                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="creditCardForm" style="margin-top:3px;">
+                    <div class="heading">
+                        <h3>Detalles de la tarjeta</h3>
+                    </div>
+                    <div class="payment">
+                        <div>
+                            <div class="form-group" id="titular">
+                                <label for="cardholderName">Titular de la tarjeta</label>
+                                <input id="cardholderName" class="form-control" data-checkout="cardholderName" type="text"/>
+                            </div>
+                            <div class="form-group" id="expiration-date">
+                                <label for="">Fecha de vencimiento</label>
+                                <div>
+                                    <input style="display:inline" type="text" placeholder="MM" class="form-control" id="cardExpirationMonth" data-checkout="cardExpirationMonth"
+                                     onselectstart="return false" onpaste="return false"
+                                     oncopy="return false" oncut="return false"
+                                       ondrag="return false" ondrop="return false" autocomplete="off"/>
+                                   <span style="display:inline">/</span>
+                                   <input style="display:inline" type="text" placeholder="YY" id="cardExpirationYear" class="form-control" data-checkout="cardExpirationYear"
+                                     onselectstart="return false" onpaste="return false"
+                                     oncopy="return false" oncut="return false"
+                                       ondrag="return false" ondrop="return false" autocomplete="off"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" id="credit_cards">
+                            <img src="/payment_mercadopago/static/src/img/visa.jpg" id="visa"/>
+                            <img src="/payment_mercadopago/static/src/img/mastercard.jpg" id="mastercard"/>
+                            <img src="/payment_mercadopago/static/src/img/amex.jpg" id="amex"/>
+                        </div>
+                        <div class="form-group" id="card-number-field">
+                            <label for="cardNumber">Número de la tarjeta</label>
+                             <input type="text" id="cardNumber" class="form-control" data-checkout="cardNumber"
+                            />
+                        </div>
+                        <div class="form-group" id="CVV">
+                            <label for="securityCode">Código de seguridad</label>
+                            <input id="securityCode" data-checkout="securityCode" class="form-control" type="text"
+                               onselectstart="return false" onpaste="return false"
+                               oncopy="return false" oncut="return false"
+                                 ondrag="return false" ondrop="return false" autocomplete="off"/>
+                        </div>
+                        <div  class="form-group" id="issuerInput">
+                            <label for="issuer">Banco emisor</label>
+                            <select class="form-control" id="issuer" name="issuer" data-checkout="issuer"></select>
+                        </div>
+                        <div class="form-group" id="cuotas">
+                            <label for="installments">Cuotas</label>
+                            <select type="text" id="installments" name="installments"></select>
+                        </div>
+                        <div class="form-group" id="pay-now">
+                             <input type="hidden" name="transactionAmount" id="transactionAmount" value="100" />
+                             <input type="hidden" name="paymentMethodId" id="paymentMethodId" />
+                             <input type="hidden" name="description" id="description" />
+                             <input type="hidden" name="csrf_token" t-att-value="csrf_token"/>
+                             <input type="hidden" name="acquired_id" t-att-value="acquired_id"/>
+                             <br/>
+                             <button class='btn btn-default' type="submit">Pagar</button>
+                             <br/>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </t>
+    </template>
