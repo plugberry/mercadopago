@@ -1,0 +1,134 @@
+button.mercadopago-button {
+  display: none !important;
+}
+.inputhidden{
+  display: none !important;
+}
+
+.creditCardForm {
+    max-width: 700px;
+    background-color: #fff;
+    overflow: hidden;
+    padding: 25px;
+    color: #4c4e56;
+    border: 1px solid #d4d5d7;
+    border-radius: 6px;
+}
+
+.creditCardForm label {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.creditCardForm .heading h3 {
+    text-align: center;
+    font-family: 'Open Sans', sans-serif;
+    color: #4c4e56;
+}
+
+.creditCardForm .payment {
+    width: 100%;
+    float: left;
+    font-size: 18px;
+    padding: 10px 25px;
+    margin-top: 20px;
+    position: relative;
+}
+
+.creditCardForm .payment .form-group {
+    float: left;
+    margin-bottom: 15px;
+}
+
+.creditCardForm .payment .form-control {
+    line-height: 40px;
+    height: auto;
+    padding: 0 16px;
+    border: 1px solid #d4d5d7;
+}
+
+.creditCardForm .payment input.form-control {
+    border-radius: 4px !important;
+}
+
+.creditCardForm .num_doc {
+    width: 63%;
+    margin-left: 10px;
+}
+
+.creditCardForm .tipo_doc {
+    width: 35%;
+}
+
+.creditCardForm input#cardExpirationMonth {
+    width: 20%;
+}
+
+.creditCardForm input#cardExpirationYear {
+    width: 20%;
+}
+
+.creditCardForm #email {
+    width: 100%;
+}
+
+.creditCardForm #titular {
+    width: 100%;
+}
+
+.creditCardForm #expiration-date {
+    width: 50%;
+}
+
+.creditCardForm div#card-number-field {
+    width: 63%;
+}
+
+.creditCardForm div#CVV {
+    width: 35%;
+    margin-left: 10px;
+}
+
+.creditCardForm #issuerInput {
+    width: 100%;
+}
+
+.creditCardForm #cuotas {
+    width: 100%;
+}
+
+.creditCardForm #credit_cards {
+    width: 50%;
+    margin-top: 25px;
+    text-align: right;
+}
+
+.creditCardForm #pay-now {
+    width: 100%;
+    margin-top: 25px;
+}
+
+.creditCardForm .payment .btn {
+    width: 100%;
+    margin-top: 3px;
+    font-size: 24px;
+    background-color: #2ec4a5;
+    color: white;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.creditCardForm .payment select.form-control {
+    border-radius: 4px;
+}
+
+.creditCardForm .payment select {
+    padding: 10px;
+    margin-right: 15px;
+}
+
+.transparent {
+    opacity: 0.2;
+}
+
+

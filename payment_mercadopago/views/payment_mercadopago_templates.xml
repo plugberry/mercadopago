@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+		<template id="mercadopago_form">
+			<div>
+				<!-- TODO: change this -->
+				<input data-remove-me="" name="data_set" t-att-data-action-url="tx_url" type="hidden"/>
+				<input name="cmd" t-att-value="cmd" type="hidden"/>
+				<input name="mercadopago_data" t-att-value="mercadopago_data" type="hidden"/>
+			</div>
+			<script type="text/javascript">
+                odoo.define(function (require) {
+                    var ajax = require('web.ajax');
+                    ajax.loadJS("/payment_mercadopago/static/src/js/payment_form.js");
+                    ajax.loadJS("/payment_mercadopago/static/lib/js/jquery_payform_min.js");
+                });
+            </script>
+		</template>
+
+		<template id="payment_mercadopago_redirect" name="Payment MercadoPago">
+			<script type="text/javascript">
+				window.location.href = '<t t-esc="return_url"/>';
+			</script>
+		</template>
+
+		<template id="mercadopago_s2s_form">
+			<!-- TODO: change this -->
+			<input type="hidden" name="data_set" value="/payment/mercadopago/s2s/create_json_3ds"/>
+			<input type="hidden" name="acquirer_id" t-att-value="id"/>
+			<input type="hidden" name="acquirer_state" t-att-value="acq.state"/>
+			<!-- <input type="hidden" name="login_id" t-att-value="acq.sudo().mercadopago_login"/> -->
+			<!-- <input type="hidden" name="client_key" t-att-value="acq.sudo().mercadopago_client_key"/> -->
+			<input class="d-none" name="csrf_token" t-att-value="request.csrf_token()"/>
+			<input t-if="return_url" type="hidden" name="return_url" t-att-value="return_url"/>
+			<input t-if="partner_id" type="hidden" name="partner_id" t-att-value="partner_id"/>
+			<input type="hidden" name="mercadopago_publishable_key" t-att-value="acq.sudo().mercadopago_publishable_key"/>
+			<input type="hidden" name="order_amount" t-att-value="order.amount_total"/>
+
+		</template>
+
+		<template id="assets_frontend" inherit_id="web.assets_frontend">
+            <xpath expr="script[last()]" position="after">
+                <script type="text/javascript" src="/payment_mercadopago/static/src/js/payment_form.js"/>
+                <script type="text/javascript" src="/payment_mercadopago/static/lib/js/jquery_payform_min.js" charset="utf-8"/>
+            </xpath>
+        </template>
+
+		<template id="payment_tokens_list_mercadopago" inherit_id="payment.payment_tokens_list" name="Payment Tokens list MercadoPago">
+			<!-- <xpath expr="form[hasclass('o_payment_form')]" position="after"> -->
+				<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/> -->
+				<!-- <form action="/shop/payment/mercadopago" method="POST" class="o_payment_mercadopago"> -->
+					<!-- <script -->
+						<!-- t-att-src="mercadopago.mercadopago_url" -->
+						<!-- t-att-data-public-key="mercadopago.mercadopago_publishable_key" -->
+						<!-- t-att-data-transaction-amount="order.amount_total"> -->
+					<!-- </script> -->
+				<!-- </form> -->
+			<!-- </xpath> -->
+			<!--<xpath expr="//t[@t-foreach='acquirers']/div[1]/label" position="replace">-->
+                <!--<label>-->
+                    <!--<t t-if="acq.payment_flow == 'form' and acq.provider == 'mercadopago'">-->
+                        <!--<input type="radio" t-att-data-acquirer-id="acq.id"-->
+                               <!--t-att-data-form-payment="true"-->
+                               <!--t-att-data-provider="acq.provider"-->
+                               <!--t-att-class="'d-none' if (acquirers_count==1 and pms_count==0) else 'id_payment_method'"-->
+                               <!--name="pm_id" t-attf-value="form_{{acq.id}}"-->
+                               <!--t-att-checked="acquirers_count==1 and pms_count==0 or acquirers[0] == acq"/>-->
+                    <!--</t>-->
+                    <!--<t t-elif="acq.payment_flow == 's2s' and acq.provider == 'mercadopago'">-->
+                        <!--<input type="radio" t-att-data-acquirer-id="acq.id"-->
+                               <!--t-att-data-s2s-payment="true"-->
+                               <!--t-att-data-provider="acq.provider"-->
+                               <!--name="pm_id" t-attf-value="new_{{acq.id}}"-->
+                               <!--t-att-class="'d-none' if (acquirers_count==1 and pms_count==0) else 'id_payment_method'"-->
+                               <!--t-att-checked="acquirers_count==1 and pms_count==0 or acquirers[0] == acq"/>-->
+                    <!--</t>-->
+                    <!--<t t-elif="acq.payment_flow == 'form'">-->
+                        <!--<input type="radio" t-att-data-acquirer-id="acq.id"-->
+                               <!--t-att-data-form-payment="true"-->
+                               <!--t-att-data-provider="acq.provider"-->
+                               <!--t-att-class="'d-none' if (acquirers_count==1 and pms_count==0) else 'other_payment'"-->
+                               <!--name="pm_id" t-attf-value="form_{{acq.id}}"-->
+                               <!--t-att-checked="acquirers_count==1 and pms_count==0 or acquirers[0] == acq"/>-->
+                    <!--</t>-->
+                    <!--<t t-else="acq.payment_flow == 's2s'">-->
+                        <!--<input type="radio" t-att-data-acquirer-id="acq.id"-->
+                               <!--t-att-data-s2s-payment="true"-->
+                               <!--t-att-data-provider="acq.provider"-->
+                               <!--name="pm_id" t-attf-value="new_{{acq.id}}"-->
+                               <!--t-att-class="'d-none' if (acquirers_count==1 and pms_count==0) else 'other_payment'"-->
+                               <!--t-att-checked="acquirers_count==1 and pms_count==0 or acquirers[0] == acq"/>-->
+                    <!--</t>-->
+                    <!--<span class="payment_option_name" t-esc="acq.name"/>-->
+                <!--</label>-->
+            <!--</xpath>-->
+            <xpath expr="//t[@t-foreach='pms']/t[1]" position="replace">
+                <t t-if="not verify_validity or (pm.acquirer_id.check_validity and pm.verified) or not pm.acquirer_id.check_validity">
+                    <div class="card-body o_payment_acquirer_select">
+                        <label>
+                            <input t-if="mode == 'payment'" type="radio" name="pm_id" t-att-data-acquirer-id="pm.acquirer_id.id or False" t-att-value="pm.id" t-att-data-mercadopago="'True' if pm.mercadopago else 'False'" t-att-checked="checked_pm_id == pm.id" class="id_payment_token"/>
+                            <span class="payment_option_name" t-esc="pm.name"/>
+                            <t t-if="pm.verified">
+                                <i class="fa fa-check text-success" title="This payment method is verified by our system." role="img" aria-label="Ok"></i>
+                            </t>
+                            <t t-else="">
+                                <i class="fa fa-check text-muted" title="This payment method has not been verified by our system." role="img" aria-label="Not verified"></i>
+                            </t>
+                        </label>
+                        <button t-if="mode == 'manage'" name="delete_pm" t-att-value="pm.id" class="btn btn-primary btn-sm float-right">
+                            <i class="fa fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </t>
+            </xpath>
+		</template>
+	</data>
+</odoo>
+
