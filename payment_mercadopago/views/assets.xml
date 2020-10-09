@@ -7,7 +7,6 @@
             <xpath expr="script[last()]" position="after">
                 <script src="/payment_mercadopago/static/lib/js/jquery_payform_min.js"></script>
                 <script src="https://secure.mlstatic.com/sdk/javascript/v1/mercadopago.js"></script>
-                <script src="https://unpkg.com/imask"></script>
             </xpath>
     </template>
 </odoo>
