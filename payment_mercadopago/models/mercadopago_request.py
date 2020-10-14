@@ -52,21 +52,21 @@ class MercadoPagoAPI():
     def create_customer_profile(self, partner):
         values = {
             'email': partner.email,
-            'first_name': _partner_split_name(partner.name)[0],
-            'last_name': _partner_split_name(partner.name)[1],
-            'phone': {
-                'area_code': '023',
-                'number': '12345678'
-            },
-            'identification': {
-                'type': 'DNI',
-                'number': '12345678'
-            },
-            'address': {
-                'zip_code': 'SG1 2AX',
-                'street_name': 'Old Knebworth Ln'
-            },
-            'description': 'Lorem Ipsum'
+            # 'first_name': _partner_split_name(partner.name)[0],
+            # 'last_name': _partner_split_name(partner.name)[1],
+            # 'phone': {
+            #     'area_code': '023',
+            #     'number': '12345678'
+            # },
+            # 'identification': {
+            #     'type': 'DNI',
+            #     'number': '12345678'
+            # },
+            # 'address': {
+            #     'zip_code': 'SG1 2AX',
+            #     'street_name': 'Old Knebworth Ln'
+            # },
+            # 'description': 'Lorem Ipsum'
         }
 
         resp = self._mercadopago_request('/v1/customers', values)

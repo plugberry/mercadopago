@@ -7,12 +7,6 @@ var PaymentForm = require('payment.payment_form');
 
 var _t = core._t;
 
-
-
-
-
-
-
 PaymentForm.include({
 
     // willStart: function () {
@@ -126,7 +120,7 @@ PaymentForm.include({
     //     if (this.$button === undefined) {
     //         var params = {
     //             class: 'AcceptUI d-none',
-    //             // data-public-key: formData.mercadopago_publishable_key,
+    //             // data-public-key: formData.mercadopago_public_key,
     //             // data-transaction-amount: 200,
     //         };
     //         this.$button = $('<button>', params);

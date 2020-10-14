@@ -1,69 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
-		<template id="mercadopago_form">
-			<div>
-				<!-- TODO: change this -->
-				<input type="hidden" name="data_set" t-att-data-action-url="tx_url" data-remove-me=""/>
-				<input name="cmd" t-att-value="cmd" type="hidden"/>
-				<input name="mercadopago_data" t-att-value="mercadopago_data" type="hidden"/>
-				<input type="hidden" name='x_amount' t-att-value='x_amount'/>
-			</div>
-			<!-- <script type="text/javascript">
-                odoo.define(function (require) {
-                    var ajax = require('web.ajax');
-                    ajax.loadJS("/payment_mercadopago/static/src/js/payment_form.js");
-                });
+        <template id="mercadopago_form">
+            <!-- <div> -->
+                <!-- TODO use old mercadopago data -->
+                <input type="hidden" name="data_set" t-att-data-action-url="tx_url" data-remove-me=""/>
+                <input name="cmd" t-att-value="cmd" type="hidden"/>
+                <!-- <input name="mercadopago_data" t-att-value="mercadopago_data" type="hidden"/> -->
+                <!-- <input type="hidden" name='x_amount' t-att-value='x_amount'/> -->
+            <!-- </div> -->
+        </template>
+
+        <!-- <template id="payment_mercadopago_redirect" name="Payment MercadoPago">
+            <script type="text/javascript">
+                window.location.href = '<t t-esc="return_url"/>';
+            </script>
+        </template> -->
+
+        <template id="mercadopago_s2s_form">
+            <input type="hidden" name="data_set" data-create-route="/payment/mercadopago/s2s/create_json_3ds"/>
+            <!-- <input type="hidden" name="data_set" value="/payment/mercadopago/s2s/create_json_3ds"/> -->
+            <input type="hidden" name="acquirer_id" t-att-value="id"/>
+            <input t-if="return_url" type="hidden" name="return_url" t-att-value="return_url"/>
+            <input t-if="partner_id" type="hidden" name="partner_id" t-att-value="partner_id"/>
+
+            <script
+                src="https://www.mercadopago.com.ar/integrations/v1/web-tokenize-checkout.js"
+                t-att-data-public-key="acq.sudo().mercadopago_public_key"
+                t-att-data-transaction-amount="1">
+            </script>
+    <!-- data-public-key="acq.sudo().mercadopago_public_key"
+    data-transaction-amount="x_amount"> -->
+<!-- </form> -->
+            <!-- <script
+                src="https://www.mercadopago.com.ar/integrations/v1/web-tokenize-checkout.js"
+                t-att-data-public-key="acq.sudo().mercadopago_public_key"
+                t-att-data-transaction-amount="x_amount">
             </script> -->
-		</template>
+                <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+                <span t-raw="acquirers"/>
+                <form action="/payment/mercadopago/s2s/create" method="POST" class="o_payment_mercadopago">
+                    <script
+                        src="https://www.mercadopago.com.ar/integrations/v1/web-tokenize-checkout.js"
+                        data-public-key="TEST-f68c38b9-ba2d-44bf-b6c6-23578cfde81a"
+                        data-transaction-amount="1">
+                    </script>
+                </form> -->
 
-		<!-- <template id="payment_mercadopago_redirect" name="Payment MercadoPago">
-			<script type="text/javascript">
-				window.location.href = '<t t-esc="return_url"/>';
-			</script>
-		</template> -->
+        </template>
 
-		<template id="mercadopago_s2s_form">
-			<!-- TODO: change this -->
-			<input type="hidden" name="data_set" value="/payment/mercadopago/s2s/create_json_3ds"/>
-			<input type="hidden" name="acquirer_id" t-att-value="id"/>
-			<input type="hidden" name="acquirer_state" t-att-value="acq.state"/>
-			<!-- <input type="hidden" name="login_id" t-att-value="acq.sudo().mercadopago_login"/> -->
-			<!-- <input type="hidden" name="client_key" t-att-value="acq.sudo().mercadopago_client_key"/> -->
-			<input class="d-none" name="csrf_token" t-att-value="request.csrf_token()"/>
-			<input t-if="return_url" type="hidden" name="return_url" t-att-value="return_url"/>
-			<input t-if="partner_id" type="hidden" name="partner_id" t-att-value="partner_id"/>
-			<input type="hidden" name="mercadopago_publishable_key" t-att-value="acq.sudo().mercadopago_publishable_key"/>
-			<!-- <input type="hidden" name="order_amount" t-att-value="order.amount_total"/> -->
-
-            <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>-->
-			<!--<script-->
-				<!--src="https://www.mercadopago.com.ar/integrations/v1/web-tokenize-checkout.js"-->
-				<!--t-att-data-public-key="acq.sudo().mercadopago_publishable_key"-->
-				<!--t-att-data-transaction-amount="order.amount_total">-->
-			<!--</script>-->
-
-		</template>
-
-		<template id="assets_frontend" inherit_id="web.assets_frontend">
+        <template id="assets_frontend" inherit_id="web.assets_frontend">
             <xpath expr="script[last()]" position="after">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
                 <script type="text/javascript" src="/payment_mercadopago/static/src/js/payment_form.js"/>
             </xpath>
         </template>
 
-		<template id="payment_tokens_list_mercadopago" inherit_id="payment.payment_tokens_list" name="Payment Tokens list MercadoPago">
-			<xpath expr="form[hasclass('o_payment_form')]" position="after">
-				<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-				<form action="/payment/mercadopago/s2s/create" method="POST" class="o_payment_mercadopago">
-					<script
-						src="https://www.mercadopago.com.ar/integrations/v1/web-tokenize-checkout.js"
-						data-public-key="TEST-6cb31e18-4db7-45c5-8035-d8b20a2d899e"
-						data-transaction-amount="1">
-					</script>
-				</form>
-			</xpath>
-		</template>
+        <template id="payment_tokens_list_mercadopago" inherit_id="payment.payment_tokens_list" name="Payment Tokens list MercadoPago">
+        <!-- <head position="inside">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+        </head> -->
+            <!-- <xpath expr="form[hasclass('o_payment_form')]" position="after">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+                <span t-raw="acquirers"/>
+                <form action="/payment/mercadopago/s2s/create" method="POST" class="o_payment_mercadopago">
+                    <script
+                        src="https://www.mercadopago.com.ar/integrations/v1/web-tokenize-checkout.js"
+                        data-public-key="TEST-f68c38b9-ba2d-44bf-b6c6-23578cfde81a"
+                        data-transaction-amount="1">
+                    </script>
+                </form>
+            </xpath> -->
+        </template>
 
-	</data>
+    </data>
 </odoo>
 
