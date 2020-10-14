@@ -13,7 +13,6 @@
         'views/payment_mercadopago_templates.xml',
         'views/payment_views.xml',
         'views/payment_transaction_views.xml',
-        'views/assets.xml',
         'data/payment_acquirer_data.xml',
     ],
     'demo': [

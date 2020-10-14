@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <template id="assets_frontend_mercadopago" inherit_id="web.assets_frontend">
-        <xpath expr="link[last()]" position="after">
-            <link rel="stylesheet" type="text/scss" href="/payment_mercadopago/static/src/scss/mercadopago.scss"/>
-        </xpath>
-    </template>
-</odoo>

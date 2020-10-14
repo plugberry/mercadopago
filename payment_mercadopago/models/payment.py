@@ -137,12 +137,26 @@ class PaymentAcquirerMercadoPago(models.Model):
 
     def mercadopago_s2s_form_validate(self, data):
         error = dict()
-        mandatory_fields = ["token", "payment_method_id", "installments", "issuer_id"]
+        import pdb; pdb.set_trace()
+        mandatory_fields = []
+        # mandatory_fields = ["token", "payment_method_id", "installments", "issuer_id"]
         # Validation
         for field_name in mandatory_fields:
             if not data.get(field_name):
                 error[field_name] = 'missing'
         return False if error else True
+
+    # def ogone_s2s_form_validate(self, data):
+    #     error = dict()
+    #     import pdb; pdb.set_trace()
+
+    #     mandatory_fields = ["cc_number", "cc_cvc", "cc_holder_name", "cc_expiry", "cc_brand"]
+    #     # Validation
+    #     for field_name in mandatory_fields:
+    #         if not data.get(field_name):
+    #             error[field_name] = 'missing'
+
+    #     return False if error else True
 
 
 class PaymentTransactionMercadoPago(models.Model):
@@ -178,9 +192,65 @@ class PaymentTransactionMercadoPago(models.Model):
     # --------------------------------------------------
 
     def mercadopago_s2s_do_transaction(self, **data):
-        import pdb; pdb.set_trace()
-        self.ensure_one()
-        return False
+        # TODO: create tx with s2s type
+        account = self.acquirer_id
+        reference = self.reference or "ODOO-%s-%s" % (datetime.datetime.now().strftime('%y%m%d_%H%M%S'), self.partner_id.id)
+
+        param_plus = {
+            'return_url': kwargs.get('return_url', False)
+        }
+
+        data = {
+            # 'PSPID': account.ogone_pspid,
+            # 'USERID': account.ogone_userid,
+            # 'PSWD': account.ogone_password,
+            'ORDERID': reference,
+            'AMOUNT': int(self.amount * 100),
+            'CURRENCY': self.currency_id.name,
+            # 'OPERATION': 'SAL',
+            # 'ECI': 9,   # Recurring (from eCommerce)
+            # 'ALIAS': self.payment_token_id.acquirer_ref,
+            # 'RTIMEOUT': 30,
+            # 'PARAMPLUS': url_encode(param_plus),
+            # 'EMAIL': self.partner_id.email or '',
+            # 'CN': self.partner_id.name or '',
+        }
+
+        if request:
+            data['REMOTE_ADDR'] = request.httprequest.remote_addr
+
+        if kwargs.get('3d_secure'):
+            data.update({
+                'FLAG3D': 'Y',
+                'LANGUAGE': self.partner_id.lang or 'en_US',
+            })
+
+            for url in 'accept decline exception'.split():
+                key = '{0}_url'.format(url)
+                val = kwargs.pop(key, None)
+                if val:
+                    key = '{0}URL'.format(url).upper()
+                    data[key] = val
+
+        data['SHASIGN'] = self.acquirer_id._ogone_generate_shasign('in', data)
+
+        direct_order_url = 'https://secure.ogone.com/ncol/%s/orderdirect.asp' % ('prod' if self.acquirer_id.state == 'enabled' else 'test')
+
+        logged_data = data.copy()
+        logged_data.pop('PSWD')
+        _logger.info("ogone_s2s_do_transaction: Sending values to URL %s, values:\n%s", direct_order_url, pformat(logged_data))
+        result = requests.post(direct_order_url, data=data).content
+
+        try:
+            tree = objectify.fromstring(result)
+            _logger.info('ogone_s2s_do_transaction: Values received:\n%s', etree.tostring(tree, pretty_print=True, encoding='utf-8'))
+        except etree.XMLSyntaxError:
+            # invalid response from ogone
+            _logger.exception('Invalid xml response from ogone')
+            _logger.info('ogone_s2s_do_transaction: Values received:\n%s', result)
+            raise
+
+        return self._ogone_s2s_validate_tree(tree)
 
     def mercadopago_s2s_do_refound(self, **data):
         import pdb; pdb.set_trace()

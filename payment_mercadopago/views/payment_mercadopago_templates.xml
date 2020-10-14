@@ -19,58 +19,29 @@
 
         <template id="mercadopago_s2s_form">
             <input type="hidden" name="data_set" data-create-route="/payment/mercadopago/s2s/create_json_3ds"/>
-            <!-- <input type="hidden" name="data_set" value="/payment/mercadopago/s2s/create_json_3ds"/> -->
             <input type="hidden" name="acquirer_id" t-att-value="id"/>
             <input t-if="return_url" type="hidden" name="return_url" t-att-value="return_url"/>
             <input t-if="partner_id" type="hidden" name="partner_id" t-att-value="partner_id"/>
-
-            <script
-                src="https://www.mercadopago.com.ar/integrations/v1/web-tokenize-checkout.js"
-                t-att-data-public-key="acq.sudo().mercadopago_public_key"
-                t-att-data-transaction-amount="1">
-            </script>
-    <!-- data-public-key="acq.sudo().mercadopago_public_key"
-    data-transaction-amount="x_amount"> -->
-<!-- </form> -->
-            <!-- <script
-                src="https://www.mercadopago.com.ar/integrations/v1/web-tokenize-checkout.js"
-                t-att-data-public-key="acq.sudo().mercadopago_public_key"
-                t-att-data-transaction-amount="x_amount">
-            </script> -->
-                <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-                <span t-raw="acquirers"/>
-                <form action="/payment/mercadopago/s2s/create" method="POST" class="o_payment_mercadopago">
-                    <script
-                        src="https://www.mercadopago.com.ar/integrations/v1/web-tokenize-checkout.js"
-                        data-public-key="TEST-f68c38b9-ba2d-44bf-b6c6-23578cfde81a"
-                        data-transaction-amount="1">
-                    </script>
-                </form> -->
-
-        </template>
-
-        <template id="assets_frontend" inherit_id="web.assets_frontend">
-            <xpath expr="script[last()]" position="after">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-                <script type="text/javascript" src="/payment_mercadopago/static/src/js/payment_form.js"/>
-            </xpath>
-        </template>
-
-        <template id="payment_tokens_list_mercadopago" inherit_id="payment.payment_tokens_list" name="Payment Tokens list MercadoPago">
-        <!-- <head position="inside">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-        </head> -->
-            <!-- <xpath expr="form[hasclass('o_payment_form')]" position="after">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-                <span t-raw="acquirers"/>
-                <form action="/payment/mercadopago/s2s/create" method="POST" class="o_payment_mercadopago">
-                    <script
-                        src="https://www.mercadopago.com.ar/integrations/v1/web-tokenize-checkout.js"
-                        data-public-key="TEST-f68c38b9-ba2d-44bf-b6c6-23578cfde81a"
-                        data-transaction-amount="1">
-                    </script>
-                </form>
-            </xpath> -->
+            <div t-attf-class="row mt8 #{'' if bootstrap_formatting else 'o_card_brand_detail'}">
+                <div t-att-class="'form-group col-lg-12' if bootstrap_formatting else 'form-group'">
+                    <input type="tel" name="cc_number" id="cc_number" class="form-control" placeholder="Card number" data-is-required="true"/>
+                    <div class="card_placeholder"></div>
+                    <div class="visa"></div>
+                    <input type="hidden" name="cc_brand" value=""/>
+                </div>
+                <div t-att-class="'form-group col-lg-5' if bootstrap_formatting else 'form-group'">
+                    <input type="text" name="cc_holder_name" id="cc_holder_name" class="form-control" placeholder="Cardholder name" data-is-required="true"/>
+                </div>
+                <div t-att-class="'form-group col-lg-2' if bootstrap_formatting else 'form-group'">
+                    <input type="text" name="cc_expiry" id="cc_expiry" class="form-control" maxlength="7" placeholder="MM / YY" data-is-required="true"/>
+                </div>
+                <div t-att-class="'form-group col-lg-2' if bootstrap_formatting else 'form-group'">
+                    <input type="text" name="cc_cvc" id="cc_cvc" class="form-control" maxlength="4" placeholder="CVC" data-is-required="true"/>
+                </div>
+                <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
+                    <input type="text" name="cc_dni" id="cc_dni" class="form-control" minlength="7" maxlength="9" placeholder="DNI" data-is-required="true"/>
+                </div>
+            </div>
         </template>
 
     </data>
