@@ -1,49 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data noupdate="1">
-        <template id="mercadopago_form">
-            <!-- <div> -->
-                <!-- TODO use old mercadopago data -->
-                <input type="hidden" name="data_set" t-att-data-action-url="tx_url" data-remove-me=""/>
-                <input name="cmd" t-att-value="cmd" type="hidden"/>
-                <!-- <input name="mercadopago_data" t-att-value="mercadopago_data" type="hidden"/> -->
-                <!-- <input type="hidden" name='x_amount' t-att-value='x_amount'/> -->
-            <!-- </div> -->
-        </template>
 
-        <!-- <template id="payment_mercadopago_redirect" name="Payment MercadoPago">
-            <script type="text/javascript">
-                window.location.href = '<t t-esc="return_url"/>';
-            </script>
-        </template> -->
+    <template id="mercadopago_form">
+        <!-- <div> -->
+            <!-- TODO use old mercadopago data -->
+            <input type="hidden" name="data_set" t-att-data-action-url="tx_url" data-remove-me=""/>
+            <input name="cmd" t-att-value="cmd" type="hidden"/>
+            <!-- <input name="mercadopago_data" t-att-value="mercadopago_data" type="hidden"/> -->
+            <!-- <input type="hidden" name='x_amount' t-att-value='x_amount'/> -->
+        <!-- </div> -->
+    </template>
 
-        <template id="mercadopago_s2s_form">
-            <input type="hidden" name="data_set" data-create-route="/payment/mercadopago/s2s/create_json_3ds"/>
-            <input type="hidden" name="acquirer_id" t-att-value="id"/>
-            <input t-if="return_url" type="hidden" name="return_url" t-att-value="return_url"/>
-            <input t-if="partner_id" type="hidden" name="partner_id" t-att-value="partner_id"/>
-            <div t-attf-class="row mt8 #{'' if bootstrap_formatting else 'o_card_brand_detail'}">
-                <div t-att-class="'form-group col-lg-12' if bootstrap_formatting else 'form-group'">
-                    <input type="tel" name="cc_number" id="cc_number" class="form-control" placeholder="Card number" data-is-required="true"/>
-                    <div class="card_placeholder"></div>
-                    <div class="visa"></div>
-                    <input type="hidden" name="cc_brand" value=""/>
+    <!-- <template id="payment_mercadopago_redirect" name="Payment MercadoPago">
+        <script type="text/javascript">
+            window.location.href = '<t t-esc="return_url"/>';
+        </script>
+    </template> -->
+
+    <template id="mercadopago_s2s_form">
+        <input type="hidden" name="data_set" data-create-route="/payment/mercadopago/s2s/create_json_3ds"/>
+        <input type="hidden" name="acquirer_id" t-att-value="id"/>
+        <input t-if="return_url" type="hidden" name="return_url" t-att-value="return_url"/>
+        <input t-if="partner_id" type="hidden" name="partner_id" t-att-value="partner_id"/>
+        <div t-attf-class="row mt8 #{'' if bootstrap_formatting else 'o_card_brand_detail'}">
+            <!-- <div t-att-class="'form-group col-lg-12' if bootstrap_formatting else 'form-group'">
+                <input type="tel" name="cc_number" id="cc_number" class="form-control" placeholder="Card number" data-is-required="true"/>
+                <div class="card_placeholder"></div>
+                <div class="visa"></div>
+                <input type="hidden" name="cc_brand" value=""/>
+            </div>
+            <div t-att-class="'form-group col-lg-5' if bootstrap_formatting else 'form-group'">
+                <input type="text" name="cc_holder_name" id="cc_holder_name" class="form-control" placeholder="Cardholder name" data-is-required="true"/>
+            </div>
+            <div t-att-class="'form-group col-lg-2' if bootstrap_formatting else 'form-group'">
+                <input type="text" name="cc_expiry" id="cc_expiry" class="form-control" maxlength="7" placeholder="MM / YY" data-is-required="true"/>
+            </div>
+            <div t-att-class="'form-group col-lg-2' if bootstrap_formatting else 'form-group'">
+                <input type="text" name="cc_cvc" id="cc_cvc" class="form-control" maxlength="4" placeholder="CVC" data-is-required="true"/>
+            </div>
+            <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
+                <input type="text" name="cc_dni" id="cc_dni" class="form-control" minlength="7" maxlength="9" placeholder="DNI" data-is-required="true"/>
+            </div> -->
+            <!-- TODO llevar a logica odoo de estilos con columns boostrap y demas  -->
+            <h3>Detalles del comprador</h3>
+            <div>
+                <div>
+                    <label for="email">E-mail</label>
+                    <input id="email" name="email" type="text" value="test@test.com"></input>
                 </div>
-                <div t-att-class="'form-group col-lg-5' if bootstrap_formatting else 'form-group'">
-                    <input type="text" name="cc_holder_name" id="cc_holder_name" class="form-control" placeholder="Cardholder name" data-is-required="true"/>
+                <div>
+                    <label for="docType">Tipo de documento</label>
+                    <select id="docType" name="docType" data-checkout="docType" type="text"></select>
                 </div>
-                <div t-att-class="'form-group col-lg-2' if bootstrap_formatting else 'form-group'">
-                    <input type="text" name="cc_expiry" id="cc_expiry" class="form-control" maxlength="7" placeholder="MM / YY" data-is-required="true"/>
+                <div>
+                    <label for="docNumber">Número de documento</label>
+                    <input id="docNumber" name="docNumber" data-checkout="docNumber" type="text"/>
                 </div>
-                <div t-att-class="'form-group col-lg-2' if bootstrap_formatting else 'form-group'">
-                    <input type="text" name="cc_cvc" id="cc_cvc" class="form-control" maxlength="4" placeholder="CVC" data-is-required="true"/>
                 </div>
-                <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
-                    <input type="text" name="cc_dni" id="cc_dni" class="form-control" minlength="7" maxlength="9" placeholder="DNI" data-is-required="true"/>
+            <h3>Detalles de la tarjeta</h3>
+                <div>
+                <div>
+                    <label for="cardholderName">Titular de la tarjeta</label>
+                    <input id="cardholderName" data-checkout="cardholderName" type="text"></input>
+                </div>
+                <div>
+                    <label for="">Fecha de vencimiento</label>
+                    <div>
+                    <input type="text" placeholder="MM" id="cardExpirationMonth" data-checkout="cardExpirationMonth"
+                        onselectstart="return false" onpaste="return false"
+                        oncopy="return false" oncut="return false"
+                        ondrag="return false" ondrop="return false" autocomplete="off"></input>
+                    <span class="date-separator">/</span>
+                    <input type="text" placeholder="YY" id="cardExpirationYear" data-checkout="cardExpirationYear"
+                        onselectstart="return false" onpaste="return false"
+                        oncopy="return false" oncut="return false"
+                        ondrag="return false" ondrop="return false" autocomplete="off"></input>
+                    </div>
+                </div>
+                <div>
+                    <label for="cardNumber">Número de la tarjeta</label>
+                    <input type="text" id="cardNumber" data-checkout="cardNumber"
+                    onselectstart="return false"
+                    oncopy="return false" oncut="return false"
+                    ondrag="return false" ondrop="return false" autocomplete="off"></input>
+                </div>
+                <div>
+                    <label for="securityCode">Código de seguridad</label>
+                    <input id="securityCode" data-checkout="securityCode" type="text"
+                    onselectstart="return false" onpaste="return false"
+                    oncopy="return false" oncut="return false"
+                    ondrag="return false" ondrop="return false" autocomplete="off"></input>
+                </div>
+                <!-- TODO es realmente necesario? comparar con tokenized -->
+                <div id="issuerInput">
+                    <!-- <label for="issuer" type="hidden">Banco emisor</label> -->
+                    <select id="issuer" class="o_hidden" type="hidden" name="issuer" data-checkout="issuer"></select>
+                </div>
+                <div>
+                    <label for="installments">Cuotas</label>
+                    <select type="text" id="installments" name="installments"></select>
+                </div>
+                <div>
+                    <input type="hidden" name="transactionAmount" id="transactionAmount" value="100" />
+                    <input type="hidden" name="paymentMethodId" id="paymentMethodId" />
+                    <input type="hidden" name="description" id="description" />
+                    <button type="submit">Pagar</button>
                 </div>
             </div>
-        </template>
 
-    </data>
+        </div>
+    </template>
+
 </odoo>
 
