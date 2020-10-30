@@ -5,20 +5,25 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
     var core = require('web.core');
     var PaymentForm = require('payment.payment_form');
     var Dialog = require('web.Dialog');
-    var session = require('web.session');
+    // TODO: es necesario esta línea (session)?
+    // var session = require('web.session');
     var _t = core._t;
     var Qweb = core.qweb;
     // TODO hacer esto bien y que solo se ejecute en metodo click mercadopago
-    console.log('bbbbb');
-    console.log('aaaaaaaaaaaa');
+    console.log('p1');
     // # TODO hacer parametrizable
 
-    console.log('aaaaaaaaaaaa');
     PaymentForm.include({
 
         //--------------------------------------------------------------------------
         // Private
         //--------------------------------------------------------------------------
+
+        willStart: function () {
+            return this._super.apply(this, arguments).then(function () {
+                return ajax.loadJS("https://secure.mlstatic.com/sdk/javascript/v1/mercadopago.js");
+            })
+        },
 
         /**
          * called when clicking on pay now or add payment event to create token for credit card/debit card.
@@ -108,7 +113,7 @@ function setCardTokenAndPay(status, response) {
                         "bin": bin
                     }, setPaymentMethod);
                 }
-             };
+            };
 
             function setPaymentMethod(status, response) {
                 if (status == 200) {
@@ -133,7 +138,7 @@ function setCardTokenAndPay(status, response) {
                     paymentMethodId,
                     setIssuers
                 );
-             };
+            };
 
             function setIssuers(status, response) {
                 console.log('setIssuers');
@@ -155,7 +160,7 @@ function setCardTokenAndPay(status, response) {
                 } else {
                     alert(`issuers method info error: ${response}`);
                 };
-             };
+            };
 
             function getInstallments(paymentMethodId, transactionAmount, issuerId){
                 window.Mercadopago.getInstallments({
