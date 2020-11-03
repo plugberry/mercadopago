@@ -1,6 +1,7 @@
 button.mercadopago-button {
   display: none !important;
 }
+
 .inputhidden{
   display: none !important;
 }
@@ -109,13 +110,13 @@ button.mercadopago-button {
 }
 
 .creditCardForm .payment .btn {
-    width: 100%;
-    margin-top: 3px;
-    font-size: 24px;
-    background-color: #2ec4a5;
-    color: white;
-    border: 1px solid transparent;
-    border-radius: 4px;
+    margin-top: 3px !important;
+    font-size: 20px !important;
+    border-radius: 4px !important;
+    color: #fff !important;
+    border-radius: 0.3rem !important;
+    background-color: #007bff !important;
+    border-color: #007bff !important;
 }
 
 .creditCardForm .payment select.form-control {

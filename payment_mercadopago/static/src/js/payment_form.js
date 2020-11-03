@@ -9,10 +9,11 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
     var _t = core._t;
     var Qweb = core.qweb;
 
+
          function guessPaymentMethod(event) {
             let cardnumber = document.getElementById("cardNumber").value;
             if (cardnumber.length >= 6) {
-                let bin = cardnumber.substring(0, 6);
+                let bin = cardnumber.substring(0, 7);
                 window.Mercadopago.getPaymentMethod({
                     "bin": bin
                 }, setPaymentMethod);
@@ -46,6 +47,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
         function setIssuers(status, response) {
             if (status == 200) {
                 let issuerSelect = document.getElementById('issuer');
+                $("#issuerInput").removeClass('d-none');
                 response.forEach(issuer => {
                     let opt = document.createElement('option');
                     opt.text = issuer.name;
@@ -83,6 +85,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                 alert(`installments method info error: ${response}`);
             }
         };
+
         function getCardToken(event) {
             event.preventDefault();
             if (!this.doSubmit) {
@@ -110,11 +113,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
     var templateLoaded = ajax.loadXML('/payment_mercadopago/static/src/xml/payment_form_mercadopago.xml', Qweb);
 
     PaymentForm.include({
-
-        //--------------------------------------------------------------------------
-        // Private
-        //--------------------------------------------------------------------------
-
         /**
          * called when clicking on pay now or add payment event to create token for credit card/debit card.
          *
@@ -125,6 +123,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
          */
         _createMercadoPagoToken: function(ev, $checkedRadio, addPmEvent) {
             var self = this;
+            console.log(session);
             if (ev.type === 'submit') {
                 var button = $(ev.target).find('*[type="submit"]')[0]
             } else {
@@ -138,26 +137,27 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
             templateLoaded.finally(
                 function() {
 
-                    new Dialog(null, {
+                    var dialog = new Dialog(null, {
                         title: _t('Adicionando Tarjeta'),
                         size: 'medium',
                         $content: Qweb.render("payment_mercadopago.mercadopago_form_external_payment", {'csrf_toke': core.csrf_token, 'acquired_id': acquirerID}),
-                    }).open().opened(
+                    });window.Mercadopago.setPublishableKey(formData.mercadopago_publishable_key);
+                    dialog.open().opened(
                         function(){
-                            window.Mercadopago.setPublishableKey("TEST-2ad13320-86b8-4013-800e-75da3a64c075");
+                            window.Mercadopago.setPublishableKey(formData.mercadopago_publishable_key);
                             window.Mercadopago.getIdentificationTypes();
                             document.getElementById('cardNumber').addEventListener('change', guessPaymentMethod);
                             self.doSubmit = false;
                             document.getElementById('paymentForm').addEventListener('submit', getCardToken);
 
-
+                            $("#issuerInwindow.Mercadopago.setPublishableKey(formData.mercadopago_publishable_key);put").addClass('d-none');
+                            $("footer.modal-footer").addClass('d-none');
                             var cardNumber = $('#cardNumber');
                             var cardNumberField = $('#card-number-field');
                             var mastercard = $("#mastercard");
                             var visa = $("#visa");
                             var amex = $("#amex");
 
-                            cardNumber.payform('formatCardNumber');
                             cardNumber.keyup(function() {
                                 amex.removeClass('transparent');
                                 visa.removeClass('transparent');
@@ -183,11 +183,11 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                             });
                         }
                     );
+                    dialog.on('closed', self, function () {
+                      this.enableButton(button);
+                    });
                 });
-
         },
-
-
 
         updateNewPaymentDisplayStatus: function() {
             var $checkedRadio = this.$('input[type="radio"]:checked');
@@ -198,7 +198,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
 
             //  hide add token form for authorize
             if ($checkedRadio.data('provider') === 'mercadopago' && this.isNewPaymentRadio($checkedRadio)) {
-                // this.$('[id*="o_payment_add_token_acq_"]').addClass('d-none');
                 var script = $('script[src="https://www.mercadopago.com.uy/integrations/v1/web-tokenize-checkout.js"]')
                 script.attr('data-transaction-amount', $('#order_total .oe_currency_value').text());
                 script.attr('src', 'https://www.mercadopago.com.ar/integrations/v1/web-tokenize-checkout.js');
@@ -212,13 +211,10 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                         )
                     }
                 )
-                // window.Mercadopago.setPublishableKey("TEST-6cb31e18-4db7-45c5-8035-d8b20a2d899e");
-                // document.getElementById('cardNumber').addEventListener('change', this.guessPaymentMethod);
             } else {
                 $('.o_payment_mercadopago input').remove();
             }
             this._super.apply(this, arguments);
-
         },
 
         //--------------------------------------------------------------------------

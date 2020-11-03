@@ -61,7 +61,9 @@
                         <div class="form-group" id="card-number-field">
                             <label for="cardNumber">Número de la tarjeta</label>
                              <input type="text" id="cardNumber" class="form-control" data-checkout="cardNumber"
-                            />
+                               onsewindow.Mercadopago.setPublishableKey(formData.mercadopago_publishable_key);lectstart="return false" onpaste="return false"
+                               oncopy="return false" oncut="return false"
+                               ondrag="return false" ondrop="return false" autocomplete="off"/>
                         </div>
                         <div class="form-group" id="CVV">
                             <label for="securityCode">Código de seguridad</label>
@@ -70,22 +72,22 @@
                                oncopy="return false" oncut="return false"
                                  ondrag="return false" ondrop="return false" autocomplete="off"/>
                         </div>
-                        <div  class="form-group" id="issuerInput">
+                        <div class="form-group" id="issuerInput">
                             <label for="issuer">Banco emisor</label>
-                            <select class="form-control" id="issuer" name="issuer" data-checkout="issuer"></select>
+                            <select class="form-control" id="issuerwindow.Mercadopago.setPublishableKey(formData.mercadopago_publishable_key);" name="issuer" data-checkout="issuer"></select>
                         </div>
                         <div class="form-group" id="cuotas">
                             <label for="installments">Cuotas</label>
                             <select type="text" id="installments" name="installments"></select>
                         </div>
-                        <div class="form-group" id="pay-now">
+                        <div class="form-group" id="pay-now" style="display: inline-block;text-align: center;">
                              <input type="hidden" name="transactionAmount" id="transactionAmount" value="100" />
                              <input type="hidden" name="paymentMethodId" id="paymentMethodId" />
                              <input type="hidden" name="description" id="description" />
                              <input type="hidden" name="csrf_token" t-att-value="csrf_token"/>
                              <input type="hidden" name="acquired_id" t-att-value="acquired_id"/>
                              <br/>
-                             <button class='btn btn-default' type="submit">Pagar</button>
+                             <button class='btn btn-primary btn-lg' type="submit">Pagar</button>
                              <br/>
                         </div>
                     </div>

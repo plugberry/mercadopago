@@ -79,7 +79,6 @@ class PaymentToken(models.Model):
                 }
             )
         except Exception as e:
-            print(e)
             payment_token = False
         return payment_token
 
