@@ -2,7 +2,8 @@
 <odoo>
 
     <record id="payment_acquirer_mercadopago" model="payment.acquirer">
-        <field name="mercadopago_client_id">2285999378925428</field>
+        <field name="mercadopago_publishable_key">TEST-f68c38b9-ba2d-44bf-b6c6-23578cfde81a</field>
+        <field name="mercadopago_access_token">TEST-2775253347293690-081210-4dede21e22738444d5fe2f092ee478f3__LC_LB__-113996959</field>
         <field name="mercadopago_secret_key">BRiYAPa3QAozapMpIFcT1JmilVAYOHNz</field>
     </record>
 
