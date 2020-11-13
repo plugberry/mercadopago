@@ -113,6 +113,13 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
     var templateLoaded = ajax.loadXML('/payment_mercadopago/static/src/xml/payment_form_mercadopago.xml', Qweb);
 
     PaymentForm.include({
+
+        willStart: function () {
+            return this._super.apply(this, arguments).then(function () {
+                return ajax.loadJS("https://secure.mlstatic.com/sdk/javascript/v1/mercadopago.js");
+            })
+        },
+
         /**
          * called when clicking on pay now or add payment event to create token for credit card/debit card.
          *
@@ -150,7 +157,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                             self.doSubmit = false;
                             document.getElementById('paymentForm').addEventListener('submit', getCardToken);
 
-                            $("#issuerInwindow.Mercadopago.setPublishableKey(formData.mercadopago_publishable_key);put").addClass('d-none');
+                            $("#issuerInput").addClass('d-none');
                             $("footer.modal-footer").addClass('d-none');
                             var cardNumber = $('#cardNumber');
                             var cardNumberField = $('#card-number-field');
