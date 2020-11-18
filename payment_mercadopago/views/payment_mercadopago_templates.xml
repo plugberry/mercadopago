@@ -26,18 +26,18 @@
 
 		<template id="mercadopago_s2s_form">
 			<!-- TODO: change this -->
-			<input type="hidden" name="data_set" value="/payment/mercadopago/s2s/create_json_3ds"/>
-			<input type="hidden" name="acquirer_id" t-att-value="id"/>
-			<input type="hidden" name="acquirer_state" t-att-value="acq.state"/>
-			<!-- <input type="hidden" name="login_id" t-att-value="acq.sudo().mercadopago_login"/> -->
-			<!-- <input type="hidden" name="client_key" t-att-value="acq.sudo().mercadopago_client_key"/> -->
-			<input class="d-none" name="csrf_token" t-att-value="request.csrf_token()"/>
-			<input t-if="return_url" type="hidden" name="return_url" t-att-value="return_url"/>
-			<input t-if="partner_id" type="hidden" name="partner_id" t-att-value="partner_id"/>
-			<input type="hidden" name="mercadopago_publishable_key" t-att-value="acq.sudo().mercadopago_publishable_key"/>
-			<t t-if="order">
-                <input type="hidden" name="order_amount" t-att-value="order.amount_total"/>
-            </t>
+                <input type="hidden" name="data_set" value="/payment/mercadopago/s2s/create_json_3ds"/>
+                <input type="hidden" name="acquirer_id" t-att-value="id"/>
+                <input type="hidden" name="acquirer_state" t-att-value="acq.state"/>
+                <!-- <input type="hidden" name="login_id" t-att-value="acq.sudo().mercadopago_login"/> -->
+                <!-- <input type="hidden" name="client_key" t-att-value="acq.sudo().mercadopago_client_key"/> -->
+                <input class="d-none" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <input t-if="return_url" type="hidden" name="return_url" t-att-value="return_url"/>
+                <input t-if="partner_id" type="hidden" name="partner_id" t-att-value="partner_id"/>
+                <input type="hidden" name="mercadopago_publishable_key" t-att-value="acq.sudo().mercadopago_publishable_key"/>
+                <!--<t t-if="order">-->
+                    <!--<input type="hidden" name="order_amount" t-att-value="order.amount_total"/>-->
+                <!--</t>-->
 
 		</template>
 
@@ -53,7 +53,7 @@
                 <t t-if="not verify_validity or (pm.acquirer_id.check_validity and pm.verified) or not pm.acquirer_id.check_validity">
                     <div class="card-body o_payment_acquirer_select">
                         <label>
-                            <input t-if="mode == 'payment'" type="radio" name="pm_id" t-att-data-acquirer-id="pm.acquirer_id.id or False" t-att-value="pm.id" t-att-data-mercadopago="'True' if pm.mercadopago else 'False'" t-att-checked="checked_pm_id == pm.id" class="id_payment_token"/>
+                            <input t-if="mode == 'payment'" type="radio" name="pm_id" t-att-data-card_id="pm.card_id" t-att-data-customer_id="pm.partner_id.mp_id" t-att-data-acquirer-id="pm.acquirer_id.id or False" t-att-value="pm.id" t-att-data-mercadopago="'True' if pm.mercadopago else 'False'" t-att-checked="checked_pm_id == pm.id" class="id_payment_token"/>
                             <span class="payment_option_name" t-esc="pm.name"/>
                             <t t-if="pm.verified">
                                 <i class="fa fa-check text-success" title="This payment method is verified by our system." role="img" aria-label="Ok"></i>

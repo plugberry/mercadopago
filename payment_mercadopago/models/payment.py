@@ -33,6 +33,9 @@ class PaymentAcquirerMercadoPago(models.Model):
     mercadopago_url = fields.Char(
         'MercadoPago url',
         required_if_provider='mercadopago')
+    mercadopago_authorize_amount = fields.Float(
+        string='Authorize amount'
+    )
 
     @api.onchange('provider', 'check_validity')
     def onchange_check_validity(self):

@@ -40,9 +40,10 @@ class PaymentToken(models.Model):
     issuer_id = fields.Integer()
     mercadopago = fields.Boolean()
     payment_method_id = fields.Char()
+    cvv = fields.Char()
 
     def get_name_to_token_payment(self, card_name, partner_name):
-        name_token = card_name + ' - ' + partner_name + _(' By MercadoPago')
+        name_token = card_name + ' - ' + partner_name
         return name_token
 
     @api.model
@@ -55,7 +56,8 @@ class PaymentToken(models.Model):
             payment_method_id,
             token_card,
             payment_id,
-            card_id=''
+            card_id='',
+            cvv='',
     ):
         tokens = self.sudo().search([('partner_id', '=', partner_id)],
                                     order='create_date')
@@ -75,7 +77,8 @@ class PaymentToken(models.Model):
                     'installments': installments,
                     'issuer_id': issuer_id,
                     'mercadopago': True,
-                    'card_id': card_id
+                    'card_id': card_id,
+                    'cvv': cvv
                 }
             )
         except Exception as e:
