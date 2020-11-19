@@ -6,6 +6,7 @@
 import logging
 import pprint
 import werkzeug
+import base64
 from odoo import http, fields, _
 from odoo.exceptions import ValidationError
 import urllib.request
@@ -43,7 +44,8 @@ ERRORS = {
            'Vuelve a intentarlo en unos minutos.',
     '3003': 'Inválido token de tarjeta.',
     '3031': 'El código se seguridad no puede ir vacío.',
-    '4037': 'Inválido monto de transacción',
+    '4037': 'Inválido monto de transacción.',
+    '2006': 'Token no encontrado.',
 }
 
 
@@ -76,6 +78,7 @@ class ExtendedWebsiteSale(WebsiteSale):
         payment_method_id = kwargs.get('paymentMethodId')
         token_card = kwargs.get('token')
         cvv = kwargs.get('cvv', '')
+        cvv = base64.encodebytes(cvv.encode())
         # Crear customer
         partner_id = request.env.user.partner_id
         existing_customer = mp.get('/v1/customers/search')
@@ -184,12 +187,17 @@ class ExtendedWebsiteSale(WebsiteSale):
         try:
             payment_token_id = int(pm_id)
         except ValueError:
-            render_values = self._get_shop_payment_values(order_id,
-                                                          **kwargs)
-            render_values['errors'] = [[_('Error!!!.'), _('Invalid Token')]]
-            render_values.pop('acquirers', '')
-            render_values.pop('tokens', '')
-            return request.render("website_sale.payment", render_values)
+            if order_id:
+                render_values = self._get_shop_payment_values(order_id,
+                                                              **kwargs)
+                render_values['errors'] = [[_('Error!.'), _('Invalid Token')]]
+                return request.render("website_sale.payment", render_values)
+            else:
+                order_id = request.env['sale.order'].create({'partner_id': partner_id.id})
+                render_values = self._get_shop_payment_values(order_id,
+                                                              **kwargs)
+                render_values['errors'] = [[_('Error!.'), _('Invalid Token')]]
+                return request.render("website_sale.payment", render_values)
 
         payment_token = request.env['payment.token'].browse(payment_token_id)
         payment_id = payment_token.acquirer_id
@@ -197,9 +205,8 @@ class ExtendedWebsiteSale(WebsiteSale):
         issuer_id = payment_token.issuer_id
         installments = payment_token.installments
         payment_method_id = payment_token.payment_method_id
-        #  token_card = payment_token.token_card
-
-        if not order_id or kwargs.get('pmp', False):
+        pmp = kwargs.get('pmp', False) and kwargs.get('pmp', False) == '1' or False
+        if not order_id or pmp:
             mp = mercadopago.MP(payment_id.mercadopago_secret_key)
             payment_data = {
                 "token": token_card,
@@ -222,13 +229,48 @@ class ExtendedWebsiteSale(WebsiteSale):
                 if response['status'] == 'approved':
                     return http.redirect_with_hash('/my/payment_method')
                 else:
-                    raise ValidationError(_('Some error occurred in the '
-                                            'tokenization of card!!!'))
+                    if order_id:
+                        render_values = self._get_shop_payment_values(order_id,
+                                                                      **kwargs)
+                        render_values['errors'] = [
+                            [_('Error!.'),
+                             _('Some error occurred in the '
+                               'tokenization of card!!!')]]
+                        return request.render("website_sale.payment",
+                                              render_values)
+                    else:
+                        order_id = request.env['sale.order'].create(
+                            {'partner_id': partner_id.id})
+                        render_values = self._get_shop_payment_values(order_id,
+                                                                      **kwargs)
+                        render_values['errors'] = [
+                            [_('Error!.'),
+                             _('Some error occurred in the '
+                               'tokenization of card!!!')]]
+                        return request.render("website_sale.payment",
+                                              render_values)
             else:
                 msg = ERRORS.get(str(payment_result.get('response').get('cause',[])[0]['code']), False)
                 if not msg:
                     msg = str(payment_result.get('response').get('message'))
-                raise ValidationError(msg)
+                if order_id:
+                    render_values = self._get_shop_payment_values(order_id,
+                                                                  **kwargs)
+                    render_values['errors'] = [
+                        [_('Error!.'),
+                         msg]]
+                    return request.render("website_sale.payment",
+                                          render_values)
+                else:
+                    order_id = request.env['sale.order'].create(
+                        {'partner_id': partner_id.id})
+                    render_values = self._get_shop_payment_values(order_id,
+                                                                  **kwargs)
+                    render_values['errors'] = [
+                        [_('Error!.'),
+                         msg]]
+                    return request.render("website_sale.payment",
+                                          render_values)
 
         transaction_id = request.env['payment.transaction'].sudo().search(
             [
@@ -273,24 +315,42 @@ class ExtendedWebsiteSale(WebsiteSale):
                 order_id.action_confirm()
                 transaction_id.state = 'done'
             else:
+                if order_id:
+                    render_values = self._get_shop_payment_values(order_id,
+                                                                  **kwargs)
+                    render_values['errors'] = [
+                        [_('Error!.'),
+                         _('The transaction could not be generated in our '
+                                   'e-commerce')]]
+                    return request.render("website_sale.payment", render_values)
+                else:
+                    order_id = request.env['sale.order'].create(
+                        {'partner_id': partner_id.id})
+                    render_values = self._get_shop_payment_values(order_id,
+                                                                  **kwargs)
+                    render_values['errors'] = [
+                        [_('Error!.'),_('The transaction could not be generated in our '
+                                   'e-commerce')]]
+                    return request.render("website_sale.payment", render_values)
+        else:
+            msg = ERRORS.get(str(payment_result.get('response').get('cause',[])[0]['code']))
+            if not msg:
+                msg = str(payment_result.get('response').get('message'))
+            if order_id:
+                render_values = self._get_shop_payment_values(order_id, **kwargs)
+                render_values['order_id'] = order_id
+                render_values['errors'] = [[_('Error from mercadopago.'), _(msg)]]
+                return request.render("website_sale.payment", render_values)
+            else:
+                order_id = request.env['sale.order'].create(
+                    {'partner_id': partner_id.id})
                 render_values = self._get_shop_payment_values(order_id,
                                                               **kwargs)
                 render_values['errors'] = [
-                    [_('Error!!!.'),
+                    [_('Error!.'),
                      _('The transaction could not be generated in our '
-                               'e-commerce')]]
-                render_values.pop('acquirers', '')
-                render_values.pop('tokens', '')
+                       'e-commerce')]]
                 return request.render("website_sale.payment", render_values)
-        else:
-            msg = ERRORS.get(str(payment_result.get('response').get('cause',[])[0]['code']))
-            render_values = self._get_shop_payment_values(order_id, **kwargs)
-            render_values['order_id'] = order_id
-            render_values['errors'] = [[_('Error from mercadopago.'), _(msg)]]
-            render_values.pop('acquirers', '')
-            render_values.pop('tokens', '')
-
-            return request.render("website_sale.payment", render_values)
 
         return http.redirect_with_hash('/payment/process')
 
@@ -305,7 +365,11 @@ class ExtendedWebsiteSale(WebsiteSale):
         try:
             pm_id = int(pm_id)
         except ValueError:
-            return werkzeug.utils.redirect('/shop/?error=invalid_token_id')
+            res = {
+                'result': False,
+                'error': _('Invalid token.')
+            }
+            return res
 
         payment_token = request.env['payment.token'].browse(pm_id)
         payment_id = payment_token.acquirer_id
@@ -355,7 +419,6 @@ class ExtendedWebsiteSale(WebsiteSale):
         if issuer_id:
             payment_data.update(issuer_id=issuer_id)
 
-
         payment_result = mp.post("/v1/payments", payment_data)
         if payment_result.get('status') == 201:
             response = payment_result.get('response')
@@ -373,14 +436,14 @@ class ExtendedWebsiteSale(WebsiteSale):
             print(payment_result)
             msg = ERRORS.get(
                 str(payment_result.get('response').get('cause', [])[0]['code']))
+            if not msg:
+                msg = str(payment_result.get('response').get('message'))
             res = {
                 'result': False,
                 'error': _(msg)
             }
             return res
-        return {'result': True, 'id':pm_id}
-
-        # return werkzeug.utils.redirect('/payment/process')
+        return {'result': True, 'id': pm_id}
 
     @http.route(['/acquirer_amount'],
                 type='json', auth="public")
@@ -415,6 +478,7 @@ class ExtendedWebsiteSale(WebsiteSale):
             ]
         )
         cvv = payment_token and payment_token[0].cvv
+        cvv = base64.decodebytes(cvv.encode()).decode()
         return dict(
             mercadopago_publishable_key=mercadopago_publishable_key,
             cvv=cvv,

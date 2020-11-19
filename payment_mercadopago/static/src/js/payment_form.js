@@ -33,7 +33,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
         '324': 'Inválido número de documento.',
         '325': 'Inválido parámetro de mes de fecha de vencimiento.',
         '326': 'Inválido parámetro de año de fecha de vencimiento.',
-        '400': 'Código de seguridad incorrecto'
     }
 
     function guessPaymentMethod(event) {
@@ -133,7 +132,8 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
             form.appendChild(card);
             this.doSubmit = true;
             form.submit();
-        } else {
+        } else
+            {
             if (response.cause){
                 var msg = ERRORS[response.cause[0].code]
                 alert("Verifique algunos datos del formulario!\n" + msg)
@@ -180,6 +180,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                                     {
                                         'acquired_id': acquirerID,
                                         'mercadopago_authorize_amount': data.mercadopago_authorize_amount,
+                                        'tamount': 0.0,
                                         'mpm':1
                                     }),
                             });
@@ -273,7 +274,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
         payEvent: function(ev) {
             ev.stopPropagation();
             ev.preventDefault();
-            var form = this.el;
+            var form1 = this.el;
             var $checkedRadio = this.$('input[type="radio"]:checked');
             var self = this;
             var button = ev.target;
@@ -294,7 +295,8 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                                 {
                                     'acquired_id': acquirerID,
                                     'mercadopago_authorize_amount':0,
-                                    'mpm':0
+                                    'tamount': parseFloat(formData.order_amount) || 0.0,
+                                    'mpm':0,
                                 }),
                         });
                         dialog.open().opened(
@@ -380,7 +382,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                                         // if the server has returned true
                                         if (data.result) {
                                             $.unblockUI();
-                                            form.submit();
+                                            form1.submit();
                                             return $.Deferred();
                                         }
                                         // if the server has returned false, we display an error
