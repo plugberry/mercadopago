@@ -95,7 +95,7 @@
                     <!-- TODO es realmente necesario? -->
                     <div>
                         <input type="hidden" name="transactionAmount" id="transactionAmount" value="100" />
-                        <input type="hidden" name="paymentMethodId" id="paymentMethodId" />
+                        <input type="hidden" name="payment_method_id" id="paymentMethodId" />
                         <input type="hidden" name="description" id="description" />
                         <!-- <button id="pay" type="submit" name="pay">Pagar</button> -->
                     </div>

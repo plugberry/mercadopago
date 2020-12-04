@@ -52,12 +52,6 @@ class MercadoPagoController(http.Controller):
             }
             return res
 
-        if not token:
-            res = {
-                'result': False,
-            }
-            return res
-
         res = {
             'result': True,
             'id': token.id,

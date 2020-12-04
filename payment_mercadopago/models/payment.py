@@ -35,17 +35,17 @@ class PaymentAcquirerMercadoPago(models.Model):
     #             'title': _("Warning"),
     #             'message': ('This option is not supported for MercadoPago')}}
 
-    def mp_connect(self):
-        self.ensure_one()
-        MP = mercadopago.MP(self.mercadopago_access_token)
-        MP = mercadopago.MP('TEST-2775253347293690-081210-4dede21e22738444d5fe2f092ee478f3__LC_LB__-113996959')
-        # MP = mercadopago.MP(self.mercadopago_client_id, self.mercadopago_secret_key)
-        environment = self.state == 'enabled' and 'prod' or 'test'
-        if environment == "prod":
-            MP.sandbox_mode(False)
-        else:
-            MP.sandbox_mode(True)
-        return MP
+    # def mp_connect(self):
+    #     self.ensure_one()
+    #     MP = mercadopago.MP(self.mercadopago_access_token)
+    #     MP = mercadopago.MP('TEST-2775253347293690-081210-4dede21e22738444d5fe2f092ee478f3__LC_LB__-113996959')
+    #     # MP = mercadopago.MP(self.mercadopago_client_id, self.mercadopago_secret_key)
+    #     environment = self.state == 'enabled' and 'prod' or 'test'
+    #     if environment == "prod":
+    #         MP.sandbox_mode(False)
+    #     else:
+    #         MP.sandbox_mode(True)
+    #     return MP
 
     def action_client_secret(self):
         return True
@@ -122,9 +122,8 @@ class PaymentAcquirerMercadoPago(models.Model):
 
     @api.model
     def mercadopago_s2s_form_process(self, data):
-        import pdb; pdb.set_trace()
         values = {
-            'acquirer_id': 13,#int(data.get('acquirer_id')),
+            'acquirer_id': int(data.get('acquirer_id')),
             'partner_id': int(data.get('partner_id')),
             'token': data.get('token'),
             'payment_method_id': data.get('payment_method_id'),
@@ -137,26 +136,12 @@ class PaymentAcquirerMercadoPago(models.Model):
 
     def mercadopago_s2s_form_validate(self, data):
         error = dict()
-        import pdb; pdb.set_trace()
-        mandatory_fields = []
-        # mandatory_fields = ["token", "payment_method_id", "installments", "issuer_id"]
+        mandatory_fields = ["token", "payment_method_id"]
         # Validation
         for field_name in mandatory_fields:
             if not data.get(field_name):
                 error[field_name] = 'missing'
         return False if error else True
-
-    # def ogone_s2s_form_validate(self, data):
-    #     error = dict()
-    #     import pdb; pdb.set_trace()
-
-    #     mandatory_fields = ["cc_number", "cc_cvc", "cc_holder_name", "cc_expiry", "cc_brand"]
-    #     # Validation
-    #     for field_name in mandatory_fields:
-    #         if not data.get(field_name):
-    #             error[field_name] = 'missing'
-
-    #     return False if error else True
 
 
 class PaymentTransactionMercadoPago(models.Model):
@@ -192,65 +177,21 @@ class PaymentTransactionMercadoPago(models.Model):
     # --------------------------------------------------
 
     def mercadopago_s2s_do_transaction(self, **data):
-        # TODO: create tx with s2s type
-        account = self.acquirer_id
-        reference = self.reference or "ODOO-%s-%s" % (datetime.datetime.now().strftime('%y%m%d_%H%M%S'), self.partner_id.id)
+        import pdb; pdb.set_trace()
+        self.ensure_one()
+        transaction = AuthorizeAPI(self.acquirer_id)
 
-        param_plus = {
-            'return_url': kwargs.get('return_url', False)
-        }
+        if not self.payment_token_id.authorize_profile:
+            raise UserError(_('Invalid token found: the Authorize profile is missing.'
+                              'Please make sure the token has a valid acquirer reference.'))
 
-        data = {
-            # 'PSPID': account.ogone_pspid,
-            # 'USERID': account.ogone_userid,
-            # 'PSWD': account.ogone_password,
-            'ORDERID': reference,
-            'AMOUNT': int(self.amount * 100),
-            'CURRENCY': self.currency_id.name,
-            # 'OPERATION': 'SAL',
-            # 'ECI': 9,   # Recurring (from eCommerce)
-            # 'ALIAS': self.payment_token_id.acquirer_ref,
-            # 'RTIMEOUT': 30,
-            # 'PARAMPLUS': url_encode(param_plus),
-            # 'EMAIL': self.partner_id.email or '',
-            # 'CN': self.partner_id.name or '',
-        }
+        if not self.acquirer_id.capture_manually:
+            res = transaction.auth_and_capture(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), self.reference)
+        else:
+            res = transaction.authorize(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), self.reference)
 
-        if request:
-            data['REMOTE_ADDR'] = request.httprequest.remote_addr
-
-        if kwargs.get('3d_secure'):
-            data.update({
-                'FLAG3D': 'Y',
-                'LANGUAGE': self.partner_id.lang or 'en_US',
-            })
-
-            for url in 'accept decline exception'.split():
-                key = '{0}_url'.format(url)
-                val = kwargs.pop(key, None)
-                if val:
-                    key = '{0}URL'.format(url).upper()
-                    data[key] = val
-
-        data['SHASIGN'] = self.acquirer_id._ogone_generate_shasign('in', data)
-
-        direct_order_url = 'https://secure.ogone.com/ncol/%s/orderdirect.asp' % ('prod' if self.acquirer_id.state == 'enabled' else 'test')
-
-        logged_data = data.copy()
-        logged_data.pop('PSWD')
-        _logger.info("ogone_s2s_do_transaction: Sending values to URL %s, values:\n%s", direct_order_url, pformat(logged_data))
-        result = requests.post(direct_order_url, data=data).content
-
-        try:
-            tree = objectify.fromstring(result)
-            _logger.info('ogone_s2s_do_transaction: Values received:\n%s', etree.tostring(tree, pretty_print=True, encoding='utf-8'))
-        except etree.XMLSyntaxError:
-            # invalid response from ogone
-            _logger.exception('Invalid xml response from ogone')
-            _logger.info('ogone_s2s_do_transaction: Values received:\n%s', result)
-            raise
-
-        return self._ogone_s2s_validate_tree(tree)
+        # res = {'x_response_code': '1', 'x_trans_id': '60157466990', 'x_type': 'auth_capture'}
+        return self._mercadopago_s2s_validate_tree(res)
 
     def mercadopago_s2s_do_refound(self, **data):
         import pdb; pdb.set_trace()
@@ -281,7 +222,6 @@ class PaymentToken(models.Model):
 
     @api.model
     def mercadopago_create(self, values):
-        import pdb; pdb.set_trace()
         if values.get('token') and values.get('payment_method_id'):
             payment_method = values.get('payment_method_id')
             acquirer = self.env['payment.acquirer'].browse(values['acquirer_id'])
@@ -289,52 +229,26 @@ class PaymentToken(models.Model):
             token = values.get('token')
             partner_vals = {'email': partner.email}
 
+            import pdb; pdb.set_trace()
             # buscamos / creamos un customer
-            # MP = MercadoPagoAPI(acquirer)
-            MP = acquirer.mp_connect()
-            customers = MP.customer.search(partner_vals).get('response', {}).get('results', [])
-            if len(customers) > 1:
-                # TODO handle
-                raise UserError('asdas')
-            # customers
-            # customerId = MP.customer.search(partner_vals).get('response', {}).get('results', {}).get('id')
-            elif not customers:
-            # if not customer or not customer.get('response', {}).get('results'):
-                res = MP.customer.create(partner_vals)
-                if not res or res.get('status') != '201':
-                    # response.message, response.cause
-                    raise ValidationError('ERROR"')
-                customerId = res.get('response', {}).get('results', {}).get('id')
-                # customer = MP.customer.search({'email': partner.email})
-                # if not res or not res.get('response')
-                # customer_id = res['id']
-            else:
-                customerId = customers[0].get('id')
-
-
-
-            # /TODO chequear card existente
-            # TODO ver si arregalmos liberria para poder llamar al card.create
-            # card = MP.card.create({'token': token, 'customer_id': customerId})
-            card = MP.customer.get_rest_client().post("/v1/customers/%s/cards?access_token=%s" % (customerId, MP.customer.get_access_token()),{'token': token})
-            if not card or card.get('status') != '201':
-                # error
-                raise ValidationError('error al crear tarjeta')
+            MP = MercadoPagoAPI(acquirer)
+            customer_id = MP.get_customer_profile(partner)
+            if not customer_id:
+                res = MP.create_customer_profile(partner)
+                customer_id = res['id']
 
             # buscamos / guardamos la tarjeta
-            # card = None  # TODO: delete this
-            # cards = MP.get_customer_cards(customer_id)
-            # if card not in cards:
-            #     card = MP.create_customer_card(customer_id, token)
+            card = None  # TODO: delete this
+            cards = MP.get_customer_cards(customer_id)
+            if card not in cards:
+                card = MP.create_customer_card(customer_id, token)
 
-        #     if not card:
-        #         raise ValidationError(_('The Card creation in MercadoPago failed.'))
-
-
-        #     # creo el token
+            if not card:
+                raise ValidationError(_('The Card creation in MercadoPago failed.'))
+            # creo el token
             return {
-                'name': '%s: ' + 'XXXX XXXX XXXX %s' % (payment_method, card.get('response')['last_four_digits']),
-                'acquirer_ref': card.get('response')['id'],
+                'name': "%s: XXXX XXXX XXXX %s" % (payment_method, card['last_four_digits']),
+                'acquirer_ref': card['id'],
                 'mercadopago_payment_method': payment_method,
                 'verified': True
             }

@@ -21,10 +21,8 @@ class MercadoPagoAPI():
     """
 
     def __init__(self, acquirer):
-        if acquirer.state == 'test':
-            self.mp = mercadopago.MP('TEST-3834170027218729-082509-763e2577356637318da741a535bf25ec-628558216')
-        else:
-            self.mp = mercadopago.MP(acquirer.mercadopago_secret_key) # TODO: here would be the production token
+        self.mp = mercadopago.MP(acquirer.mercadopago_access_token)
+        self.mp.sandbox_mode(False) if acquirer.state == "prod" else self.mp.sandbox_mode(True)
 
     def _mercadopago_request(self, url, data):
         _logger.info('_mercadopago_request: Sending values to URL %s, values:\n%s', url, data)
@@ -43,7 +41,6 @@ class MercadoPagoAPI():
         return resp
 
     def get_customer_profile(self, partner):
-        import pdb; pdb.set_trace()
         resp = self.mp.get('/v1/customers/search?%s' % partner.email)
         # TODO: improve check status
         if 'response' in resp and resp['response']['results']:
@@ -79,7 +76,6 @@ class MercadoPagoAPI():
         }
 
     def get_customer_cards(self, customer_id):
-        import pdb; pdb.set_trace()
         resp = self.mp.get('/v1/customers/%s/cards' % customer_id)
         # TODO: improve check status
         if 'response' in resp:
@@ -89,17 +85,10 @@ class MercadoPagoAPI():
         values = {
             "token": token
         }
-        import pdb; pdb.set_trace()
         resp = self._mercadopago_request('/v1/customers/%s/cards' % customer_id, values)
-
-        # {'response': {'cause': [{'code': '140', 'description': 'invalid card owner'}],
-        #       'error': 'bad_request',
-        #       'message': 'invalid parameters ',
-        #       'status': 400},
-        #  'status': 400}
 
         if resp and resp.get('err_code'):
             raise UserError(_(
                 "MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
 
-        return resp
+        return resp['response']
