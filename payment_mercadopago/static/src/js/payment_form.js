@@ -113,11 +113,11 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
             window.Mercadopago.setPublishableKey("TEST-f68c38b9-ba2d-44bf-b6c6-23578cfde81a");
             console.log('set_pub_key');
             window.Mercadopago.getIdentificationTypes();
-            document.getElementById('cardNumber').addEventListener('change', guessPaymentMethod);
+            document.getElementById('cc_number').addEventListener('change', guessPaymentMethod);
 
             function guessPaymentMethod(event) {
                 console.log('guessPaymentMethod');
-                let cardnumber = document.getElementById("cardNumber").value;
+                let cardnumber = document.getElementById("cc_number").value.split(" ").join("");
                 if (cardnumber.length >= 6) {
                     let bin = cardnumber.substring(0,6);
                     window.Mercadopago.getPaymentMethod({

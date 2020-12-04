@@ -2,13 +2,9 @@
 <odoo>
 
     <template id="mercadopago_form">
-        <!-- <div> -->
-            <!-- TODO use old mercadopago data -->
-            <input type="hidden" name="data_set" t-att-data-action-url="tx_url" data-remove-me=""/>
-            <input name="cmd" t-att-value="cmd" type="hidden"/>
-            <!-- <input name="mercadopago_data" t-att-value="mercadopago_data" type="hidden"/> -->
-            <!-- <input type="hidden" name='x_amount' t-att-value='x_amount'/> -->
-        <!-- </div> -->
+        <!-- TODO use old mercadopago data -->
+        <input type="hidden" name="data_set" t-att-data-action-url="tx_url" data-remove-me=""/>
+        <input name="cmd" t-att-value="cmd" type="hidden"/>
     </template>
 
     <!-- <template id="payment_mercadopago_redirect" name="Payment MercadoPago">
@@ -22,76 +18,97 @@
         <input type="hidden" name="acquirer_id" t-att-value="id"/>
         <input t-if="return_url" type="hidden" name="return_url" t-att-value="return_url"/>
         <input t-if="partner_id" type="hidden" name="partner_id" t-att-value="partner_id"/>
-        <div t-attf-class="row mt8 #{'' if bootstrap_formatting else 'o_card_brand_detail'}">
+        <div t-attf-class="row mt6 #{'' if bootstrap_formatting else 'o_card_brand_detail'}">
             <!-- TODO llevar a logica odoo de estilos con columns boostrap y demas  -->
-            <!-- <h3>Detalles del comprador</h3> -->
-            <div>
-                <div>
-                    <label for="email">E-mail</label>
-                    <input id="email" name="email" type="text" value="test@test.com"></input>
-                </div>
-                <div>
-                    <label for="docType">Tipo de documento</label>
-                    <select id="docType" name="docType" data-checkout="docType" type="text"></select>
-                </div>
-                <div>
-                    <label for="docNumber">Número de documento</label>
-                    <input id="docNumber" name="docNumber" data-checkout="docNumber" type="text"/>
-                </div>
-                </div>
-            <!-- <h3>Detalles de la tarjeta</h3> -->
-                <div>
-                <div>
-                    <label for="cardholderName">Titular de la tarjeta</label>
-                    <input id="cardholderName" data-checkout="cardholderName" type="text"></input>
-                </div>
-                <div>
-                    <label for="">Fecha de vencimiento</label>
-                    <div>
-                    <input type="text" placeholder="MM" id="cardExpirationMonth" data-checkout="cardExpirationMonth"
-                        onselectstart="return false" onpaste="return false"
-                        oncopy="return false" oncut="return false"
-                        ondrag="return false" ondrop="return false" autocomplete="off"></input>
-                    <span class="date-separator">/</span>
-                    <input type="text" placeholder="YY" id="cardExpirationYear" data-checkout="cardExpirationYear"
-                        onselectstart="return false" onpaste="return false"
-                        oncopy="return false" oncut="return false"
-                        ondrag="return false" ondrop="return false" autocomplete="off"></input>
+            <div t-attf-class="row mt8 #{'' if bootstrap_formatting else 'o_card_brand_detail'}">
+                    <div t-att-class="'form-group col-lg-5' if bootstrap_formatting else 'form-group'">
+                        <label for="email">Mail</label>
+                        <input id="email" name="email" type="text" value="test@test.com" class="form-control"></input>
                     </div>
-                </div>
-                <div>
-                    <label for="cardNumber">Número de la tarjeta</label>
-                    <input type="text" id="cardNumber" data-checkout="cardNumber"
-                    onselectstart="return false"
-                    oncopy="return false" oncut="return false"
-                    ondrag="return false" ondrop="return false" autocomplete="off"></input>
-                </div>
-                <div>
-                    <label for="securityCode">Código de seguridad</label>
-                    <input id="securityCode" data-checkout="securityCode" type="text"
-                    onselectstart="return false" onpaste="return false"
-                    oncopy="return false" oncut="return false"
-                    ondrag="return false" ondrop="return false" autocomplete="off"></input>
-                </div>
-                <!-- TODO es realmente necesario? comparar con tokenized -->
-                <div id="issuerInput">
-                    <!-- <label for="issuer" type="hidden">Banco emisor</label> -->
-                    <select id="issuer" class="o_hidden" type="hidden" name="issuer" data-checkout="issuer"></select>
-                </div>
-                <div>
-                    <label for="installments">Cuotas</label>
-                    <select type="text" id="installments" name="installments"></select>
-                </div>
-                <div>
-                    <input type="hidden" name="transactionAmount" id="transactionAmount" value="100" />
-                    <input type="hidden" name="paymentMethodId" id="paymentMethodId" />
-                    <input type="hidden" name="description" id="description" />
-                    <button id="pay" type="submit" name="pay">Pagar</button>
-                </div>
+                    <div t-att-class="'form-group col-lg-10' if bootstrap_formatting else 'form-group'">
+                        <!-- <label for="cardNumber">Tarjeta</label> -->
+                        <input type="tel" name="cc_number" id="cc_number" data-checkout="cardNumber"
+                        placeholder="XXXX - XXXX - XXXX - XXXX"
+                        onselectstart="return false"
+                        oncopy="return false" oncut="return false"
+                        ondrag="return false" ondrop="return false" autocomplete="off"
+                        class="form-control"
+                        data-is-required="true"></input>
+                        <div class="card_placeholder"></div>
+                        <div class="visa"></div>
+                        <input type="hidden" name="cc_brand" value=""/>
+                    </div>
+                    <!-- <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
+                        <input type="text" name="cc_expiry" id="cc_expiry" class="form-control" maxlength="7" placeholder="Expires (MM / YY)" data-checkout="cardExpirationMonth" data-is-required="true"/>
+                    </div> -->
+                    <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
+                        <input type="text" id="cardExpirationMonth" data-checkout="cardExpirationMonth"
+                            placeholder="MM"
+                            maxlength="2"
+                            onselectstart="return false" onpaste="return false"
+                            oncopy="return false" oncut="return false"
+                            ondrag="return false" ondrop="return false" autocomplete="off"
+                            class="form-control"></input>
+                    </div>
+                    <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
+                            <input name="cc_expiry" type="text" id="cardExpirationYear" data-checkout="cardExpirationYear"
+                                placeholder="YY"
+                                maxlength="2"
+                                onselectstart="return false" onpaste="return false"
+                                oncopy="return false" oncut="return false"
+                                ondrag="return false" ondrop="return false" autocomplete="off"
+                                class="form-control"></input>
+                    </div>
+                    <div t-att-class="'form-group col-lg-10' if bootstrap_formatting else 'form-group'">
+                        <!-- <label for="cardholderName">Titular de la tarjeta</label> -->
+                        <input id="cardholderName" placeholder="Titular de la tarjeta" data-checkout="cardholderName" type="text" class="form-control"></input>
+                    </div>
+                    <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
+                        <label for="docType">Documento</label>
+                        <select id="docType" name="docType" data-checkout="docType" type="text" class="form-control"></select>
+                    </div>
+                    <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
+                        <label for="docNumber">.</label>
+                        <input id="docNumber" name="docNumber" placeholder="Número" maxlength="16" data-checkout="docNumber" type="text" class="form-control"/>
+                    </div>
+                    <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
+                        <label for="securityCode">Código de seguridad</label>
+                        <input name="cc_cvc" id="cc_cvc" data-checkout="securityCode" type="text"
+                        placeholder="xxx"
+                        maxlength="4"
+                        onselectstart="return false" onpaste="return false"
+                        oncopy="return false" oncut="return false"
+                        ondrag="return false" ondrop="return false" autocomplete="off"
+                        class="form-control"></input>
+                        <!-- <input type="text" name="cc_cvc" id="cc_cvc" class="form-control" maxlength="4" placeholder="CVC" data-is-required="true"/> -->
+                    </div>
+                    <!-- TODO es realmente necesario? -->
+                    <div id="issuerInput">
+                        <!-- <label for="issuer" type="hidden">Banco emisor</label> -->
+                        <select id="issuer" class="o_hidden" type="hidden" name="issuer" data-checkout="issuer"></select>
+                    </div>
+                    <!-- agregar t-if="mode != 'manage'" -->
+                    <div t-att-class="'form-group col-lg-6' if bootstrap_formatting else 'form-group'">
+                        <label for="installments">Cuotas</label>
+                        <select type="text" id="installments" name="installments" class="form-control"></select>
+                    </div>
+                    <!-- TODO es realmente necesario? -->
+                    <div>
+                        <input type="hidden" name="transactionAmount" id="transactionAmount" value="100" />
+                        <input type="hidden" name="paymentMethodId" id="paymentMethodId" />
+                        <input type="hidden" name="description" id="description" />
+                        <!-- <button id="pay" type="submit" name="pay">Pagar</button> -->
+                    </div>
             </div>
 
         </div>
     </template>
+
+    <!-- <template id="mercadopago_payment_tokens_list" name="MercadoPago Token List" inherit_id="payment_tokens_list">
+        <xpath expr="//div[hasclass('payment_option_name')]" position="after">
+            <span>asdsdas</span>
+        </xpath>
+    </template> -->
 
 </odoo>
 
