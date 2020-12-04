@@ -92,3 +92,40 @@ class MercadoPagoAPI():
                 "MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
 
         return resp['response']
+
+    # Transaction management
+    def payment(self, token, amount, reference):
+        """
+        MercadoPago payment
+        """
+        values = {
+                "token": token.acquirer_ref,
+                "installments": 1,
+                "transaction_amount": amount,
+                "description": "Odoo ~ MercadoPago payment",
+                "payment_method_id": token.mercadopago_payment_method,
+                "payer": {
+                    "email": token.partner_id.email,
+                },
+                #  'capture': False
+            }
+        # if issuer_id:
+        #         payment_data.update(issuer_id=issuer_id)
+        response = self._mercadopago_request("/v1/payments", values)
+
+        import pdb; pdb.set_trace()
+
+        if response and response.get('err_code'):
+            return {
+                'x_response_reason_text': response.get('err_msg')
+            }
+
+        result = {
+            'x_response_code': response.get('transactionResponse', {}).get('responseCode'),
+            'x_trans_id': response.get('transactionResponse', {}).get('transId'),
+            'x_type': 'auth_capture'
+        }
+        errors = response.get('transactionResponse', {}).get('errors')
+        if errors:
+            result['x_response_reason_text'] = '\n'.join([e.get('errorText') for e in errors])
+        return result

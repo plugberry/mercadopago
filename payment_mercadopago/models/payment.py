@@ -75,9 +75,9 @@ class PaymentAcquirerMercadoPago(models.Model):
 
     def mercadopago_form_generate_values(self, values):
         self.ensure_one()
+        import pdb; pdb.set_trace()
         mercadopago_tx_values = dict(values)
         base_url = self.get_base_url()
-        import pdb; pdb.set_trace()
 
         temp_mercadopago_tx_values = {
             # 'x_login': self.mercadopago_login,
@@ -148,8 +148,8 @@ class PaymentTransactionMercadoPago(models.Model):
     _inherit = 'payment.transaction'
 
     # TODO: This fields probably will be deleted
-    mercadopago_txn_id = fields.Char('Transaction ID')
-    mercadopago_txn_type = fields.Char('Transaction type', help='Informative field computed after payment')
+    # mercadopago_txn_id = fields.Char('Transaction ID')
+    # mercadopago_txn_type = fields.Char('Transaction type', help='Informative field computed after payment')
 
     # --------------------------------------------------
     # FORM RELATED METHODS
@@ -179,16 +179,18 @@ class PaymentTransactionMercadoPago(models.Model):
     def mercadopago_s2s_do_transaction(self, **data):
         import pdb; pdb.set_trace()
         self.ensure_one()
-        transaction = AuthorizeAPI(self.acquirer_id)
+        # transaction = AuthorizeAPI(self.acquirer_id)
+        MP = MercadoPagoAPI(self.acquirer_id)
 
-        if not self.payment_token_id.authorize_profile:
-            raise UserError(_('Invalid token found: the Authorize profile is missing.'
-                              'Please make sure the token has a valid acquirer reference.'))
+        # if not self.payment_token_id.authorize_profile:
+        #     raise UserError(_('Invalid token found: the Authorize profile is missing.'
+        #                       'Please make sure the token has a valid acquirer reference.'))
 
-        if not self.acquirer_id.capture_manually:
-            res = transaction.auth_and_capture(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), self.reference)
-        else:
-            res = transaction.authorize(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), self.reference)
+        res = MP.payment(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), self.reference)
+        # if not self.acquirer_id.capture_manually:
+        #     res = transaction.auth_and_capture(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), self.reference)
+        # else:
+        #     res = transaction.authorize(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), self.reference)
 
         # res = {'x_response_code': '1', 'x_trans_id': '60157466990', 'x_type': 'auth_capture'}
         return self._mercadopago_s2s_validate_tree(res)
@@ -227,7 +229,7 @@ class PaymentToken(models.Model):
             acquirer = self.env['payment.acquirer'].browse(values['acquirer_id'])
             partner = self.env['res.partner'].browse(values['partner_id'])
             token = values.get('token')
-            partner_vals = {'email': partner.email}
+            # partner_vals = {'email': partner.email}
 
             import pdb; pdb.set_trace()
             # buscamos / creamos un customer
