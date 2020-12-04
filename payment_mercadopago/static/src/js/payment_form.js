@@ -4,14 +4,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
     var ajax = require('web.ajax');
     var core = require('web.core');
     var PaymentForm = require('payment.payment_form');
-    var Dialog = require('web.Dialog');
-    // TODO: es necesario esta línea (session)?
-    // var session = require('web.session');
     var _t = core._t;
-    var Qweb = core.qweb;
-    // TODO hacer esto bien y que solo se ejecute en metodo click mercadopago
-    console.log('p1');
-    // # TODO hacer parametrizable
 
     PaymentForm.include({
 
@@ -34,6 +27,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
          * @param {Boolean} addPmEvent
          */
         _createMercadoPagoToken: function(ev, $checkedRadio, addPmEvent) {
+            console.log('_createMercadoPagoToken');
             var self = this;
             if (ev.type === 'submit') {
                 var button = $(ev.target).find('*[type="submit"]')[0]
@@ -43,69 +37,86 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
             this.disableButton(button);
             var acquirerID = this.getAcquirerIdFromRadio($checkedRadio);
             var acquirerForm = this.$('#o_payment_add_token_acq_' + acquirerID);
-            var inputsForm = $('input', acquirerForm);
-            console.log('ddddddd');
-            var formData = self.getFormData(inputsForm);
-            // debugger;
-            getCardToken();
+            var formID = acquirerForm[0].id;
 
+            var doSubmit = false;
+            document.getElementById(formID).addEventListener('submit', getCardToken);
+            getCardToken(ev);
 
-// document.getElementById('paymentForm').addEventListener('submit', getCardToken);
-function getCardToken(){
-//    event.preventDefault();
-console.log('asdasdas');
-    //    let $form = document.getElementById('paymentForm');
-    //    let $form = document.getElementById('paymentForm');
-       let $form = document.getElementsByClassName("o_payment_form");
+            function getCardToken(event){
+                console.log('getCardToken');
+                event.preventDefault();
+                if(!doSubmit){
+                    let $form = document.getElementById(formID);
+                    window.Mercadopago.createToken($form, setCardTokenAndPay);
+                    return false;
+                }
+            };
 
-       window.Mercadopago.createToken($form, setCardTokenAndPay);
-       return false;
-};
+            function setCardTokenAndPay(status, response) {
+                console.log('setCardTokenAndPay');
+                if (status == 200 || status == 201) {
+                    console.log('setCardTokenAndPay 200');
+                    let form = document.getElementById(formID);
+                    let card = document.createElement('input');
+                    card.setAttribute('name', 'token');
+                    card.setAttribute('type', 'hidden');
+                    card.setAttribute('value', response.id);
+                    form.appendChild(card);
+                    doSubmit=true;
+                    // form.submit();
+                    console.log('TODO: send_token');
+                    var inputsForm = $('input', acquirerForm);
+                    var formData = self.getFormData(inputsForm);
+                    self._rpc({
+                        route: formData.data_set,
+                        params: formData
+                    }).then (function (data) {
+                        if (addPmEvent) {
+                            if (formData.return_url) {
+                                window.location = formData.return_url;
+                            } else {
+                                window.location.reload();
+                            }
+                        } else {
+                            $checkedRadio.val(data.id);
+                            self.el.submit();
+                        }
+                    }).guardedCatch(function (error) {
+                        // if the rpc fails, pretty obvious
+                        error.event.preventDefault();
+                        acquirerForm.removeClass('d-none');
+                        self.enableButton(button);
+                        self.displayError(
+                            _t('Server Error'),
+                            _t("We are not able to add your payment method at the moment.") +
+                                self._parseError(error)
+                        );
+                    });
 
-function setCardTokenAndPay(status, response) {
-   if (status == 200 || status == 201) {
-       let form = document.getElementById('paymentForm');
-       let card = document.createElement('input');
-       card.setAttribute('name', 'token');
-       card.setAttribute('type', 'hidden');
-       card.setAttribute('value', response.id);
-       form.appendChild(card);
-       doSubmit=true;
-       form.submit();
-   } else {
-       alert("Verify filled data!\n"+JSON.stringify(response, null, 4));
-   }
-};
-
-            // templateLoaded.finally(
-            //     function() {
-            //         document.getElementById('cardNumber').addEventListener('change', guessPaymentMethod);
-            //         console.log('ccccccccccc');
-            //     })
-            },
-
-        addPmEvent: function(ev) {
-            ev.stopPropagation();
-            ev.preventDefault();
-            var $checkedRadio = this.$('input[type="radio"]:checked');
-
-            // first we check that the user has selected a authorize as add payment method
-            if ($checkedRadio.length === 1 && this.isNewPaymentRadio($checkedRadio) && $checkedRadio.data('provider') === 'mercadopago') {
-                this._createMercadoPagoToken(ev, $checkedRadio, true);
-            } else {
-                this._super.apply(this, arguments);
-            }
+                } else {
+                    alert("Verify filled data!\n"+JSON.stringify(response, null, 4));
+                }
+            };
         },
-        radioClickEvent: function (ev) {
-            console.log('asdasda');
-            // // radio button checked when we click on entire zone(body) of the payment acquirer
-            // $(ev.currentTarget).find('input[type="radio"]').prop("checked", true);
-            // this.updateNewPaymentDisplayStatus();
-            // FROM MP https://www.mercadopago.com.ar/developers/es/guides/online-payments/checkout-api/receiving-payment-by-card
+
+    // method to complete de form
+    updateNewPaymentDisplayStatus: function () {
+        console.log('mp_updateNewPaymentDisplayStatus');
+        var $checkedRadio = this.$('input[type="radio"]:checked');
+
+        if ($checkedRadio.length !== 1) {
+            return;
+        }
+        if ($checkedRadio.data('provider') === 'mercadopago' && this.isNewPaymentRadio($checkedRadio)) {
+
             window.Mercadopago.setPublishableKey("TEST-f68c38b9-ba2d-44bf-b6c6-23578cfde81a");
+            console.log('set_pub_key');
             window.Mercadopago.getIdentificationTypes();
             document.getElementById('cardNumber').addEventListener('change', guessPaymentMethod);
+
             function guessPaymentMethod(event) {
+                console.log('guessPaymentMethod');
                 let cardnumber = document.getElementById("cardNumber").value;
                 if (cardnumber.length >= 6) {
                     let bin = cardnumber.substring(0,6);
@@ -116,6 +127,7 @@ function setCardTokenAndPay(status, response) {
             };
 
             function setPaymentMethod(status, response) {
+                console.log('setPaymentMethod');
                 if (status == 200) {
                     let paymentMethod = response[0];
                     document.getElementById('paymentMethodId').value = paymentMethod.id;
@@ -134,6 +146,7 @@ function setCardTokenAndPay(status, response) {
             };
 
             function getIssuers(paymentMethodId) {
+                console.log('getIssuers');
                 window.Mercadopago.getIssuers(
                     paymentMethodId,
                     setIssuers
@@ -143,7 +156,6 @@ function setCardTokenAndPay(status, response) {
             function setIssuers(status, response) {
                 console.log('setIssuers');
                 if (status == 200) {
-                    console.log('setIssuers 200');
                     let issuerSelect = document.getElementById('issuer');
                     response.forEach( issuer => {
                         let opt = document.createElement('option');
@@ -163,6 +175,7 @@ function setCardTokenAndPay(status, response) {
             };
 
             function getInstallments(paymentMethodId, transactionAmount, issuerId){
+                console.log('getInstallments');
                 window.Mercadopago.getInstallments({
                     "payment_method_id": paymentMethodId,
                     "amount": parseFloat(transactionAmount),
@@ -171,6 +184,7 @@ function setCardTokenAndPay(status, response) {
             };
 
             function setInstallments(status, response){
+                console.log('setInstallments');
                 if (status == 200) {
                     document.getElementById('installments').options.length = 0;
                     response[0].payer_costs.forEach( payerCost => {
@@ -183,14 +197,15 @@ function setCardTokenAndPay(status, response) {
                     alert(`installments method info error: ${response}`);
                 }
             };
-
-            this._super.apply(this, arguments);
-        },
+        }
+        this._super.apply(this, arguments);
+    },
     /**
      * @override
      */
     payEvent: function (ev) {
         ev.preventDefault();
+        console.log('HANDLER: payEvent');
         var $checkedRadio = this.$('input[type="radio"]:checked');
 
         // first we check that the user has selected a stripe as s2s payment method
@@ -204,6 +219,7 @@ function setCardTokenAndPay(status, response) {
      * @override
      */
     addPmEvent: function (ev) {
+        console.log('addPmEvent');
         ev.stopPropagation();
         ev.preventDefault();
         var $checkedRadio = this.$('input[type="radio"]:checked');
