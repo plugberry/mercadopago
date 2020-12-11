@@ -219,8 +219,9 @@ class PaymentTransactionMercadoPago(models.Model):
 class PaymentToken(models.Model):
     _inherit = 'payment.token'
 
-    save_token = fields.Char(string='Token', readonly=True)
+    # save_token = fields.Char(string='Token', readonly=True)
     mercadopago_payment_method = fields.Char('Payment Method ID')
+    # mp_email = fields.Char(string='Email', readonly=True)
 
     @api.model
     def mercadopago_create(self, values):
@@ -229,15 +230,12 @@ class PaymentToken(models.Model):
             acquirer = self.env['payment.acquirer'].browse(values['acquirer_id'])
             partner = self.env['res.partner'].browse(values['partner_id'])
             token = values.get('token')
-            # partner_vals = {'email': partner.email}
 
-            import pdb; pdb.set_trace()
             # buscamos / creamos un customer
             MP = MercadoPagoAPI(acquirer)
             customer_id = MP.get_customer_profile(partner)
             if not customer_id:
-                res = MP.create_customer_profile(partner)
-                customer_id = res['id']
+                customer_id = MP.create_customer_profile(partner)
 
             # buscamos / guardamos la tarjeta
             card = None  # TODO: delete this
@@ -245,13 +243,12 @@ class PaymentToken(models.Model):
             if card not in cards:
                 card = MP.create_customer_card(customer_id, token)
 
-            if not card:
-                raise ValidationError(_('The Card creation in MercadoPago failed.'))
-            # creo el token
+            # create the token
             return {
                 'name': "%s: XXXX XXXX XXXX %s" % (payment_method, card['last_four_digits']),
                 'acquirer_ref': card['id'],
                 'mercadopago_payment_method': payment_method,
+                # 'mp_email': partner.email,
                 'verified': True
             }
         # else:
