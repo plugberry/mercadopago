@@ -178,9 +178,9 @@ class PaymentTransactionMercadoPago(models.Model):
 
     def mercadopago_s2s_do_transaction(self, **data):
         self.ensure_one()
-        import pdb; pdb.set_trace()
         MP = MercadoPagoAPI(self.acquirer_id)
-        res = MP.payment(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), self.reference)
+        capture = self.type == 'validation'
+        res = MP.payment(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), self.reference, capture)
         return self._mercadopago_s2s_validate_tree(res)
 
     def _mercadopago_s2s_validate_tree(self, tree):
@@ -189,6 +189,8 @@ class PaymentTransactionMercadoPago(models.Model):
             _logger.warning('MercadoPago: trying to validate an already validated tx (ref %s)' % self.reference)
             return True
         status_code = tree.get('status')
+        # We should check the "status_detail"?
+        # in the case of capture payment would be: "pending_capture"
         if status_code == "approved":
             init_state = self.state
             self.write({
@@ -200,6 +202,9 @@ class PaymentTransactionMercadoPago(models.Model):
 
             if init_state != 'authorized':
                 self.execute_callback()
+
+            if self.payment_token_id:
+                self.payment_token_id.verified = True
 
             return True
 
@@ -217,10 +222,13 @@ class PaymentTransactionMercadoPago(models.Model):
             self._set_transaction_error(msg=error)
             return False
 
-    def mercadopago_s2s_do_refound(self, **data):
-        import pdb; pdb.set_trace()
-        self.ensure_one()
-        return False
+    def mercadopago_s2s_do_refund(self, **data):
+        '''
+        Free the captured amount
+        '''
+        MP = MercadoPagoAPI(self.acquirer_id)
+        MP.payment_cancel(self.acquirer_reference)
+        # return False
 
     def mercadopago_s2s_capture_transaction(self):
         import pdb; pdb.set_trace()
@@ -271,7 +279,6 @@ class PaymentToken(models.Model):
                 'acquirer_ref': card['id'],
                 'mercadopago_payment_method': payment_method,
                 # 'mp_email': partner.email,
-                'verified': True
             }
         # else:
         #     raise ValidationError(_('The Token creation in MercadoPago failed.'))

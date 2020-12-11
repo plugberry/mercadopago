@@ -94,7 +94,7 @@ class MercadoPagoAPI():
         return resp['response']
 
     # Transaction management
-    def payment(self, token, amount, reference):
+    def payment(self, token, amount, reference, capture):
         """
         MercadoPago payment
         """
@@ -107,7 +107,7 @@ class MercadoPagoAPI():
                 "payer": {
                     "email": token.partner_id.email,
                 },
-                #  'capture': False
+                "capture": capture
             }
         # if issuer_id:
         #         payment_data.update(issuer_id=issuer_id)
@@ -211,5 +211,23 @@ class MercadoPagoAPI():
             "acquirer": None,
             "merchant_number": None,
             "acquirer_reconciliation": []
+        }
+        return resp
+
+    def payment_cancel(self, payment_id):
+        """
+        MercadoPago cancelation payment
+        """
+        values = {
+                "status": "cancelled"
+            }
+
+        # access_token = self.MP.customer.get_access_token()
+        # resp = self.MP.customer.get_rest_client().put("/v1/payments/" + payment_id + "?access_token=%s" % (access_token), values)
+
+        resp = {
+            "status": "cancelled",
+            "status_detail": "by_collector",
+            "captured": False,
         }
         return resp
