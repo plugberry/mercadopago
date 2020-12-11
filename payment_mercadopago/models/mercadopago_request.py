@@ -111,21 +111,105 @@ class MercadoPagoAPI():
             }
         # if issuer_id:
         #         payment_data.update(issuer_id=issuer_id)
-        response = self._mercadopago_request("/v1/payments", values)
 
-        import pdb; pdb.set_trace()
+        # resp = self._mercadopago_request("/v1/payments", values)
 
-        if response and response.get('err_code'):
-            return {
-                'x_response_reason_text': response.get('err_msg')
-            }
-
-        result = {
-            'x_response_code': response.get('transactionResponse', {}).get('responseCode'),
-            'x_trans_id': response.get('transactionResponse', {}).get('transId'),
-            'x_type': 'auth_capture'
+        resp = {
+            "id": 20359978,
+            "date_created": "2019-07-10T10:47:58.000-04:00",
+            "date_approved": "2019-07-10T10:47:58.000-04:00",
+            "date_last_updated": "2019-07-10T10:47:58.000-04:00",
+            "date_of_expiration": None,
+            "money_release_date": "2019-07-24T10:47:58.000-04:00",
+            "operation_type": "regular_payment",
+            "issuer_id": "25",
+            "payment_method_id": "visa",
+            "payment_type_id": "credit_card",
+            "status": "approved",
+            "status_detail": "accredited",
+            "currency_id": "[FAKER][CURRENCY][ACRONYM]",
+            "description": "Point Mini a maquininha que dá o dinheiro de suas vendas na hora",
+            "live_mode": False,
+            "sponsor_id": None,
+            "authorization_code": None,
+            "money_release_schema": None,
+            "taxes_amount": 0,
+            "counter_currency": None,
+            "shipping_amount": 0,
+            "pos_id": None,
+            "store_id": None,
+            "collector_id": 448876418,
+            "payer": {
+                "first_name": "Test",
+                "last_name": "Test",
+                "email": "test_user_80507629@testuser.com",
+                "identification": {
+                    "number": "19119119100",
+                    "type": "CPF"
+                },
+                "phone": {
+                    "area_code": "011",
+                    "number": "987654321",
+                    "extension": ""
+                    },
+                    "type": "guest",
+                    "entity_type": None,
+                    "id": None
+            },
+            "metadata": {},
+            "additional_info": {},
+            "order": {},
+            "external_reference": "MP0001",
+            "transaction_amount": 58.8,
+            "transaction_amount_refunded": 0,
+            "coupon_amount": 0,
+            "differential_pricing_id": None,
+            "deduction_schema": None,
+            "transaction_details": {
+                "payment_method_reference_id": None,
+                "net_received_amount": 56.16,
+                "total_paid_amount": 58.8,
+                "overpaid_amount": 0,
+                "external_resource_url": None,
+                "installment_amount": 58.8,
+                "financial_institution": None,
+                "payable_deferral_period": None,
+                "acquirer_reference": None
+            },
+            "fee_details": [
+                {
+                    "type": "mercadopago_fee",
+                    "amount": 2.64,
+                    "fee_payer": "collector"
+                }
+            ],
+            "captured": True,
+            "binary_mode": False,
+            "call_for_authorize_id": None,
+            "statement_descriptor":"MercadoPago",
+            "installments": 1,
+            "card": {
+                "id": None,
+                "first_six_digits": "423564",
+                "last_four_digits": "5682",
+                "expiration_month": 6,
+                "expiration_year": 2023,
+                "date_created": "2019-07-10T10:47:58.000-04:00",
+                "date_last_updated": "2019-07-10T10:47:58.000-04:00",
+                "cardholder": {
+                    "name": "APRO",
+                    "identification": {
+                        "number": "19119119100",
+                        "type": "CPF"
+                    }
+                }
+            },
+            "notification_url": "https://www.suaurl.com/notificacoes/",
+            "refunds": [],
+            "processing_mode": "aggregator",
+            "merchant_account_id": None,
+            "acquirer": None,
+            "merchant_number": None,
+            "acquirer_reconciliation": []
         }
-        errors = response.get('transactionResponse', {}).get('errors')
-        if errors:
-            result['x_response_reason_text'] = '\n'.join([e.get('errorText') for e in errors])
-        return result
+        return resp

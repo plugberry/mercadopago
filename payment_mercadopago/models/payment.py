@@ -177,23 +177,45 @@ class PaymentTransactionMercadoPago(models.Model):
     # --------------------------------------------------
 
     def mercadopago_s2s_do_transaction(self, **data):
-        import pdb; pdb.set_trace()
         self.ensure_one()
-        # transaction = AuthorizeAPI(self.acquirer_id)
+        import pdb; pdb.set_trace()
         MP = MercadoPagoAPI(self.acquirer_id)
-
-        # if not self.payment_token_id.authorize_profile:
-        #     raise UserError(_('Invalid token found: the Authorize profile is missing.'
-        #                       'Please make sure the token has a valid acquirer reference.'))
-
         res = MP.payment(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), self.reference)
-        # if not self.acquirer_id.capture_manually:
-        #     res = transaction.auth_and_capture(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), self.reference)
-        # else:
-        #     res = transaction.authorize(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), self.reference)
-
-        # res = {'x_response_code': '1', 'x_trans_id': '60157466990', 'x_type': 'auth_capture'}
         return self._mercadopago_s2s_validate_tree(res)
+
+    def _mercadopago_s2s_validate_tree(self, tree):
+        import pdb; pdb.set_trace()
+        if self.state == 'done':
+            _logger.warning('MercadoPago: trying to validate an already validated tx (ref %s)' % self.reference)
+            return True
+        status_code = tree.get('status')
+        if status_code == "approved":
+            init_state = self.state
+            self.write({
+                'acquirer_reference': tree.get('id'),
+                'date': fields.Datetime.now(),
+            })
+
+            self._set_transaction_done()
+
+            if init_state != 'authorized':
+                self.execute_callback()
+
+            return True
+
+        # TODO: desarrollar casos de estados no aprovados
+        # elif status_code == self._authorize_pending_tx_status:
+        #     self.write({'acquirer_reference': tree.get('x_trans_id')})
+        #     self._set_transaction_pending()
+        #     return True
+        else:
+            error = "Error en la transacción"
+            _logger.info(error)
+            self.write({
+                'acquirer_reference': tree.get('id'),
+            })
+            self._set_transaction_error(msg=error)
+            return False
 
     def mercadopago_s2s_do_refound(self, **data):
         import pdb; pdb.set_trace()

@@ -67,7 +67,6 @@ class MercadoPagoController(http.Controller):
             '3d_secure': False,
             'verified': False,
         }
-        import pdb; pdb.set_trace()
         if verify_validity:
             token.validate()
             res['verified'] = token.verified
