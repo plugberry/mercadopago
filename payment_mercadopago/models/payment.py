@@ -184,7 +184,6 @@ class PaymentTransactionMercadoPago(models.Model):
         return self._mercadopago_s2s_validate_tree(res)
 
     def _mercadopago_s2s_validate_tree(self, tree):
-        import pdb; pdb.set_trace()
         if self.state == 'done':
             _logger.warning('MercadoPago: trying to validate an already validated tx (ref %s)' % self.reference)
             return True
@@ -249,9 +248,8 @@ class PaymentTransactionMercadoPago(models.Model):
 class PaymentToken(models.Model):
     _inherit = 'payment.token'
 
-    # save_token = fields.Char(string='Token', readonly=True)
     mercadopago_payment_method = fields.Char('Payment Method ID')
-    # mp_email = fields.Char(string='Email', readonly=True)
+    email = fields.Char(string='Email', readonly=True)
 
     @api.model
     def mercadopago_create(self, values):
@@ -278,7 +276,7 @@ class PaymentToken(models.Model):
                 'name': "%s: XXXX XXXX XXXX %s" % (payment_method, card['last_four_digits']),
                 'acquirer_ref': card['id'],
                 'mercadopago_payment_method': payment_method,
-                # 'mp_email': partner.email,
+                'email': partner.email,
             }
         # else:
         #     raise ValidationError(_('The Token creation in MercadoPago failed.'))

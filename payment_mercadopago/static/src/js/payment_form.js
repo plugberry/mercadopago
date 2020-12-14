@@ -208,7 +208,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
         console.log('HANDLER: payEvent');
         var $checkedRadio = this.$('input[type="radio"]:checked');
 
-        // first we check that the user has selected a stripe as s2s payment method
+        // first we check that the user has selected a MercadoPago as s2s payment method
         if ($checkedRadio.length === 1 && this.isNewPaymentRadio($checkedRadio) && $checkedRadio.data('provider') === 'mercadopago') {
             return this._createMercadoPagoToken(ev, $checkedRadio);
         } else {
@@ -224,7 +224,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
         ev.preventDefault();
         var $checkedRadio = this.$('input[type="radio"]:checked');
 
-        // first we check that the user has selected a stripe as add payment method
+        // first we check that the user has selected a MercadoPago as add payment method
         if ($checkedRadio.length === 1 && this.isNewPaymentRadio($checkedRadio) && $checkedRadio.data('provider') === 'mercadopago') {
             return this._createMercadoPagoToken(ev, $checkedRadio, true);
         } else {

@@ -104,11 +104,37 @@
         </div>
     </template>
 
-    <!-- <template id="mercadopago_payment_tokens_list" name="MercadoPago Token List" inherit_id="payment_tokens_list">
-        <xpath expr="//div[hasclass('payment_option_name')]" position="after">
-            <span>asdsdas</span>
+    <record id="token_form_mercadopago" model="ir.ui.view">
+        <field name='name'>payment.token.form</field>
+        <field name='model'>payment.token</field>
+        <field name="inherit_id" ref="payment.payment_token_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr='//field[@name="acquirer_ref"]' position='after'>
+                <field name="email"/>
+            </xpath>
+        </field>
+    </record>
+
+    <template id="mercadopago_payment_tokens_list" name="MercadoPago Token List" inherit_id="payment.payment_tokens_list">
+        <xpath expr="//t[@t-if='pm.verified']" position="before">
+            <t t-if="pm.acquirer_id.name == 'MercadoPago' and pm.email != request.env.user.email">
+                <span> - </span>
+                <span class="payment_option_name" t-esc="pm.email"/>
+            </t>
         </xpath>
-    </template> -->
+
+        <xpath expr="//button[@name='delete_pm']" position="after">
+            <input t-if="mode == 'payment' and pm.acquirer_id.name == 'MercadoPago'"
+                name="cc_cvc"
+                id="cc_cvc"
+                type="text"
+                placeholder="cvv"
+                maxlength="4"
+                class="form-control col-lg-3"
+                data-is-required="true">
+            </input>
+        </xpath>
+    </template>
 
 </odoo>
 
