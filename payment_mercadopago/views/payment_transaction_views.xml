@@ -8,8 +8,8 @@
         <field name="arch" type="xml">
             <field name='provider' position='after'>
                 <group name="mercadopago_tx" attrs="{'invisible': [('provider', '!=', 'mercadopago')]}">
-                    <field name="mercadopago_txn_id"/>
-                    <field name="mercadopago_txn_type"/>
+                    <!-- <field name="mercadopago_txn_id"/> -->
+                    <!-- <field name="mercadopago_txn_type"/> -->
                 </group>
             </field>
         </field>
