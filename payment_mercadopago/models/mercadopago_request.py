@@ -94,6 +94,31 @@ class MercadoPagoAPI():
         return resp['response']
 
     # Transaction management
+    def cvv_payment(self, token, amount, reference, tok):
+        """
+        MercadoPago payment
+        """
+        customer_id = self.get_customer_profile(token.partner_id)
+
+        values = {
+                "token": tok,
+                "installments": 1,
+                "transaction_amount": amount,
+                "description": "Odoo ~ MercadoPago payment",
+                "payment_method_id": token.mercadopago_payment_method,
+                "payer": {
+                    "type": 'customer',
+                    'id': customer_id
+                },
+            }
+        # if issuer_id:
+        #         payment_data.update(issuer_id=issuer_id)
+
+        resp = self._mercadopago_request("/v1/payments", values)
+
+        if resp['status'] == 201:
+            return resp['response']
+
     def payment(self, token, amount, reference, capture):
         """
         MercadoPago payment
@@ -112,9 +137,10 @@ class MercadoPagoAPI():
         # if issuer_id:
         #         payment_data.update(issuer_id=issuer_id)
 
-        # resp = self._mercadopago_request("/v1/payments", values)
+        resp = self._mercadopago_request("/v1/payments", values)
+        import pdb; pdb.set_trace()
 
-        resp = {
+        resp2 = {
             "id": 20359978,
             "date_created": "2019-07-10T10:47:58.000-04:00",
             "date_approved": "2019-07-10T10:47:58.000-04:00",
@@ -212,6 +238,9 @@ class MercadoPagoAPI():
             "merchant_number": None,
             "acquirer_reconciliation": []
         }
+        if capture:
+            resp = resp2
+
         return resp
 
     def payment_cancel(self, payment_id):

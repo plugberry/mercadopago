@@ -10,6 +10,7 @@ import time
 
 from odoo import _, api, fields, models
 from odoo.addons.payment.models.payment_acquirer import ValidationError
+from odoo.http import request
 # from odoo.addons.payment_mercadopago.controllers.sdk-python.mercadopago import
 # from ..controllers.main import MercadoPagoController
 from odoo.tools.float_utils import float_compare, float_repr
@@ -178,9 +179,15 @@ class PaymentTransactionMercadoPago(models.Model):
 
     def mercadopago_s2s_do_transaction(self, **data):
         self.ensure_one()
+        import pdb; pdb.set_trace()
         MP = MercadoPagoAPI(self.acquirer_id)
-        capture = self.type == 'validation'
-        res = MP.payment(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), self.reference, capture)
+        cvv_token = request.session.get('cvv_token')
+        if cvv_token:
+            res = MP.cvv_payment(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), self.reference, cvv_token)
+            request.session.pop('cvv_token')
+        else:
+            capture = self.type == 'validation'
+            res = MP.payment(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), self.reference, capture)
         return self._mercadopago_s2s_validate_tree(res)
 
     def _mercadopago_s2s_validate_tree(self, tree):
@@ -207,7 +214,7 @@ class PaymentTransactionMercadoPago(models.Model):
 
             return True
 
-        # TODO: desarrollar casos de estados no aprovados
+        # TODO: desarrollar casos de estados no aprobados
         # elif status_code == self._authorize_pending_tx_status:
         #     self.write({'acquirer_reference': tree.get('x_trans_id')})
         #     self._set_transaction_pending()
@@ -276,7 +283,7 @@ class PaymentToken(models.Model):
                 'name': "%s: XXXX XXXX XXXX %s" % (payment_method, card['last_four_digits']),
                 'acquirer_ref': card['id'],
                 'mercadopago_payment_method': payment_method,
-                'email': partner.email,
+                'email': partner.email
             }
         # else:
         #     raise ValidationError(_('The Token creation in MercadoPago failed.'))

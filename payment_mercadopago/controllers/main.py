@@ -73,6 +73,13 @@ class MercadoPagoController(http.Controller):
 
         return res
 
+    @http.route(['/payment/mercadopago/s2s/otp'], type='json', auth='public')
+    def mercadopago_s2s_otp(self, **kwargs):
+        cvv_token = kwargs.get('token')
+        # request.session.update(kwargs)
+        request.session.update({'cvv_token': cvv_token})
+        return {'result': True}
+
     # @http.route(['/payment/mercadopago/s2s/create'], type='http', auth='public')
     # def mercadopago_s2s_create(self, **post):
     #     import pdb; pdb.set_trace()
