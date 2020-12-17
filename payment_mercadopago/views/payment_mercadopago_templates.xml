@@ -18,6 +18,7 @@
         <input type="hidden" name="acquirer_id" t-att-value="id"/>
         <input t-if="return_url" type="hidden" name="return_url" t-att-value="return_url"/>
         <input t-if="partner_id" type="hidden" name="partner_id" t-att-value="partner_id"/>
+        <input type="hidden" name="mercadopago_publishable_key" t-att-value="acq.sudo().mercadopago_publishable_key"/>
         <div t-attf-class="row mt6 #{'' if bootstrap_formatting else 'o_card_brand_detail'}">
             <div t-att-class="'form-group col-lg-5' if bootstrap_formatting else 'form-group'">
                 <!-- <label for="email">Mail</label> -->

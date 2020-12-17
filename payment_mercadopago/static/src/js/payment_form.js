@@ -116,7 +116,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
         _mercadoPagoOTP: function(ev, $checkedRadio, pm_token) {
             console.log('MercadoPago OTP');
             // var acquirerID = this.getAcquirerIdFromRadio($checkedRadio);
-            debugger;
             var self = this;
             var button = ev.target;
             var form = this.el;
@@ -131,7 +130,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
 
             }
             console.log('cvv: ', cvv);
-            let $cvvform = $(
+            let $cvv_form = $(
                 "<form>" +
                 "<li>" +
                 "<select id=\"cardId\" name=\"cardId\" data-checkout='cardId'>" +
@@ -142,10 +141,14 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                 "<input type=\"text\" id=\"cvv\" data-checkout=\"securityCode\" value=\"" + cvv + "\" />" +
                 "</li>" +
                 "</form>");
-            console.log('cvvform');
-            window.Mercadopago.setPublishableKey("TEST-f68c38b9-ba2d-44bf-b6c6-23578cfde81a");
+            console.log('cvv_form');
+            var acquirerID = this.getAcquirerIdFromRadio($checkedRadio);
+            var acquirerForm = this.$('#o_payment_add_token_acq_' + acquirerID);
+            var inputsForm = $('input', acquirerForm);
+            var formData = this.getFormData(inputsForm);
+            window.Mercadopago.setPublishableKey(formData.mercadopago_publishable_key);
             console.log('setPublishableKey');
-            window.Mercadopago.createToken($cvvform, function (status, response) {
+            window.Mercadopago.createToken($cvv_form, function (status, response) {
                 if (status == 200 || status == 201) {
                     var token = response.id;
                     console.log('cvv token: ', token);
@@ -180,7 +183,11 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
             }
             if ($checkedRadio.data('provider') === 'mercadopago' && this.isNewPaymentRadio($checkedRadio)) {
 
-                window.Mercadopago.setPublishableKey("TEST-f68c38b9-ba2d-44bf-b6c6-23578cfde81a");
+                var acquirerID = this.getAcquirerIdFromRadio($checkedRadio);
+                var acquirerForm = this.$('#o_payment_add_token_acq_' + acquirerID);
+                var inputsForm = $('input', acquirerForm);
+                var formData = this.getFormData(inputsForm);
+                window.Mercadopago.setPublishableKey(formData.mercadopago_publishable_key);
                 console.log('set_pub_key');
                 window.Mercadopago.getIdentificationTypes();
                 document.getElementById('cc_number').addEventListener('change', guessPaymentMethod);

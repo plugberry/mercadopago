@@ -25,7 +25,7 @@ class PaymentAcquirerMercadoPago(models.Model):
     provider = fields.Selection(selection_add=[('mercadopago', 'MercadoPago')])
     # mercadopago_client_id = fields.Char('MercadoPago Client Id', required_if_provider='mercadopago')
     # mercadopago_secret_key = fields.Char('MercadoPago Secret Key', required_if_provider='mercadopago')
-    mercadopago_public_key = fields.Char('MercadoPago Public Key', required_if_provider='mercadopago')
+    mercadopago_publishable_key = fields.Char('MercadoPago Public Key', required_if_provider='mercadopago')
     mercadopago_access_token = fields.Char('MercadoPago Access Token', required_if_provider='mercadopago')
 
     # @api.onchange('provider', 'check_validity')
