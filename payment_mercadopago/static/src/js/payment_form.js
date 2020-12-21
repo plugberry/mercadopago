@@ -68,8 +68,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                     console.log('Send token');
                     var inputsForm = $('input', acquirerForm);
                     var formData = self.getFormData(inputsForm);
-                    debugger;
-                    if (! document.getElementById('save_mp').checked) {
+                    if (! addPmEvent && ! document.getElementById('save_mp').checked) {
                         console.log('Save mp: no');
                         return this._mercadoPagoOTP(ev, $checkedRadio, false)
                     } else {
@@ -83,8 +82,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                                     window.location = formData.return_url;
                                 } else {
                                     console.log('OTP from form');
-                                    debugger;
-                                    // _mercadoPagoOTP(ev, $checkedRadio, false)
                                     window.location.reload();
                                 }
                             } else {
@@ -170,6 +167,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                         }
                     });
                 }
+                // TODO: manage else case
             });
         },
 

@@ -121,7 +121,7 @@
 
         <xpath expr="//div[hasclass('card-body')]/label/input[@name='pm_id']" position="attributes">
             <attribute name="t-att-data-acquirer-id">pm.acquirer_id.id</attribute>
-            <attribute name="t-att-data-card_id"> pm.acquirer_ref </attribute>
+            <attribute name="t-att-data-card_id"> pm.token </attribute>
             <attribute name="t-att-data-provider">pm.provider</attribute>
             <!-- <attribute name="t-att-data-customer_id"> pm.partner_id.mp_id </attribute> -->
         </xpath>

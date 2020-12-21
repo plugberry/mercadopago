@@ -179,15 +179,14 @@ class PaymentTransactionMercadoPago(models.Model):
 
     def mercadopago_s2s_do_transaction(self, **data):
         self.ensure_one()
-        import pdb; pdb.set_trace()
         MP = MercadoPagoAPI(self.acquirer_id)
         cvv_token = request.session.get('cvv_token')
+        capture = self.type != 'validation'
         if cvv_token:
-            res = MP.cvv_payment(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), self.reference, cvv_token)
+            res = MP.payment(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), capture, cvv_token)
             request.session.pop('cvv_token')
         else:
-            capture = self.type == 'validation'
-            res = MP.payment(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), self.reference, capture)
+            res = MP.payment(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), capture)
         return self._mercadopago_s2s_validate_tree(res)
 
     def _mercadopago_s2s_validate_tree(self, tree):
@@ -195,9 +194,13 @@ class PaymentTransactionMercadoPago(models.Model):
             _logger.warning('MercadoPago: trying to validate an already validated tx (ref %s)' % self.reference)
             return True
         status_code = tree.get('status')
+        status_detail = tree.get('status_detail')
+        # TODO: revisar bien casos aprobados.
+        #   - Pago normal: approved
+        #   - Pago de autorización: authorized
         # We should check the "status_detail"?
         # in the case of capture payment would be: "pending_capture"
-        if status_code == "approved":
+        if status_code in ["approved", "authorized"]:
             init_state = self.state
             self.write({
                 'acquirer_reference': tree.get('id'),
@@ -209,9 +212,13 @@ class PaymentTransactionMercadoPago(models.Model):
             if init_state != 'authorized':
                 self.execute_callback()
 
-            if self.payment_token_id:
-                self.payment_token_id.verified = True
+            if self.payment_token_id and not self.payment_token_id.verified:
+                self.payment_token_id.mercadopago_update(self.acquirer_id)
 
+            return True
+        elif status_code == "cancelled" and status_detail == 'by_collector':
+            # TODO: Cancelamos la reserva para validación
+            # Hay que hacer algo más del lado de Odoo?
             return True
 
         # TODO: desarrollar casos de estados no aprobados
@@ -255,37 +262,42 @@ class PaymentTransactionMercadoPago(models.Model):
 class PaymentToken(models.Model):
     _inherit = 'payment.token'
 
-    mercadopago_payment_method = fields.Char('Payment Method ID')
+    # mercadopago_payment_method = fields.Char('Payment Method ID')
+    token = fields.Char(string='Token', readonly=True)
     email = fields.Char(string='Email', readonly=True)
 
     @api.model
     def mercadopago_create(self, values):
         if values.get('token') and values.get('payment_method_id'):
             payment_method = values.get('payment_method_id')
-            acquirer = self.env['payment.acquirer'].browse(values['acquirer_id'])
             partner = self.env['res.partner'].browse(values['partner_id'])
             token = values.get('token')
 
-            # buscamos / creamos un customer
-            MP = MercadoPagoAPI(acquirer)
-            customer_id = MP.get_customer_profile(partner)
-            if not customer_id:
-                customer_id = MP.create_customer_profile(partner)
-
-            # buscamos / guardamos la tarjeta
-            card = None  # TODO: delete this
-            cards = MP.get_customer_cards(customer_id)
-            if card not in cards:
-                card = MP.create_customer_card(customer_id, token)
-
             # create the token
             return {
-                'name': "%s: XXXX XXXX XXXX %s" % (payment_method, card['last_four_digits']),
-                'acquirer_ref': card['id'],
-                'mercadopago_payment_method': payment_method,
-                'email': partner.email
+                'name': "MercadoPago card token",
+                'acquirer_ref': payment_method,
+                'email': partner.email,
+                'token': token
             }
         # else:
         #     raise ValidationError(_('The Token creation in MercadoPago failed.'))
         else:
             return values
+
+    def mercadopago_update(self, acquirer):
+        # buscamos / creamos un customer
+        MP = MercadoPagoAPI(acquirer)
+        customer_id = MP.get_customer_profile(self.email)
+        if not customer_id:
+            customer_id = MP.create_customer_profile(self.email)
+
+        # buscamos / guardamos la tarjeta
+        card = None  # TODO: delete this
+        cards = MP.get_customer_cards(customer_id)
+        if card not in cards:
+            card = MP.create_customer_card(customer_id, self.token)
+
+        self.name = "%s: XXXX XXXX XXXX %s" % (self.acquirer_ref, card['last_four_digits'])
+        self.token = card['id']
+        self.verified = True
