@@ -24,22 +24,7 @@ class MercadoPagoAPI():
         self.mp = mercadopago.MP(acquirer.mercadopago_access_token)
         self.mp.sandbox_mode(False) if acquirer.state == "prod" else self.mp.sandbox_mode(True)
 
-    def _mercadopago_request(self, url, data):
-        _logger.info('_mercadopago_request: Sending values to URL %s, values:\n%s', url, data)
-        resp = self.mp.post(url, data)
-        # TODO: mejorar checkeo de respuesta
-        # resp.raise_for_status()
-        # resp = json.loads(resp.content)
-        # _logger.info("_mercadopago_request: Received response:\n%s", resp)
-        # messages = resp.get('messages')
-        # if messages and messages.get('resultCode') == 'Error':
-        #     return {
-        #         'err_code': messages.get('message')[0].get('code'),
-        #         'err_msg': messages.get('message')[0].get('text')
-        #     }
-
-        return resp
-
+    # Customers
     def get_customer_profile(self, partner):
         resp = self.mp.get('/v1/customers/search?%s' % partner.email)
         # TODO: improve check status
@@ -49,32 +34,18 @@ class MercadoPagoAPI():
     def create_customer_profile(self, partner):
         values = {
             'email': partner.email,
-            # 'first_name': _partner_split_name(partner.name)[0],
-            # 'last_name': _partner_split_name(partner.name)[1],
-            # 'phone': {
-            #     'area_code': '023',
-            #     'number': '12345678'
-            # },
-            # 'identification': {
-            #     'type': 'DNI',
-            #     'number': '12345678'
-            # },
-            # 'address': {
-            #     'zip_code': 'SG1 2AX',
-            #     'street_name': 'Old Knebworth Ln'
-            # },
-            # 'description': 'Lorem Ipsum'
         }
 
-        resp = self._mercadopago_request('/v1/customers', values)
-        if resp and resp.get('err_code'):
-            raise UserError(_(
-                "MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+        resp = self.mp.post('/v1/customers', values)
+        # if resp and resp.get('err_code'):
+        #     raise UserError(_(
+        #         "MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
 
         return {
             'id': resp.get('id'),
         }
 
+    # Cards
     def get_customer_cards(self, customer_id):
         resp = self.mp.get('/v1/customers/%s/cards' % customer_id)
         # TODO: improve check status
@@ -85,23 +56,24 @@ class MercadoPagoAPI():
         values = {
             "token": token
         }
-        resp = self._mercadopago_request('/v1/customers/%s/cards' % customer_id, values)
+        resp = self.mp.post('/v1/customers/%s/cards' % customer_id, values)
 
-        if resp and resp.get('err_code'):
-            raise UserError(_(
-                "MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+        # if resp and resp.get('err_code'):
+        #     raise UserError(_(
+        #         "MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
 
         return resp['response']
 
-    # Transaction management
-    def cvv_payment(self, token, amount, reference, tok):
+    # Payments
+    def cvv_payment(self, token, amount, reference, cvv_token):
         """
         MercadoPago payment
         """
+        # TODO: we should save this before?
         customer_id = self.get_customer_profile(token.partner_id)
 
         values = {
-                "token": tok,
+                "token": cvv_token,
                 "installments": 1,
                 "transaction_amount": amount,
                 "description": "Odoo ~ MercadoPago payment",
@@ -114,7 +86,7 @@ class MercadoPagoAPI():
         # if issuer_id:
         #         payment_data.update(issuer_id=issuer_id)
 
-        resp = self._mercadopago_request("/v1/payments", values)
+        resp = self.mp.post("/v1/payments", values)
 
         if resp['status'] == 201:
             return resp['response']
@@ -137,7 +109,7 @@ class MercadoPagoAPI():
         # if issuer_id:
         #         payment_data.update(issuer_id=issuer_id)
 
-        resp = self._mercadopago_request("/v1/payments", values)
+        resp = self.mp.post("/v1/payments", values)
         import pdb; pdb.set_trace()
 
         resp2 = {
