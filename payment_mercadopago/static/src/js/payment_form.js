@@ -5,6 +5,22 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
     var core = require('web.core');
     var PaymentForm = require('payment.payment_form');
     var _t = core._t;
+    var error_messages = {
+        '205': 'El número de la tarjeta de no puede ser vacío.',
+        '208': 'El mes de la fecha de vencimiento no puede esta vacío.',
+        '209': 'El año de la fecha de vencimiento no puede esta vacío.',
+        '212': 'El tipo de documento no puede ser vacío.',
+        '214': 'El número de documento no puede ser vacío.',
+        '221': 'El titular de la tarjeta no puede ser vacío.',
+        '224': 'El código de seguridad no puede ser vacío.',
+        'E301': 'Número de tarjeta inválido.',
+        'E302': 'Código de seguridad inválido.',
+        '316': 'Titular de la tarjeta inválido.',
+        '322': 'Tipo de documento inválido.',
+        '324': 'Número de documento inválido.',
+        '325': 'Fecha de vencimiento inválida.',
+        '326': 'Fecha de vencimiento inválida.',
+    }
 
     PaymentForm.include({
 
@@ -101,7 +117,9 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                     }
 
                 } else {
-                    alert("Verify filled data!\n"+JSON.stringify(response, null, 4));
+                    acquirerForm.removeClass('d-none');
+                    self.enableButton(button);
+                    self.do_warn(_t("Error"),_t(error_messages[response.cause[0].code]));
                 }
             };
         },
@@ -215,8 +233,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                                 document.getElementById('transactionAmount').value
                             );
                         }
-                    } else {
-                        alert(`payment method info error: ${response}`);
                     }
                 };
 
@@ -272,13 +288,16 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                         alert(`installments method info error: ${response}`);
                     }
                 };
-            } else if ($checkedRadio.data('provider') === 'mercadopago'){
-                console.log('isMercadopagoPayExist');
-                // debugger;
-                var acquirerID = this.getAcquirerIdFromRadio($checkedRadio);
-                var card_id = $checkedRadio.data('card_id');
-                var cvv = $('input#'+card_id).val()
+            // TODO: borrar?
+            // } else if ($checkedRadio.data('provider') === 'mercadopago'){
+            //     console.log('isMercadopagoPayExist');
+            //     // debugger;
+            //     var acquirerID = this.getAcquirerIdFromRadio($checkedRadio);
+            //     var card_id = $checkedRadio.data('card_id');
+            //     var cvv = $('input#'+card_id).val()
             }
+            // else {
+            // }
             this._super.apply(this, arguments);
         },
 
