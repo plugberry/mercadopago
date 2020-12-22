@@ -266,9 +266,9 @@ class PaymentTransactionMercadoPago(models.Model):
 class PaymentToken(models.Model):
     _inherit = 'payment.token'
 
-    email = fields.Char(string='Email', readonly=True)
-    save_token = fields.Boolean(string='Save Token', readonly=True)
-    token = fields.Char(string='Token', readonly=True)
+    email = fields.Char('Email', readonly=True)
+    save_token = fields.Boolean('Save Token', default=True, readonly=True)
+    token = fields.Char('Token', readonly=True)
 
     @api.model
     def mercadopago_create(self, values):
@@ -276,7 +276,7 @@ class PaymentToken(models.Model):
             payment_method = values.get('payment_method_id')
             partner = self.env['res.partner'].browse(values['partner_id'])
             token = values.get('token')
-            save_token = True if values.get('save_token') == "true" else False
+            save_token = False if values.get('save_token') == "false" else True
 
             # create the token
             return {

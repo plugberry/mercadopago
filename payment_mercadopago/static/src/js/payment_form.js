@@ -141,6 +141,10 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
             console.log('card_id: ', card_id);
             var tokenID = $checkedRadio.val();
             var cvv = document.getElementById('cc_cvc_' + tokenID).value;
+            if (cvv.length < 3 ){
+                self.do_warn(_t("Error"),_t(error_messages['E302']));
+                return false;
+            }
             console.log('cvv: ', cvv);
             let $cvv_form = $(
                 "<form>" +
@@ -283,16 +287,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                         alert(`installments method info error: ${response}`);
                     }
                 };
-            // TODO: borrar?
-            // } else if ($checkedRadio.data('provider') === 'mercadopago'){
-            //     console.log('isMercadopagoPayExist');
-            //     // debugger;
-            //     var acquirerID = this.getAcquirerIdFromRadio($checkedRadio);
-            //     var card_id = $checkedRadio.data('card_id');
-            //     var cvv = $('input#'+card_id).val()
             }
-            // else {
-            // }
             this._super.apply(this, arguments);
         },
 
