@@ -193,7 +193,6 @@ class PaymentTransactionMercadoPago(models.Model):
         #   - En proceso de pago: in_process
         # We should check the "status_detail"?
         # in the case of capture payment would be: "pending_capture"
-        import pdb; pdb.set_trace()
         if status_code in ["approved", "authorized", "in_process"]:
             init_state = self.state
             self.write({

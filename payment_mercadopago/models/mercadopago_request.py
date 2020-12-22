@@ -24,40 +24,55 @@ class MercadoPagoAPI():
         self.mp = mercadopago.MP(acquirer.mercadopago_access_token)
         self.mp.sandbox_mode(False) if acquirer.state == "prod" else self.mp.sandbox_mode(True)
 
+    def check_response(self, resp):
+        if resp['status'] in [200, 201]:
+            return resp['response']
+        else:
+            return {
+                'err_code': resp['response']['cause'][0].get('code'),
+                'err_msg': resp['response']['cause'][0].get('description')
+            }
+
     # Customers
     def get_customer_profile(self, email):
         resp = self.mp.get('/v1/customers/search?%s' % email)
-        # TODO: improve check status
-        if 'response' in resp and resp['response']['results']:
-            return resp['response']['results'][0]['id']
+        resp = self.check_response(resp)
+
+        if resp.get('err_code'):
+            raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+        else:
+            return resp['results'][0].get('id')
 
     def create_customer_profile(self, email):
         values = {'email': email}
         resp = self.mp.post('/v1/customers', values)
-        # if resp and resp.get('err_code'):
-        #     raise UserError(_(
-        #         "MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+        resp = self.check_response(resp)
 
-        return resp.get('id')
+        if resp.get('err_code'):
+            raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+        else:
+            return resp.get('id')
 
     # Cards
     def get_customer_cards(self, customer_id):
         resp = self.mp.get('/v1/customers/%s/cards' % customer_id)
-        # TODO: improve check status
-        if 'response' in resp:
-            return resp['response']
+        resp = self.check_response(resp)
+        if resp.get('err_code'):
+            raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+        else:
+            return resp
 
     def create_customer_card(self, customer_id, token):
         values = {
             "token": token
         }
         resp = self.mp.post('/v1/customers/%s/cards' % customer_id, values)
+        resp = self.check_response(resp)
 
-        # if resp and resp.get('err_code'):
-        #     raise UserError(_(
-        #         "MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
-
-        return resp['response']
+        if resp.get('err_code'):
+            raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+        else:
+            return resp
 
     # Payments
 
@@ -86,12 +101,14 @@ class MercadoPagoAPI():
         if cvv_token:
             # TODO: we should save this before?
             customer_id = self.get_customer_profile(token.partner_id)
-            values.update({"payer": {"type": 'customer','id': customer_id}})
+            values.update({"payer": {"type": 'customer', 'id': customer_id}})
 
         resp = self.mp.post("/v1/payments", values)
-        if resp['status'] == 201:
-            return resp['response']
-
+        resp = self.check_response(resp)
+        if resp.get('err_code'):
+            raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+        else:
+            return resp
 
     def payment_cancel(self, payment_id):
         """
@@ -101,8 +118,9 @@ class MercadoPagoAPI():
                 "status": "cancelled"
             }
 
-        # access_token = self.mp.customer.get_access_token()
         resp = self.mp.put("/v1/payments/" + payment_id, values)
-
-        if resp['status'] == 200:
-            return resp['response']
+        resp = self.check_response(resp)
+        if resp.get('err_code'):
+            raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+        else:
+            return resp
