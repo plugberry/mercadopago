@@ -20,26 +20,27 @@
         <input t-if="partner_id" type="hidden" name="partner_id" t-att-value="partner_id"/>
         <input type="hidden" name="mercadopago_publishable_key" t-att-value="acq.sudo().mercadopago_publishable_key"/>
         <div t-attf-class="row mt6 #{'' if bootstrap_formatting else 'o_card_brand_detail'}">
+
+            <!-- Email -->
             <div t-att-class="'form-group col-lg-5' if bootstrap_formatting else 'form-group'">
-                <!-- <label for="email">Mail</label> -->
                 <input id="email" name="email" type="text" t-att-value="request.env.user.email" class="form-control"></input>
             </div>
+
+            <!-- Card -->
             <div t-att-class="'form-group col-lg-10' if bootstrap_formatting else 'form-group'">
-                <!-- <label for="cardNumber">Tarjeta</label> -->
                 <input type="tel" name="cc_number" id="cc_number" data-checkout="cardNumber"
-                placeholder="XXXX - XXXX - XXXX - XXXX"
-                onselectstart="return false"
-                oncopy="return false" oncut="return false"
-                ondrag="return false" ondrop="return false" autocomplete="off"
-                class="form-control"
-                data-is-required="true"></input>
+                    placeholder="XXXX - XXXX - XXXX - XXXX"
+                    onselectstart="return false"
+                    oncopy="return false" oncut="return false"
+                    ondrag="return false" ondrop="return false" autocomplete="off"
+                    class="form-control"
+                    data-is-required="true">
+                </input>
                 <div class="card_placeholder"></div>
                 <div class="visa"></div>
                 <input type="hidden" name="cc_brand" value=""/>
             </div>
-            <!-- <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
-                <input type="text" name="cc_expiry" id="cc_expiry" class="form-control" maxlength="7" placeholder="Expires (MM / YY)" data-checkout="cardExpirationMonth" data-is-required="true"/>
-            </div> -->
+
             <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
                 <input type="text" id="cardExpirationMonth" data-checkout="cardExpirationMonth"
                     placeholder="MM"
@@ -47,8 +48,10 @@
                     onselectstart="return false" onpaste="return false"
                     oncopy="return false" oncut="return false"
                     ondrag="return false" ondrop="return false" autocomplete="off"
-                    class="form-control"></input>
+                    class="form-control">
+                </input>
             </div>
+
             <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
                     <input name="cc_expiry" type="text" id="cardExpirationYear" data-checkout="cardExpirationYear"
                         placeholder="YY"
@@ -58,19 +61,22 @@
                         ondrag="return false" ondrop="return false" autocomplete="off"
                         class="form-control"></input>
             </div>
+
             <div t-att-class="'form-group col-lg-10' if bootstrap_formatting else 'form-group'">
-                <!-- <label for="cardholderName">Titular de la tarjeta</label> -->
                 <input id="cardholderName" placeholder="Titular de la tarjeta" data-checkout="cardholderName" type="text" class="form-control"></input>
             </div>
+
+            <!-- Identification -->
             <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
-                <!-- <label for="docType">Documento</label> -->
                 <select id="docType" name="docType" data-checkout="docType" type="text" class="form-control"></select>
             </div>
+
             <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
                 <input id="docNumber" name="docNumber" placeholder="Número" maxlength="16" data-checkout="docNumber" type="text" class="form-control"/>
             </div>
+
+            <!-- Security code -->
             <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
-                <!-- <label for="securityCode">Código de seguridad</label> -->
                 <input name="cc_cvc" id="cc_cvc" data-checkout="securityCode" type="text"
                 placeholder="cvv"
                 maxlength="4"
@@ -78,30 +84,31 @@
                 oncopy="return false" oncut="return false"
                 ondrag="return false" ondrop="return false" autocomplete="off"
                 class="form-control"></input>
-                <!-- <input type="text" name="cc_cvc" id="cc_cvc" class="form-control" maxlength="4" placeholder="CVC" data-is-required="true"/> -->
             </div>
-            <!-- TODO es realmente necesario? -->
-            <div id="issuerInput">
-                <!-- <label for="issuer" type="hidden">Banco emisor</label> -->
-                <select id="issuer" class="o_hidden" type="hidden" name="issuer" data-checkout="issuer"></select>
+
+            <!-- Issuer -->
+            <div id="issuerInput" t-att-class="'form-group col-lg-6' if bootstrap_formatting else 'form-control'">
+                <select id="issuer" type="text" name="issuer" class="o_hidden form-control" data-checkout="issuer"></select>
             </div>
+
+            <!-- Installments -->
             <!-- agregar t-if="mode != 'manage'" -->
             <div t-att-class="'form-group col-lg-6' if bootstrap_formatting else 'form-group'">
                 <!-- <label for="installments">Cuotas</label> -->
-                <select type="text" id="installments" name="installments" class="o_hidden" value="1"></select>
+                <select type="text" id="installments" name="installments" class="o_hidden form-control" value="1"></select>
             </div>
 
+            <!-- Checkbox save card? -->
             <div t-if="mode != 'manage'"  class="form-group col-lg-12" >
                 <input type="checkbox" checked="'checked'" id="save_mp"/>
                 <label for="save_mp"> Save card? </label>
-                <!-- <input type="hidden" name="save_mp_2" value="yes"/> -->
             </div>
+
             <!-- TODO es realmente necesario? -->
             <div>
                 <input type="hidden" name="transactionAmount" id="transactionAmount" />
                 <input type="hidden" name="payment_method_id" id="paymentMethodId" />
                 <input type="hidden" name="description" id="description" />
-                <!-- <button id="pay" type="submit" name="pay">Pagar</button> -->
             </div>
         </div>
     </template>

@@ -88,9 +88,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                         save_token.setAttribute('name', 'save_token');
                         save_token.setAttribute('type', 'hidden');
                         save_token.setAttribute('value', document.getElementById('save_mp').checked);
-                        debugger;
                         form.appendChild(save_token);
-                        debugger;
                     }
                     var inputsForm = $('input', acquirerForm);
                     var formData = self.getFormData(inputsForm);
@@ -217,6 +215,10 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                             "bin": bin
                         }, setPaymentMethod);
                     }
+                    else {
+                        let issuerSelect = document.getElementById('issuer');
+                        issuerSelect.classList.add("o_hidden");
+                    }
                 };
 
                 function setPaymentMethod(status, response) {
@@ -248,6 +250,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                     console.log('setIssuers');
                     if (status == 200) {
                         let issuerSelect = document.getElementById('issuer');
+                        issuerSelect.classList.remove("o_hidden");
                         response.forEach( issuer => {
                             let opt = document.createElement('option');
                             opt.text = issuer.name;
