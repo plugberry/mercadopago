@@ -7,8 +7,8 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
     var _t = core._t;
     var error_messages = {
         '205': 'El número de la tarjeta de no puede ser vacío.',
-        '208': 'El mes de la fecha de vencimiento no puede esta vacío.',
-        '209': 'El año de la fecha de vencimiento no puede esta vacío.',
+        '208': 'La fecha de vencimiento no puede esta vacío.',
+        '209': 'La fecha de vencimiento no puede esta vacío.',
         '212': 'El tipo de documento no puede ser vacío.',
         '214': 'El número de documento no puede ser vacío.',
         '221': 'El titular de la tarjeta no puede ser vacío.',
@@ -82,40 +82,43 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                     doSubmit=true;
                     // form.submit();
                     console.log('Send token');
+                    if (! addPmEvent) {
+                        // TODO: esto se debería poder incluir directamente en el formData y pasarlo directo
+                        let save_token = document.createElement('input');
+                        save_token.setAttribute('name', 'save_token');
+                        save_token.setAttribute('type', 'hidden');
+                        save_token.setAttribute('value', document.getElementById('save_mp').checked);
+                        debugger;
+                        form.appendChild(save_token);
+                        debugger;
+                    }
                     var inputsForm = $('input', acquirerForm);
                     var formData = self.getFormData(inputsForm);
-                    if (! addPmEvent && ! document.getElementById('save_mp').checked) {
-                        console.log('Save mp: no');
-                        return this._mercadoPagoOTP(ev, $checkedRadio, false)
-                    } else {
-                        console.log('Save pm: yes');
-                        self._rpc({
-                            route: formData.data_set,
-                            params: formData
-                        }).then (function (data) {
-                            if (addPmEvent) {
-                                if (formData.return_url) {
-                                    window.location = formData.return_url;
-                                } else {
-                                    console.log('OTP from form');
-                                    window.location.reload();
-                                }
+                    self._rpc({
+                        route: formData.data_set,
+                        params: formData
+                    }).then (function (data) {
+                        if (addPmEvent) {
+                            if (formData.return_url) {
+                                window.location = formData.return_url;
                             } else {
-                                $checkedRadio.val(data.id);
-                                self.el.submit();
+                                console.log('OTP from form');
+                                window.location.reload();
                             }
-                        }).guardedCatch(function (error) {
-                            // if the rpc fails, pretty obvious
-                            error.event.preventDefault();
-                            acquirerForm.removeClass('d-none');
-                            self.enableButton(button);
-                            self.displayError(
-                                _t('Server Error'),
-                                _t("We are not able to add your payment method at the moment.") + self._parseError(error)
-                            );
-                        });
-                    }
-
+                        } else {
+                            $checkedRadio.val(data.id);
+                            self.el.submit();
+                        }
+                    }).guardedCatch(function (error) {
+                        // if the rpc fails, pretty obvious
+                        error.event.preventDefault();
+                        acquirerForm.removeClass('d-none');
+                        self.enableButton(button);
+                        self.displayError(
+                            _t('Server Error'),
+                            _t("We are not able to add your payment method at the moment.") + self._parseError(error)
+                        );
+                    });
                 } else {
                     acquirerForm.removeClass('d-none');
                     self.enableButton(button);
@@ -134,16 +137,10 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
             var self = this;
             var button = ev.target;
             var form = this.el;
-            if (pm_token) {
-                var card_id = $checkedRadio.data('card_id');
-                console.log('card_id: ', card_id);
-                var tokenID = $checkedRadio.val();
-                var cvv = document.getElementById('cc_cvc_' + tokenID).value;
-            } else {
-                // si vengo desde el form
-                debugger;
-
-            }
+            var card_id = $checkedRadio.data('card_id');
+            console.log('card_id: ', card_id);
+            var tokenID = $checkedRadio.val();
+            var cvv = document.getElementById('cc_cvc_' + tokenID).value;
             console.log('cvv: ', cvv);
             let $cvv_form = $(
                 "<form>" +
@@ -177,11 +174,9 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                         console.log('return from otp controller');
                         console.log('resultado: ', data.result);
                         if (data.result) {
-                            if (pm_token) {
-                                // TODO: disable button
-                                // this.disableButton(button);
-                                form.submit();
-                            }
+                            // TODO: disable button
+                            // this.disableButton(button);
+                            form.submit();
                         }
                     });
                 }

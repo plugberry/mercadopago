@@ -128,10 +128,9 @@ class PaymentAcquirerMercadoPago(models.Model):
             'partner_id': int(data.get('partner_id')),
             'token': data.get('token'),
             'payment_method_id': data.get('payment_method_id'),
-            'issuer_id': data.get('issuer_id')
+            'issuer_id': data.get('issuer_id'),
+            'save_token': data.get('save_token')
         }
-        # Una vez cargada la tarjeta y validado el pago
-        # Creamos un customer asociado a la tarjeta y creamos el token
         PaymentMethod = self.env['payment.token'].sudo().create(values)
         return PaymentMethod
 
@@ -212,8 +211,13 @@ class PaymentTransactionMercadoPago(models.Model):
             if init_state != 'authorized':
                 self.execute_callback()
 
-            if self.payment_token_id and not self.payment_token_id.verified:
-                self.payment_token_id.mercadopago_update(self.acquirer_id)
+            if self.payment_token_id:
+                if self.payment_token_id.save_token:
+                    if not self.payment_token_id.verified:
+                        self.payment_token_id.mercadopago_update(self.acquirer_id)
+                else:
+                    self.payment_token_id.name = "MercadoPago DELETED"
+                    self.payment_token_id.active = False
 
             return True
         elif status_code == "cancelled" and status_detail == 'by_collector':
@@ -262,9 +266,9 @@ class PaymentTransactionMercadoPago(models.Model):
 class PaymentToken(models.Model):
     _inherit = 'payment.token'
 
-    # mercadopago_payment_method = fields.Char('Payment Method ID')
-    token = fields.Char(string='Token', readonly=True)
     email = fields.Char(string='Email', readonly=True)
+    save_token = fields.Boolean(string='Save Token', readonly=True)
+    token = fields.Char(string='Token', readonly=True)
 
     @api.model
     def mercadopago_create(self, values):
@@ -272,12 +276,14 @@ class PaymentToken(models.Model):
             payment_method = values.get('payment_method_id')
             partner = self.env['res.partner'].browse(values['partner_id'])
             token = values.get('token')
+            save_token = True if values.get('save_token') == "true" else False
 
             # create the token
             return {
                 'name': "MercadoPago card token",
                 'acquirer_ref': payment_method,
                 'email': partner.email,
+                'save_token': save_token,
                 'token': token
             }
         # else:
