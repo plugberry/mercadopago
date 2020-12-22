@@ -18,38 +18,30 @@ from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
+ERROR_MESSAGES = {
+    'cc_rejected_bad_filled_card_number':   _("Revisa el número de tarjeta."),
+    'cc_rejected_bad_filled_date':          _("Revisa la fecha de vencimiento."),
+    'cc_rejected_bad_filled_other':         _("Revisa los datos."),
+    'cc_rejected_bad_filled_security_code': _("Revisa el código de seguridad de la tarjeta."),
+    'cc_rejected_blacklist':                _("No pudimos procesar tu pago."),
+    'cc_rejected_call_for_authorize':       _("Debes autorizar ante %s el pago de %s."),
+    'cc_rejected_card_disabled':            _("Llama a %s para activar tu tarjeta o usa otro medio de pago.\nEl teléfono está al dorso de tu tarjeta."),
+    'cc_rejected_card_error':               _("No pudimos procesar tu pago."),
+    'cc_rejected_duplicated_payment':       _("Ya hiciste un pago por ese valor.\nSi necesitas volver a pagar usa otra tarjeta u otro medio de pago."),
+    'cc_rejected_high_risk':                _("Tu pago fue rechazado.\nElige otro de los medios de pago, te recomendamos con medios en efectivo."),
+    'cc_rejected_insufficient_amount':      _("Tu %s no tiene fondos suficientes."),
+    'cc_rejected_invalid_installments':     _("%s no procesa pagos en installments cuotas."),
+    'cc_rejected_max_attempts':             _("Llegaste al límite de intentos permitidos.\nElige otra tarjeta u otro medio de pago."),
+    'cc_rejected_other_reason':             _("%s no procesó el pago.")
+}
+
 
 class PaymentAcquirerMercadoPago(models.Model):
     _inherit = 'payment.acquirer'
 
     provider = fields.Selection(selection_add=[('mercadopago', 'MercadoPago')])
-    # mercadopago_client_id = fields.Char('MercadoPago Client Id', required_if_provider='mercadopago')
-    # mercadopago_secret_key = fields.Char('MercadoPago Secret Key', required_if_provider='mercadopago')
     mercadopago_publishable_key = fields.Char('MercadoPago Public Key', required_if_provider='mercadopago')
     mercadopago_access_token = fields.Char('MercadoPago Access Token', required_if_provider='mercadopago')
-
-    # @api.onchange('provider', 'check_validity')
-    # def onchange_check_validity(self):
-    #     if self.provider == 'mercadopago' and self.check_validity:
-    #         self.check_validity = False
-    #         return {'warning': {
-    #             'title': _("Warning"),
-    #             'message': ('This option is not supported for MercadoPago')}}
-
-    # def mp_connect(self):
-    #     self.ensure_one()
-    #     MP = mercadopago.MP(self.mercadopago_access_token)
-    #     MP = mercadopago.MP('TEST-2775253347293690-081210-4dede21e22738444d5fe2f092ee478f3__LC_LB__-113996959')
-    #     # MP = mercadopago.MP(self.mercadopago_client_id, self.mercadopago_secret_key)
-    #     environment = self.state == 'enabled' and 'prod' or 'test'
-    #     if environment == "prod":
-    #         MP.sandbox_mode(False)
-    #     else:
-    #         MP.sandbox_mode(True)
-    #     return MP
-
-    def action_client_secret(self):
-        return True
 
     def _get_feature_support(self):
         """Get advanced feature support by provider.
@@ -181,6 +173,7 @@ class PaymentTransactionMercadoPago(models.Model):
         MP = MercadoPagoAPI(self.acquirer_id)
         cvv_token = request.session.get('cvv_token')
         capture = self.type != 'validation'
+        # TODO: revisar, si es validación el amount es 1.5 (viene de Odoo)
         if cvv_token:
             res = MP.payment(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), capture, cvv_token)
             request.session.pop('cvv_token')
@@ -197,9 +190,11 @@ class PaymentTransactionMercadoPago(models.Model):
         # TODO: revisar bien casos aprobados.
         #   - Pago normal: approved
         #   - Pago de autorización: authorized
+        #   - En proceso de pago: in_process
         # We should check the "status_detail"?
         # in the case of capture payment would be: "pending_capture"
-        if status_code in ["approved", "authorized"]:
+        import pdb; pdb.set_trace()
+        if status_code in ["approved", "authorized", "in_process"]:
             init_state = self.state
             self.write({
                 'acquirer_reference': tree.get('id'),
@@ -224,7 +219,14 @@ class PaymentTransactionMercadoPago(models.Model):
             # TODO: Cancelamos la reserva para validación
             # Hay que hacer algo más del lado de Odoo?
             return True
-
+        elif status_code == "rejected":
+            error = ERROR_MESSAGES[status_detail]
+            _logger.info(error)
+            self.write({
+                'acquirer_reference': tree.get('id'),
+            })
+            self._set_transaction_error(msg=error)
+            return False
         # TODO: desarrollar casos de estados no aprobados
         # elif status_code == self._authorize_pending_tx_status:
         #     self.write({'acquirer_reference': tree.get('x_trans_id')})

@@ -122,6 +122,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                 } else {
                     acquirerForm.removeClass('d-none');
                     self.enableButton(button);
+                    // TODO: ver caso en que venga otro error. Enviar msj por defecto
                     self.do_warn(_t("Error"),_t(error_messages[response.cause[0].code]));
                 }
             };
