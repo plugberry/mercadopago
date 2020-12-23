@@ -56,8 +56,9 @@ class MercadoPagoAPI():
     # Cards
     def get_customer_cards(self, customer_id):
         resp = self.mp.get('/v1/customers/%s/cards' % customer_id)
+        import pdb; pdb.set_trace()
         resp = self.check_response(resp)
-        if resp.get('err_code'):
+        if type(resp) != list and resp.get('err_code'):
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
         else:
             return resp

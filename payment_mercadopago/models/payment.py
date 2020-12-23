@@ -24,13 +24,13 @@ ERROR_MESSAGES = {
     'cc_rejected_bad_filled_other':         _("Revisa los datos."),
     'cc_rejected_bad_filled_security_code': _("Revisa el código de seguridad de la tarjeta."),
     'cc_rejected_blacklist':                _("No pudimos procesar tu pago."),
-    'cc_rejected_call_for_authorize':       _("Debes autorizar ante %s el pago de %s."),
+    'cc_rejected_call_for_authorize':       _("Debes autorizar el pago ante %s."),
     'cc_rejected_card_disabled':            _("Llama a %s para activar tu tarjeta o usa otro medio de pago.\nEl teléfono está al dorso de tu tarjeta."),
     'cc_rejected_card_error':               _("No pudimos procesar tu pago."),
     'cc_rejected_duplicated_payment':       _("Ya hiciste un pago por ese valor.\nSi necesitas volver a pagar usa otra tarjeta u otro medio de pago."),
     'cc_rejected_high_risk':                _("Tu pago fue rechazado.\nElige otro de los medios de pago, te recomendamos con medios en efectivo."),
     'cc_rejected_insufficient_amount':      _("Tu %s no tiene fondos suficientes."),
-    'cc_rejected_invalid_installments':     _("%s no procesa pagos en installments cuotas."),
+    'cc_rejected_invalid_installments':     _("%s no procesa pagos en esa cantidad de cuotas."),
     'cc_rejected_max_attempts':             _("Llegaste al límite de intentos permitidos.\nElige otra tarjeta u otro medio de pago."),
     'cc_rejected_other_reason':             _("%s no procesó el pago.")
 }
@@ -215,7 +215,10 @@ class PaymentTransactionMercadoPago(models.Model):
             # Hay que hacer algo más del lado de Odoo?
             return True
         elif status_code == "rejected":
-            error = ERROR_MESSAGES[status_detail]
+            try:
+                error = ERROR_MESSAGES[status_detail] % self.payment_token_id.acquirer_ref.capitalize()
+            except TypeError:
+                error = ERROR_MESSAGES[status_detail]
             _logger.info(error)
             self.write({
                 'acquirer_reference': tree.get('id'),
@@ -296,11 +299,11 @@ class PaymentToken(models.Model):
         if not customer_id:
             customer_id = MP.create_customer_profile(self.email)
 
-        # buscamos / guardamos la tarjeta
-        card = None  # TODO: delete this
-        cards = MP.get_customer_cards(customer_id)
-        if card not in cards:
-            card = MP.create_customer_card(customer_id, self.token)
+        # TODO: si un cliente tokeniza dos veces la misma tarjeta, debemos buscarla en MercadoPago o crearla nuevamente?
+        # card = None  # TODO: delete this
+        # cards = MP.get_customer_cards(customer_id)
+        # if card not in cards:
+        card = MP.create_customer_card(customer_id, self.token)
 
         self.name = "%s: XXXX XXXX XXXX %s" % (self.acquirer_ref, card['last_four_digits'])
         self.token = card['id']
