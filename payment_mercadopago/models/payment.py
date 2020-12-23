@@ -189,7 +189,7 @@ class PaymentTransactionMercadoPago(models.Model):
         #   - En proceso de pago: in_process
         # We should check the "status_detail"?
         # in the case of capture payment would be: "pending_capture"
-        if status_code in ["approved", "authorized", "in_process"]:
+        if status_code in ["approved", "authorized"]:
             init_state = self.state
             self.write({
                 'acquirer_reference': tree.get('id'),
@@ -201,18 +201,33 @@ class PaymentTransactionMercadoPago(models.Model):
             if init_state != 'authorized':
                 self.execute_callback()
 
+            # TODO: es necesario checkear si hay token?
             if self.payment_token_id:
                 if self.payment_token_id.save_token:
                     if not self.payment_token_id.verified:
                         self.payment_token_id.mercadopago_update(self.acquirer_id)
                 else:
-                    self.payment_token_id.name = "MercadoPago DELETED"
-                    self.payment_token_id.active = False
+                    self.payment_token_id.unlink()
 
+            return True
+        # TODO: deberíamos separar este caso? sería cuando validamos tarjeta
+        # elif status_code == "authorized" and status_detail == "pending_capture":
+        #     self._set_transaction_authorized()
+        #     return True
+        elif status_code == "in_process":
+            self.write({'acquirer_reference': tree.get('id')})
+            self._set_transaction_pending()
+            if self.payment_token_id:
+                if self.payment_token_id.save_token:
+                    if not self.payment_token_id.verified:
+                        self.payment_token_id.mercadopago_update(self.acquirer_id)
+                else:
+                    self.payment_token_id.unlink()
             return True
         elif status_code == "cancelled" and status_detail == 'by_collector':
             # TODO: Cancelamos la reserva para validación
             # Hay que hacer algo más del lado de Odoo?
+            self._set_transaction_cancel()
             return True
         elif status_code == "rejected":
             try:
@@ -224,12 +239,9 @@ class PaymentTransactionMercadoPago(models.Model):
                 'acquirer_reference': tree.get('id'),
             })
             self._set_transaction_error(msg=error)
+            if self.payment_token_id:
+                self.payment_token_id.unlink()
             return False
-        # TODO: desarrollar casos de estados no aprobados
-        # elif status_code == self._authorize_pending_tx_status:
-        #     self.write({'acquirer_reference': tree.get('x_trans_id')})
-        #     self._set_transaction_pending()
-        #     return True
         else:
             error = "Error en la transacción"
             _logger.info(error)
@@ -237,6 +249,8 @@ class PaymentTransactionMercadoPago(models.Model):
                 'acquirer_reference': tree.get('id'),
             })
             self._set_transaction_error(msg=error)
+            if self.payment_token_id:
+                self.payment_token_id.unlink()
             return False
 
     def mercadopago_s2s_do_refund(self, **data):
@@ -245,22 +259,6 @@ class PaymentTransactionMercadoPago(models.Model):
         '''
         MP = MercadoPagoAPI(self.acquirer_id)
         MP.payment_cancel(self.acquirer_reference)
-        # return False
-
-    def mercadopago_s2s_capture_transaction(self):
-        import pdb; pdb.set_trace()
-        self.ensure_one()
-        return False
-
-    def mercadopago_s2s_void_transaction(self):
-        import pdb; pdb.set_trace()
-        self.ensure_one()
-        return False
-
-    def mercadopago_s2s_get_tx_status(self):
-        import pdb; pdb.set_trace()
-        self.ensure_one()
-        return False
 
 
 class PaymentToken(models.Model):
@@ -287,10 +285,8 @@ class PaymentToken(models.Model):
                 'save_token': save_token,
                 'token': values.get('token')
             }
-        # else:
-        #     raise ValidationError(_('The Token creation in MercadoPago failed.'))
         else:
-            return values
+            raise ValidationError(_('The Token creation in MercadoPago failed.'))
 
     def mercadopago_update(self, acquirer):
         # buscamos / creamos un customer
