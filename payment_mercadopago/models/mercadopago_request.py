@@ -95,14 +95,13 @@ class MercadoPagoAPI():
                 },
                 "capture": capture
             }
-        # if issuer_id:
-        #         payment_data.update(issuer_id=issuer_id)
+        if token.issuer:
+            values.update(issuer_id=token.issuer)
 
         if cvv_token:
             # TODO: we should save this before?
             customer_id = self.get_customer_profile(token.partner_id)
             values.update({"payer": {"type": 'customer', 'id': customer_id}})
-
         resp = self.mp.post("/v1/payments", values)
         resp = self.check_response(resp)
         if resp.get('err_code'):

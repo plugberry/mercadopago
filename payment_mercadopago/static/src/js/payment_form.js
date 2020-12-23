@@ -91,7 +91,11 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                         form.appendChild(save_token);
                     }
                     var inputsForm = $('input', acquirerForm);
-                    var formData = self.getFormData(inputsForm);
+                    var formInputs = self.getFormData(inputsForm);
+                    var selectForm = $('select', acquirerForm);
+                    var formSelects = self.getFormData(selectForm);
+                    // var formData = Object.assign({}, formInputs, formSelects);
+                    var formData = {...formInputs,...formSelects}
                     self._rpc({
                         route: formData.data_set,
                         params: formData

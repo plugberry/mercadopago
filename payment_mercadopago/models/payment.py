@@ -120,7 +120,7 @@ class PaymentAcquirerMercadoPago(models.Model):
             'partner_id': int(data.get('partner_id')),
             'token': data.get('token'),
             'payment_method_id': data.get('payment_method_id'),
-            'issuer_id': data.get('issuer_id'),
+            'issuer': data.get('issuer'),
             'save_token': data.get('save_token')
         }
         PaymentMethod = self.env['payment.token'].sudo().create(values)
@@ -138,10 +138,6 @@ class PaymentAcquirerMercadoPago(models.Model):
 
 class PaymentTransactionMercadoPago(models.Model):
     _inherit = 'payment.transaction'
-
-    # TODO: This fields probably will be deleted
-    # mercadopago_txn_id = fields.Char('Transaction ID')
-    # mercadopago_txn_type = fields.Char('Transaction type', help='Informative field computed after payment')
 
     # --------------------------------------------------
     # FORM RELATED METHODS
@@ -268,6 +264,7 @@ class PaymentToken(models.Model):
     _inherit = 'payment.token'
 
     email = fields.Char('Email', readonly=True)
+    issuer = fields.Char('Issuer', readonly=True)
     save_token = fields.Boolean('Save Token', default=True, readonly=True)
     token = fields.Char('Token', readonly=True)
 
@@ -276,7 +273,6 @@ class PaymentToken(models.Model):
         if values.get('token') and values.get('payment_method_id'):
             payment_method = values.get('payment_method_id')
             partner = self.env['res.partner'].browse(values['partner_id'])
-            token = values.get('token')
             save_token = False if values.get('save_token') == "false" else True
 
             # create the token
@@ -284,8 +280,9 @@ class PaymentToken(models.Model):
                 'name': "MercadoPago card token",
                 'acquirer_ref': payment_method,
                 'email': partner.email,
+                'issuer': values.get('issuer'),
                 'save_token': save_token,
-                'token': token
+                'token': values.get('token')
             }
         # else:
         #     raise ValidationError(_('The Token creation in MercadoPago failed.'))
