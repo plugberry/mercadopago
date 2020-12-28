@@ -129,7 +129,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                     acquirerForm.removeClass('d-none');
                     self.enableButton(button);
                     // TODO: ver caso en que venga otro error. Enviar msj por defecto
-                    self.do_warn(_t("Error"),_t(error_messages[response.cause[0].code]));
+                    self.do_warn(_t("Server Error"),_t(error_messages[response.cause[0].code]));
                 }
             };
         },
@@ -140,7 +140,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
          */
         _mercadoPagoOTP: function(ev, $checkedRadio, pm_token) {
             console.log('MercadoPago OTP');
-            // var acquirerID = this.getAcquirerIdFromRadio($checkedRadio);
             var self = this;
             var button = ev.target;
             var form = this.el;
@@ -153,6 +152,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                 return false;
             }
             console.log('cvv: ', cvv);
+            this.disableButton(button);
             let $cvv_form = $(
                 "<form>" +
                 "<li>" +
@@ -185,13 +185,13 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                         console.log('return from otp controller');
                         console.log('resultado: ', data.result);
                         if (data.result) {
-                            // TODO: disable button
-                            // this.disableButton(button);
                             form.submit();
                         }
                     });
+                } else {
+                    self.enableButton(button);
+                    self.do_warn(_t("Server Error"),_t("We are not able to process your payment at the moment.\n"));
                 }
-                // TODO: manage else case
             });
         },
 
