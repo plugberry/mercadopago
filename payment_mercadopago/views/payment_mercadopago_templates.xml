@@ -2,7 +2,6 @@
 <odoo>
 
     <template id="mercadopago_form">
-        <!-- TODO use old mercadopago data -->
         <input type="hidden" name="data_set" t-att-data-action-url="tx_url" data-remove-me=""/>
         <input name="cmd" t-att-value="cmd" type="hidden"/>
     </template>
@@ -102,7 +101,7 @@
                 <label for="save_mp"> Save card? </label>
             </div>
 
-            <!-- TODO es realmente necesario? -->
+            <!-- Extra fields -->
             <div>
                 <input type="hidden" name="transactionAmount" id="transactionAmount" t-att-value="order.amount_total if order else None" />
                 <input type="hidden" name="payment_method_id" id="paymentMethodId" />

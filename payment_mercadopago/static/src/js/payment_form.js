@@ -20,6 +20,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
         '324': 'Número de documento inválido.',
         '325': 'Fecha de vencimiento inválida.',
         '326': 'Fecha de vencimiento inválida.',
+        '0': 'Los datos ingresados no son válidos.',
     }
 
     PaymentForm.include({
@@ -128,8 +129,10 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                 } else {
                     acquirerForm.removeClass('d-none');
                     self.enableButton(button);
-                    // TODO: ver caso en que venga otro error. Enviar msj por defecto
-                    self.do_warn(_t("Server Error"),_t(error_messages[response.cause[0].code]));
+                    var error_msg = error_messages[response.cause[0].code];
+                    if (error_msg === undefined)
+                        error_msg = error_messages['0']
+                    self.do_warn(_t("Server Error"),_t(error_msg));
                 }
             };
         },
