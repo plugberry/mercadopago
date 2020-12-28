@@ -82,13 +82,19 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                     doSubmit=true;
                     // form.submit();
                     console.log('Send token');
+                    debugger;
                     if (! addPmEvent) {
                         // TODO: esto se debería poder incluir directamente en el formData y pasarlo directo
                         let save_token = document.createElement('input');
                         save_token.setAttribute('name', 'save_token');
                         save_token.setAttribute('type', 'hidden');
-                        save_token.setAttribute('value', document.getElementById('save_mp').checked);
+                        if (document.getElementById('save_mp') !== null)
+                            var value = document.getElementById('save_mp').checked;
+                        else
+                            var value = "true";
+                        save_token.setAttribute('value', value);
                         form.appendChild(save_token);
+                        debugger;
                     }
                     var inputsForm = $('input', acquirerForm);
                     var formInputs = self.getFormData(inputsForm);
@@ -118,7 +124,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                         self.enableButton(button);
                         self.displayError(
                             _t('Server Error'),
-                            _t("We are not able to add your payment method at the moment.") + self._parseError(error)
+                            _t("We are not able to add your payment method at the moment.\n")
                         );
                     });
                 } else {
@@ -318,7 +324,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
             if ($checkedRadio.length === 1){
                 if (this.isNewPaymentRadio($checkedRadio) && $checkedRadio.data('provider') === 'mercadopago') {
                     return this._createMercadoPagoToken(ev, $checkedRadio);
-                } else if (this.isMercadoPagoToken($checkedRadio)){
+                } else if (this.isMercadoPagoToken($checkedRadio) && ev.target.innerText === "Pay Now "){
                     return this._mercadoPagoOTP(ev, $checkedRadio, true);
                 }
             } else {

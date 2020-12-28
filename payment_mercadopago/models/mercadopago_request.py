@@ -27,10 +27,16 @@ class MercadoPagoAPI():
     def check_response(self, resp):
         if resp['status'] in [200, 201]:
             return resp['response']
-        else:
+        elif resp['response'].get('cause'):
             return {
                 'err_code': resp['response']['cause'][0].get('code'),
                 'err_msg': resp['response']['cause'][0].get('description')
+            }
+        # TODO: siempre es un error 500?
+        else:
+            return {
+                'err_code': 500,
+                'err_msg': "Server Error"
             }
 
     # Customers
