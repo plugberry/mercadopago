@@ -92,10 +92,8 @@
             </div>
 
             <!-- Installments -->
-            <!-- agregar t-if="mode != 'manage'" -->
-            <div t-att-class="'form-group col-lg-6' if bootstrap_formatting else 'form-group'">
-                <!-- <label for="installments">Cuotas</label> -->
-                <select type="text" id="installments" name="installments" class="o_hidden form-control" value="1"></select>
+            <div t-att-class="'form-group col-lg-8' if bootstrap_formatting else 'form-group'">
+                <select type="text" id="installments" name="installments" class="o_hidden form-control" t-att-data-show-installments="'true' if mode == 'payment' and subscription != 'True' else 'false'"></select>
             </div>
 
             <!-- Checkbox save card? -->
@@ -106,7 +104,7 @@
 
             <!-- TODO es realmente necesario? -->
             <div>
-                <input type="hidden" name="transactionAmount" id="transactionAmount" />
+                <input type="hidden" name="transactionAmount" id="transactionAmount" t-att-value="order.amount_total if order else None" />
                 <input type="hidden" name="payment_method_id" id="paymentMethodId" />
                 <input type="hidden" name="description" id="description" />
             </div>

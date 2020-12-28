@@ -93,7 +93,7 @@ class MercadoPagoAPI():
                 # - el card ID si estamos realizando un pago SIN CVV
                 # - el CVV token si estamos realizando un pago CON CVV
                 "token": cvv_token if cvv_token else token.token,
-                "installments": 1,
+                "installments": token.installments,
                 "transaction_amount": amount,
                 "description": "Odoo ~ MercadoPago payment",
                 "payment_method_id": token.acquirer_ref,

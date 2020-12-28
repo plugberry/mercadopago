@@ -121,6 +121,7 @@ class PaymentAcquirerMercadoPago(models.Model):
             'token': data.get('token'),
             'payment_method_id': data.get('payment_method_id'),
             'issuer': data.get('issuer'),
+            'installments': data.get('installments'),
             'save_token': data.get('save_token')
         }
         PaymentMethod = self.env['payment.token'].sudo().create(values)
@@ -268,6 +269,7 @@ class PaymentToken(models.Model):
     issuer = fields.Char('Issuer', readonly=True)
     save_token = fields.Boolean('Save Token', default=True, readonly=True)
     token = fields.Char('Token', readonly=True)
+    installments = fields.Integer('Installments', readonly=True)
 
     @api.model
     def mercadopago_create(self, values):
@@ -282,6 +284,7 @@ class PaymentToken(models.Model):
                 'acquirer_ref': payment_method,
                 'email': partner.email,
                 'issuer': values.get('issuer'),
+                'installments': int(values.get('installments')),
                 'save_token': save_token,
                 'token': values.get('token')
             }
@@ -302,5 +305,6 @@ class PaymentToken(models.Model):
         card = MP.create_customer_card(customer_id, self.token)
 
         self.name = "%s: XXXX XXXX XXXX %s" % (self.acquirer_ref, card['last_four_digits'])
+        self.installments = 1
         self.token = card['id']
         self.verified = True

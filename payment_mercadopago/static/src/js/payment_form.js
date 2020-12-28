@@ -82,7 +82,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                     doSubmit=true;
                     // form.submit();
                     console.log('Send token');
-                    debugger;
                     if (! addPmEvent) {
                         // TODO: esto se debería poder incluir directamente en el formData y pasarlo directo
                         let save_token = document.createElement('input');
@@ -94,7 +93,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                             var value = "true";
                         save_token.setAttribute('value', value);
                         form.appendChild(save_token);
-                        debugger;
                     }
                     var inputsForm = $('input', acquirerForm);
                     var formInputs = self.getFormData(inputsForm);
@@ -228,6 +226,8 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                     else {
                         let issuerSelect = document.getElementById('issuer');
                         issuerSelect.classList.add("o_hidden");
+                        let installments = document.getElementById('installments');
+                        installments.classList.add("o_hidden");
                     }
                 };
 
@@ -290,12 +290,16 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                 function setInstallments(status, response){
                     console.log('setInstallments');
                     if (status == 200) {
-                        document.getElementById('installments').options.length = 0;
+                        let installments = document.getElementById('installments');
+                        let show_installments = $(installments).data('show-installments');
+                        if (show_installments)
+                            installments.classList.remove("o_hidden");
+                        installments.options.length = 0;
                         response[0].payer_costs.forEach( payerCost => {
                             let opt = document.createElement('option');
                             opt.text = payerCost.recommended_message;
                             opt.value = payerCost.installments;
-                            document.getElementById('installments').appendChild(opt);
+                            installments.appendChild(opt);
                         });
                     } else {
                         alert(`installments method info error: ${response}`);
