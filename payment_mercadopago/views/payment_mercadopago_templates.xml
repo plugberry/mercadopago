@@ -22,7 +22,7 @@
 
             <!-- Email -->
             <div t-att-class="'form-group col-lg-5' if bootstrap_formatting else 'form-group'">
-                <input id="email" name="email" type="text" t-att-value="request.env.user.email" class="form-control"></input>
+                <input id="email" placeholder="email" name="email" type="text" t-att-value="request.env.user.email" class="form-control"></input>
             </div>
 
             <!-- Card -->
@@ -127,6 +127,9 @@
             <attribute name="t-att-data-acquirer-id">pm.acquirer_id.id</attribute>
             <attribute name="t-att-data-card_id"> pm.token </attribute>
             <attribute name="t-att-data-provider">pm.acquirer_id.provider</attribute>
+            <t t-if="subscription == 'True'">
+                <attribute name="t-att-data-subscription">subscription == 'True'</attribute>
+            </t>
             <!-- <attribute name="t-att-data-customer_id"> pm.partner_id.mp_id </attribute> -->
         </xpath>
 

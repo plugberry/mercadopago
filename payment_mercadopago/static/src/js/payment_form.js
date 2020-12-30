@@ -180,6 +180,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                     console.log('cvv token: ', token);
                     // agregar token al env para que le llegue a la transaction
                     console.log('call the otp controller');
+                    // TODO: no debería ser necesario llamar a un controlador para esto
                     self._rpc({
                         route: '/payment/mercadopago/s2s/otp',
                         params: {token: token}
@@ -328,15 +329,15 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
             console.log('HANDLER: payEvent');
             var $checkedRadio = this.$('input[type="radio"]:checked');
             // first we check that the user has selected a MercadoPago as s2s payment method
-            if ($checkedRadio.length === 1){
-                if (this.isNewPaymentRadio($checkedRadio) && $checkedRadio.data('provider') === 'mercadopago') {
+            if ($checkedRadio.length === 1 && $checkedRadio.data('provider') === 'mercadopago'){
+                if (this.isNewPaymentRadio($checkedRadio))
                     return this._createMercadoPagoToken(ev, $checkedRadio);
-                } else if (this.isMercadoPagoToken($checkedRadio) && ev.target.innerText === "Pay Now "){
+                else if (this.isMercadoPagoToken($checkedRadio) && $checkedRadio.data('subscription') != 'True')
                     return this._mercadoPagoOTP(ev, $checkedRadio, true);
-                }
-            } else {
+                else
+                    return this._super.apply(this, arguments);
+            } else
                 return this._super.apply(this, arguments);
-            }
         },
         /**
          * @override
