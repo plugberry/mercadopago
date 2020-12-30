@@ -92,7 +92,8 @@
 
             <!-- Installments -->
             <div t-att-class="'form-group col-lg-8' if bootstrap_formatting else 'form-group'">
-                <select type="text" id="installments" name="installments" class="o_hidden form-control" t-att-data-show-installments="'true' if mode == 'payment' and subscription != 'True' else 'false'"></select>
+                <select type="text" id="installments" name="installments" class="o_hidden form-control" t-att-data-show-installments="'false'"></select>
+                <!-- <select type="text" id="installments" name="installments" class="o_hidden form-control" t-att-data-show-installments="'true' if mode == 'payment' and subscription != 'True' else 'false'"></select> -->
             </div>
 
             <!-- Checkbox save card? -->
