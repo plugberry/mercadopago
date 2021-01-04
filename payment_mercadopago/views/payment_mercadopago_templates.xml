@@ -97,9 +97,9 @@
             </div>
 
             <!-- Checkbox save card? -->
-            <div t-if="mode == 'payment' and subscription != 'True'"  class="form-group col-lg-12" >
-                <input type="checkbox" checked="'checked'" id="save_mp"/>
-                <label for="save_mp"> Save card? </label>
+            <div t-if="mode == 'payment' and subscription != 'True'" t-att-class="'o_hidden' if request.website.is_public_user() else 'form-group col-lg-12'" >
+                    <input type="checkbox" t-att-checked="not request.website.is_public_user()" id="save_mp"/>
+                    <label for="save_mp"> Save card? </label>
             </div>
 
             <!-- Extra fields -->
