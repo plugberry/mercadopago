@@ -22,7 +22,8 @@
 
             <!-- Email -->
             <div t-att-class="'form-group col-lg-5' if bootstrap_formatting else 'form-group'">
-                <input id="email" placeholder="email" name="email" t-att-value="request.env.user.email" t-att-class="'o_hidden' if request.env.user.email else 'form-control'"></input>
+                <t t-set="email" t-value="order.partner_id.email if order and request.website.is_public_user() else request.env.user.email"/>
+                <input id="email" placeholder="email" name="email" t-att-value="email" t-att-class="'o_hidden' if email else 'form-control'"></input>
             </div>
 
             <!-- Card -->
