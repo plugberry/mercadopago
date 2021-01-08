@@ -22,7 +22,7 @@
 
             <!-- Email -->
             <div t-att-class="'form-group col-lg-5' if bootstrap_formatting else 'form-group'">
-                <input id="email" placeholder="email" name="email" type="text" t-att-value="request.env.user.email" class="form-control"></input>
+                <input id="email" placeholder="email" name="email" t-att-value="request.env.user.email" t-att-class="'o_hidden' if request.env.user.email else 'form-control'"></input>
             </div>
 
             <!-- Card -->

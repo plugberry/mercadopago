@@ -120,6 +120,7 @@ class PaymentAcquirerMercadoPago(models.Model):
             'partner_id': int(data.get('partner_id')),
             'token': data.get('token'),
             'payment_method_id': data.get('payment_method_id'),
+            'email': data.get('email'),
             'issuer': data.get('issuer'),
             'installments': data.get('installments'),
             'save_token': data.get('save_token')
@@ -275,14 +276,13 @@ class PaymentToken(models.Model):
     def mercadopago_create(self, values):
         if values.get('token') and values.get('payment_method_id'):
             payment_method = values.get('payment_method_id')
-            partner = self.env['res.partner'].browse(values['partner_id'])
             save_token = False if values.get('save_token') == "false" else True
 
             # create the token
             return {
                 'name': "MercadoPago card token",
                 'acquirer_ref': payment_method,
-                'email': partner.email,
+                'email': values.get('email'),
                 'issuer': values.get('issuer'),
                 'installments': int(values.get('installments')),
                 'save_token': save_token,

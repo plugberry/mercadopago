@@ -51,8 +51,6 @@ class MercadoPagoController(http.Controller):
         except Exception as e:
             error = str(e)
 
-        # token = request.env['payment.acquirer'].browse(int(kwargs.get('acquirer_id'))).with_context(stripe_manual_payment=True).s2s_process(kwargs)
-
         if not token:
             res = {
                 'result': False,
