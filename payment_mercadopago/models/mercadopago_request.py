@@ -97,6 +97,8 @@ class MercadoPagoAPI():
                 "transaction_amount": amount,
                 "description": "Odoo ~ MercadoPago payment",
                 "payment_method_id": token.acquirer_ref,
+                # "sponsor_id": null,
+                "binary_mode": True,
                 "payer": {
                     "email": token.partner_id.email,
                 },
