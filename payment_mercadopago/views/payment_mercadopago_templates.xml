@@ -152,7 +152,8 @@
                     maxlength="4"
                     class="form-control col-lg-3"
                     style="float: right"
-                    data-is-required="true">
+                    data-is-required="true"
+                    data-checkout="securityCode">
                 </input>
         </xpath>
     </template>

@@ -141,46 +141,50 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
          * @param {Event} ev
          * @param {DOMElement} checkedRadio
          */
-        _mercadoPagoOTP: function(ev, $checkedRadio, pm_token) {
+        _mercadoPagoOTP: function(ev, $checkedRadio) {
             console.log('MercadoPago OTP');
             var self = this;
             var button = ev.target;
             var form = this.el;
+            var tokenID = $checkedRadio.val();
+
+            // cvv form
+            var $cvv_form = document.createElement("form");
+
+            // card
             var card_id = $checkedRadio.data('card_id');
             console.log('card_id: ', card_id);
-            var tokenID = $checkedRadio.val();
-            var cvv = document.getElementById('cc_cvc_' + tokenID).value;
-            if (cvv.length < 3 ){
+            let card = document.createElement('input');
+            card.setAttribute('name', 'cardId');
+            card.setAttribute('data-checkout', 'cardId');
+            card.setAttribute('type', 'hidden');
+            card.setAttribute('value', card_id);
+            $cvv_form.appendChild(card);
+
+            // cvv
+            var cvv = document.getElementById('cc_cvc_' + tokenID);
+            $cvv_form.appendChild(cvv);
+            if (cvv.value.length < 3 ){
                 self.do_warn(_t("Error"),_t(error_messages['E302']));
                 return false;
             }
-            console.log('cvv: ', cvv);
+            console.log('cvv: ', cvv.value);
             this.disableButton(button);
-            let $cvv_form = $(
-                "<form>" +
-                "<li>" +
-                "<select id=\"cardId\" name=\"cardId\" data-checkout='cardId'>" +
-                "<option value=\"" + card_id + "\">" +
-                "</select>" +
-                "</li>" +
-                "<li id=\"cvv\">" +
-                "<input type=\"text\" id=\"cvv\" data-checkout=\"securityCode\" value=\"" + cvv + "\" />" +
-                "</li>" +
-                "</form>");
-            console.log('cvv_form');
+
             var acquirerID = this.getAcquirerIdFromRadio($checkedRadio);
             var acquirerForm = this.$('#o_payment_add_token_acq_' + acquirerID);
             var inputsForm = $('input', acquirerForm);
             var formData = this.getFormData(inputsForm);
             window.Mercadopago.setPublishableKey(formData.mercadopago_publishable_key);
             console.log('setPublishableKey');
+
             window.Mercadopago.createToken($cvv_form, function (status, response) {
                 if (status == 200 || status == 201) {
                     var token = response.id;
                     console.log('cvv token: ', token);
-                    // agregar token al env para que le llegue a la transaction
                     console.log('call the otp controller');
                     // TODO: no debería ser necesario llamar a un controlador para esto
+                    // session['cvv_token'] = token ?
                     self._rpc({
                         route: '/payment/mercadopago/s2s/otp',
                         params: {token: token}
@@ -333,7 +337,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                 if (this.isNewPaymentRadio($checkedRadio))
                     return this._createMercadoPagoToken(ev, $checkedRadio);
                 else if (this.isMercadoPagoToken($checkedRadio) && $checkedRadio.data('subscription') != 'True')
-                    return this._mercadoPagoOTP(ev, $checkedRadio, true);
+                    return this._mercadoPagoOTP(ev, $checkedRadio);
                 else
                     return this._super.apply(this, arguments);
             } else
