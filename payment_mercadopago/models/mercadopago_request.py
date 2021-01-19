@@ -81,6 +81,18 @@ class MercadoPagoAPI():
         else:
             return resp
 
+    def get_card_token(self, card_id):
+        values = {
+            "card_id": card_id
+        }
+        resp = self.mp.post("/v1/card_tokens", values)
+        resp = self.check_response(resp)
+
+        if resp.get('err_code'):
+            raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+        else:
+            return resp['id']
+
     # Payments
 
     def payment(self, token, amount, capture=True, cvv_token=None):
@@ -88,11 +100,7 @@ class MercadoPagoAPI():
         MercadoPago payment
         """
         values = {
-                # este token puede ser:
-                # - el primer token que devuelve MP si todavía no obtuvimos un card ID
-                # - el card ID si estamos realizando un pago SIN CVV
-                # - el CVV token si estamos realizando un pago CON CVV
-                "token": cvv_token if cvv_token else token.token,
+                "token": cvv_token or self.get_card_token(token.token),
                 "installments": token.installments,
                 "transaction_amount": amount,
                 "description": "Odoo ~ MercadoPago payment",
@@ -107,10 +115,11 @@ class MercadoPagoAPI():
         if token.issuer:
             values.update(issuer_id=token.issuer)
 
-        if cvv_token:
-            # TODO: we should save this before?
-            customer_id = self.get_customer_profile(token.partner_id)
+        # TODO: revisar si deberíamos hacer esto directamente para todos los casos y ver si guardamos el dato antes
+        if cvv_token or capture:
+            customer_id = self.get_customer_profile(token.partner_id.email)
             values.update({"payer": {"type": 'customer', 'id': customer_id}})
+
         resp = self.mp.post("/v1/payments", values)
         resp = self.check_response(resp)
         if resp.get('err_code'):

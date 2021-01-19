@@ -169,14 +169,17 @@ class PaymentTransactionMercadoPago(models.Model):
     def mercadopago_s2s_do_transaction(self, **data):
         self.ensure_one()
         MP = MercadoPagoAPI(self.acquirer_id)
-        cvv_token = request.session.get('cvv_token')
+
+        # CVV_TOKEN:
+        # If the token is not verified then is a new card so we have de cvv_token in the self.payment_token_id.token
+        # If not, if the payment cames from token WITH cvv the cvv_token will be in the session.
+        # Else, we do not have cvv_token, it's a payment without cvv
+        cvv_token = request.session.pop('cvv_token', None) if self.payment_token_id.verified else self.payment_token_id.token
         capture = self.type != 'validation'
+
         # TODO: revisar, si es validación el amount es 1.5 (viene de Odoo)
-        if cvv_token:
-            res = MP.payment(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), capture, cvv_token)
-            request.session.pop('cvv_token')
-        else:
-            res = MP.payment(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), capture)
+        res = MP.payment(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), capture, cvv_token)
+
         return self._mercadopago_s2s_validate_tree(res)
 
     def _mercadopago_s2s_validate_tree(self, tree):
@@ -185,33 +188,18 @@ class PaymentTransactionMercadoPago(models.Model):
             return True
         status_code = tree.get('status')
         status_detail = tree.get('status_detail')
-        # TODO: revisar bien casos aprobados.
-        #   - Pago normal: approved
-        #   - Pago de autorización: authorized
-        #   - En proceso de pago: in_process
-        # We should check the "status_detail"?
-        # in the case of capture payment would be: "pending_capture"
+
         if status_code in ["approved", "authorized"]:
             init_state = self.state
             self.write({
                 'acquirer_reference': tree.get('id'),
                 'date': fields.Datetime.now(),
             })
-
             self._set_transaction_done()
-
             if init_state != 'authorized':
                 self.execute_callback()
+            res = True
 
-            # TODO: es necesario checkear si hay token?
-            if self.payment_token_id:
-                if self.payment_token_id.save_token:
-                    if not self.payment_token_id.verified:
-                        self.payment_token_id.mercadopago_update(self.acquirer_id)
-                else:
-                    self.payment_token_id.unlink()
-
-            return True
         # TODO: deberíamos separar este caso? sería cuando validamos tarjeta
         # elif status_code == "authorized" and status_detail == "pending_capture":
         #     self._set_transaction_authorized()
@@ -219,13 +207,7 @@ class PaymentTransactionMercadoPago(models.Model):
         elif status_code == "in_process":
             self.write({'acquirer_reference': tree.get('id')})
             self._set_transaction_pending()
-            if self.payment_token_id:
-                if self.payment_token_id.save_token:
-                    if not self.payment_token_id.verified:
-                        self.payment_token_id.mercadopago_update(self.acquirer_id)
-                else:
-                    self.payment_token_id.unlink()
-            return True
+            res = True
         elif status_code == "cancelled" and status_detail == 'by_collector':
             # TODO: Cancelamos la reserva para validación
             # Hay que hacer algo más del lado de Odoo?
@@ -241,9 +223,7 @@ class PaymentTransactionMercadoPago(models.Model):
                 'acquirer_reference': tree.get('id'),
             })
             self._set_transaction_error(msg=error)
-            if self.payment_token_id:
-                self.payment_token_id.unlink()
-            return False
+            res = False
         else:
             error = "Error en la transacción"
             _logger.info(error)
@@ -251,9 +231,16 @@ class PaymentTransactionMercadoPago(models.Model):
                 'acquirer_reference': tree.get('id'),
             })
             self._set_transaction_error(msg=error)
-            if self.payment_token_id:
+            res = False
+
+        if self.payment_token_id:
+            if self.payment_token_id.save_token:
+                if not self.payment_token_id.verified:
+                    self.payment_token_id.mercadopago_update(self.acquirer_id)
+            else:
                 self.payment_token_id.unlink()
-            return False
+
+        return res
 
     def mercadopago_s2s_do_refund(self, **data):
         '''
@@ -286,7 +273,7 @@ class PaymentToken(models.Model):
                 'issuer': values.get('issuer'),
                 'installments': int(values.get('installments')),
                 'save_token': save_token,
-                'token': values.get('token')
+                'token': values.get('token'),
             }
         else:
             raise ValidationError(_('The Token creation in MercadoPago failed.'))
