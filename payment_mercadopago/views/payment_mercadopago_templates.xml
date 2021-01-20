@@ -159,11 +159,13 @@
     </template>
 
     <template id="mercadopago_subscription" name="Subscription MercadoPago" inherit_id="sale_subscription.subscription">
+        <!-- change pm form subscription: remove cvv field -->
         <xpath expr="//div[@id='payment_method']//t[@t-set='mode']" position="after">
             <t t-set="subscription" t-value="'True'"/>
         </xpath>
+        <!-- closed subscription: remove cvv field -->
         <xpath expr="//div[hasclass('clearfix')]//t[@t-set='mode']" position="after">
-            <t t-set="subscription" t-value="'True'"/>
+            <!-- <t t-set="subscription" t-value="'True'"/> -->
         </xpath>
     </template>
 
