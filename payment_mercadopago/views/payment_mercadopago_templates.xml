@@ -30,7 +30,7 @@
 
             <!-- Card -->
             <div t-att-class="'form-group col-lg-10' if bootstrap_formatting else 'form-group'">
-                <input type="tel" name="cc_number" id="cc_number" data-checkout="cardNumber"
+                <input type="tel" id="cc_number" data-checkout="cardNumber"
                     placeholder="XXXX - XXXX - XXXX - XXXX"
                     onselectstart="return false"
                     oncopy="return false" oncut="return false"
@@ -55,13 +55,14 @@
             </div>
 
             <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
-                    <input name="cc_expiry" type="text" id="cardExpirationYear" data-checkout="cardExpirationYear"
-                        placeholder="YY"
-                        maxlength="2"
-                        onselectstart="return false" onpaste="return false"
-                        oncopy="return false" oncut="return false"
-                        ondrag="return false" ondrop="return false" autocomplete="off"
-                        class="form-control"></input>
+                <input type="text" id="cardExpirationYear" data-checkout="cardExpirationYear"
+                    placeholder="YY"
+                    maxlength="2"
+                    onselectstart="return false" onpaste="return false"
+                    oncopy="return false" oncut="return false"
+                    ondrag="return false" ondrop="return false" autocomplete="off"
+                    class="form-control">
+                </input>
             </div>
 
             <div t-att-class="'form-group col-lg-10' if bootstrap_formatting else 'form-group'">
@@ -79,7 +80,7 @@
 
             <!-- Security code -->
             <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
-                <input name="cc_cvc" id="cc_cvc" data-checkout="securityCode" type="text"
+                <input id="cc_cvc" data-checkout="securityCode" type="text"
                 placeholder="cvv"
                 maxlength="4"
                 onselectstart="return false" onpaste="return false"
@@ -100,8 +101,8 @@
 
             <!-- Checkbox save card? -->
             <div t-if="mode == 'payment' and subscription != 'True'" t-att-class="'o_hidden' if request.website.is_public_user() else 'form-group col-lg-12'" >
-                    <input type="checkbox" t-att-checked="not request.website.is_public_user()" id="save_mp"/>
-                    <label for="save_mp"> Save card? </label>
+                <input type="checkbox" t-att-checked="not request.website.is_public_user()" id="save_mp"/>
+                <label for="save_mp"> Save card? </label>
             </div>
 
             <!-- Extra fields -->
@@ -118,9 +119,9 @@
         <field name='model'>payment.token</field>
         <field name="inherit_id" ref="payment.payment_token_form_view"/>
         <field name="arch" type="xml">
-            <xpath expr='//field[@name="acquirer_ref"]' position='after'>
-                <field name="email"/>
-            </xpath>
+        <xpath expr='//field[@name="acquirer_ref"]' position='after'>
+            <field name="email"/>
+        </xpath>
         </field>
     </record>
 
@@ -133,7 +134,6 @@
             <t t-if="subscription == 'True'">
                 <attribute name="t-att-data-subscription">subscription == 'True'</attribute>
             </t>
-            <!-- <attribute name="t-att-data-customer_id"> pm.partner_id.mp_id </attribute> -->
         </xpath>
 
         <xpath expr="//t[@t-if='pm.verified']" position="before">
@@ -144,17 +144,16 @@
         </xpath>
 
         <xpath expr="//button[@name='delete_pm']" position="after">
-                <input t-if="mode == 'payment' and subscription != 'True' and pm.acquirer_id.provider == 'mercadopago'"
-                    name="cc_cvc"
-                    t-attf-id="cc_cvc_{{pm.id}}"
-                    type="text"
-                    placeholder="cvv"
-                    maxlength="4"
-                    class="form-control col-lg-3"
-                    style="float: right"
-                    data-is-required="true"
-                    data-checkout="securityCode">
-                </input>
+            <input t-if="mode == 'payment' and subscription != 'True' and pm.acquirer_id.provider == 'mercadopago'"
+                t-attf-id="cc_cvc_{{pm.id}}"
+                type="text"
+                placeholder="cvv"
+                maxlength="4"
+                class="form-control col-lg-3"
+                style="float: right"
+                data-is-required="true"
+                data-checkout="securityCode">
+            </input>
         </xpath>
     </template>
 
