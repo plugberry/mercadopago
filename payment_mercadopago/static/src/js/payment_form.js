@@ -231,12 +231,10 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                             "bin": bin
                         }, setPaymentMethod);
                     }
-                    else {
-                        let issuerSelect = document.getElementById('issuer');
-                        issuerSelect.classList.add("o_hidden");
-                        let installments = document.getElementById('installments');
-                        installments.classList.add("o_hidden");
-                    }
+                    let issuerSelect = document.getElementById('issuer');
+                    issuerSelect.classList.add("o_hidden");
+                    let installments = document.getElementById('installments');
+                    installments.classList.add("o_hidden");
                 };
 
                 function setPaymentMethod(status, response) {
