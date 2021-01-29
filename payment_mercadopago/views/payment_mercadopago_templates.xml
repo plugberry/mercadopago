@@ -168,5 +168,16 @@
         </xpath>
     </template>
 
+    <template id="mercadopago_confirmation" inherit_id="website_sale.confirmation">
+        <xpath expr="//div[@id='oe_structure_website_sale_confirmation_2']" position="after">
+            <t t-if="payment_tx_id.state == 'error'">
+                <a role="button" href="/shop/payment" class="btn btn-secondary mb32 d-none d-xl-inline-block">
+                    <span class="fa fa-chevron-left" />
+                    <span class="">Return to Payment</span>
+                </a>
+            </t>
+        </xpath>
+    </template>
+
 </odoo>
 
