@@ -15,7 +15,6 @@ try:
 except ImportError:
     _logger.debug('Cannot import external_dependency mercadopago')
 
-
 class MercadoPagoAPI():
     """ MercadoPago API integration.
     """
@@ -23,6 +22,7 @@ class MercadoPagoAPI():
     def __init__(self, acquirer):
         self.mp = mercadopago.MP(acquirer.mercadopago_access_token)
         self.mp.sandbox_mode(False) if acquirer.state == "prod" else self.mp.sandbox_mode(True)
+        self.mp.set_platform_id("BVH38T5N7QOK0PPDGC2G")
 
     def check_response(self, resp):
         if resp['status'] in [200, 201]:
