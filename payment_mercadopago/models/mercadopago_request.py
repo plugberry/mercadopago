@@ -5,8 +5,10 @@ import requests
 
 from odoo import _
 from odoo.exceptions import UserError
+from werkzeug import urls
 
 from odoo.addons.payment.models.payment_acquirer import _partner_split_name
+from odoo.addons.payment_mercadopago.controllers.main import MercadoPagoController
 
 _logger = logging.getLogger(__name__)
 
@@ -14,6 +16,7 @@ try:
     from mercadopago import mercadopago
 except ImportError:
     _logger.debug('Cannot import external_dependency mercadopago')
+
 
 class MercadoPagoAPI():
     """ MercadoPago API integration.
@@ -95,7 +98,7 @@ class MercadoPagoAPI():
 
     # Payments
 
-    def payment(self, token, amount, capture=True, cvv_token=None):
+    def payment(self, acquirer, token, amount, capture=True, cvv_token=None):
         """
         MercadoPago payment
         """
@@ -105,11 +108,11 @@ class MercadoPagoAPI():
                 "transaction_amount": amount,
                 "description": "Odoo ~ MercadoPago payment",
                 "payment_method_id": token.acquirer_ref,
-                # "sponsor_id": null,
-                "binary_mode": True,
+                "binary_mode": False,
                 "payer": {
                     "email": token.partner_id.email,
                 },
+                "notification_url": urls.url_join(acquirer.get_base_url(), MercadoPagoController._notify_url),
                 "capture": capture
             }
         if token.issuer:
@@ -137,6 +140,15 @@ class MercadoPagoAPI():
 
         resp = self.mp.put("/v1/payments/" + payment_id, values)
         resp = self.check_response(resp)
+        if resp.get('err_code'):
+            raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+        else:
+            return resp
+
+    def get_payment(self, payment_id):
+        resp = self.mp.get("/v1/payments/%s" % payment_id)
+        resp = self.check_response(resp)
+
         if resp.get('err_code'):
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
         else:
