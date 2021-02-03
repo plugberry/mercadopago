@@ -178,7 +178,7 @@ class PaymentTransactionMercadoPago(models.Model):
         capture = self.type != 'validation'
 
         # TODO: revisar, si es validación el amount es 1.5 (viene de Odoo)
-        res = MP.payment(self.payment_token_id, round(self.amount, self.currency_id.decimal_places), capture, cvv_token)
+        res = MP.payment(self.acquirer_id, self.payment_token_id, round(self.amount, self.currency_id.decimal_places), capture, cvv_token)
 
         return self._mercadopago_s2s_validate_tree(res)
 

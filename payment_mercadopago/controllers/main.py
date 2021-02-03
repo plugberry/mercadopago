@@ -18,26 +18,9 @@ try:
 except ImportError:
     _logger.debug('Cannot import external_dependency mercadopago')
 
-class MercadoPagoController(http.Controller):
-    _return_url = '/payment/mercadopago/return/'
-    _cancel_url = '/payment/mercadopago/cancel/'
 
-    @http.route([
-        '/payment/mercadopago/return/',
-        '/payment/mercadopago/cancel/',
-    ], type='http', auth='public', csrf=False)
-    def mercadopago_form_feedback(self, **post):
-        import pdb; pdb.set_trace()
-        _logger.info('MercadoPago: entering form_feedback with post data %s', pprint.pformat(post))
-        if post:
-            request.env['payment.transaction'].sudo().form_feedback(post, 'mercadopago')
-        base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
-        # Authorize.Net is expecting a response to the POST sent by their server.
-        # This response is in the form of a URL that Authorize.Net will pass on to the
-        # client's browser to redirect them to the desired location need javascript.
-        return request.render('payment_mercadopago.payment_mercadopago_redirect', {
-            'return_url': urls.url_join(base_url, "/payment/process")
-        })
+class MercadoPagoController(http.Controller):
+    _notify_url = '/payment/mercadopago/notification?source_news=webhooks'
 
     @http.route(['/payment/mercadopago/s2s/create_json_3ds'], type='json', auth='public', csrf=False)
     def mercadopago_s2s_create_json_3ds(self, verify_validity=False, **kwargs):
@@ -78,11 +61,16 @@ class MercadoPagoController(http.Controller):
         request.session.update({'cvv_token': cvv_token})
         return {'result': True}
 
-    # @http.route(['/payment/mercadopago/s2s/create'], type='http', auth='public')
-    # def mercadopago_s2s_create(self, **post):
-    #     import pdb; pdb.set_trace()
-    #     acquirer_id = int(post.get('acquirer_id'))
-    #     acquirer = request.env['payment.acquirer'].browse(acquirer_id)
-    #     acquirer.s2s_process(post)
-    #     return utils.redirect("/payment/process")
-
+    @http.route(['/payment/mercadopago/notification'], type='json', methods=['POST'], auth='public')
+    def mercadopago_s2s_notification(self, payment_id=None, type=None, **kwargs):
+        IrLogging = request.env['ir.logging']
+        IrLogging.sudo().create({
+                    'name': 'MercadoPago Notification!',
+                    'type': 'client',
+                    'dbname': 'Odoo13',
+                    'level': 'DEBUG',
+                    'message': kwargs,
+                    'path': "/payment/mercadopago/notification",
+                    'func': "mercadopago_s2s_notification",
+                    'line': 1})
+        return True
