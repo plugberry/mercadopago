@@ -196,6 +196,8 @@ class PaymentTransactionMercadoPago(models.Model):
                 'date': fields.Datetime.now(),
             })
             self._set_transaction_done()
+            for order in self.sale_order_ids:
+                order.client_order_ref = _("MercadoPago ID: %s" % tree.get('id'))
             if init_state != 'authorized':
                 self.execute_callback()
             res = True
