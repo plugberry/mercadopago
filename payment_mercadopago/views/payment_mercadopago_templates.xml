@@ -101,8 +101,8 @@
 
             <!-- Checkbox save card? -->
             <div t-if="mode == 'payment' and subscription != 'True'" t-att-class="'o_hidden' if request.website.is_public_user() else 'form-group col-lg-12'" >
-                <input type="checkbox" t-att-checked="not request.website.is_public_user()" id="save_mp"/>
-                <label for="save_mp"> Save card? </label>
+                <input name = "save_token" type="checkbox" t-att-checked="not request.website.is_public_user()" id="save_token"/>
+                <label for="save_token"> Save card? </label>
             </div>
 
             <!-- Extra fields -->
