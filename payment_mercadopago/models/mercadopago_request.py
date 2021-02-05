@@ -35,7 +35,11 @@ class MercadoPagoAPI():
                 'err_code': resp['response']['cause'][0].get('code'),
                 'err_msg': resp['response']['cause'][0].get('description')
             }
-        # TODO: siempre es un error 500?
+        elif resp['response'].get('error'):
+            return {
+                'err_code': resp['response'].get('status', 0),
+                'err_msg': resp['response'].get('error')
+            }
         else:
             return {
                 'err_code': 500,
