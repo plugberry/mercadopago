@@ -44,7 +44,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
          * @param {Boolean} addPmEvent
          */
         _createMercadoPagoToken: function(ev, $checkedRadio, addPmEvent) {
-            console.log('_createMercadoPagoToken');
             var self = this;
             if (ev.type === 'submit') {
                 var button = $(ev.target).find('*[type="submit"]')[0]
@@ -61,7 +60,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
             getCardToken(ev);
 
             function getCardToken(event){
-                console.log('getCardToken');
                 event.preventDefault();
                 if(!doSubmit){
                     let $form = document.getElementById(formID);
@@ -71,9 +69,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
             };
 
             function setCardTokenAndPay(status, response) {
-                console.log('setCardTokenAndPay');
                 if (status == 200 || status == 201) {
-                    console.log('setCardTokenAndPay 200');
                     let form = document.getElementById(formID);
                     let card = document.createElement('input');
                     card.setAttribute('name', 'token');
@@ -81,25 +77,10 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                     card.setAttribute('value', response.id);
                     form.appendChild(card);
                     doSubmit=true;
-                    // form.submit();
-                    console.log('Send token');
-                    if (! addPmEvent) {
-                        // TODO: esto se debería poder incluir directamente en el formData y pasarlo directo
-                        let save_token = document.createElement('input');
-                        save_token.setAttribute('name', 'save_token');
-                        save_token.setAttribute('type', 'hidden');
-                        if (document.getElementById('save_mp') !== null)
-                            var value = document.getElementById('save_mp').checked;
-                        else
-                            var value = "true";
-                        save_token.setAttribute('value', value);
-                        form.appendChild(save_token);
-                    }
                     var inputsForm = $('input', acquirerForm);
                     var formInputs = self.getFormData(inputsForm);
                     var selectForm = $('select', acquirerForm);
                     var formSelects = self.getFormData(selectForm);
-                    // var formData = Object.assign({}, formInputs, formSelects);
                     var formData = {...formInputs,...formSelects}
                     self._rpc({
                         route: formData.data_set,
@@ -109,7 +90,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                             if (formData.return_url) {
                                 window.location = formData.return_url;
                             } else {
-                                console.log('OTP from form');
                                 window.location.reload();
                             }
                         } else {
@@ -142,7 +122,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
          * @param {DOMElement} checkedRadio
          */
         _mercadoPagoOTP: function(ev, $checkedRadio) {
-            console.log('MercadoPago OTP');
             var self = this;
             var button = ev.target;
             var form = this.el;
@@ -153,7 +132,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
 
             // card
             var card_id = $checkedRadio.data('card_id');
-            console.log('card_id: ', card_id);
             let card = document.createElement('input');
             card.setAttribute('name', 'cardId');
             card.setAttribute('data-checkout', 'cardId');
@@ -168,7 +146,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                 self.do_warn(_t("Error"),_t(error_messages['E302']));
                 return false;
             }
-            console.log('cvv: ', cvv.value);
             this.disableButton(button);
 
             var acquirerID = this.getAcquirerIdFromRadio($checkedRadio);
@@ -176,13 +153,10 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
             var inputsForm = $('input', acquirerForm);
             var formData = this.getFormData(inputsForm);
             window.Mercadopago.setPublishableKey(formData.mercadopago_publishable_key);
-            console.log('setPublishableKey');
 
             window.Mercadopago.createToken($cvv_form, function (status, response) {
                 if (status == 200 || status == 201) {
                     var token = response.id;
-                    console.log('cvv token: ', token);
-                    console.log('call the otp controller');
                     // TODO: no debería ser necesario llamar a un controlador para esto
                     // session['cvv_token'] = token ?
                     self._rpc({
@@ -190,8 +164,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                         params: {token: token}
                     }).then (function (data) {
                         // if the server has returned true
-                        console.log('return from otp controller');
-                        console.log('resultado: ', data.result);
                         if (data.result) {
                             form.submit();
                         }
@@ -205,7 +177,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
 
         // method to complete de form
         updateNewPaymentDisplayStatus: function () {
-            console.log('mp_updateNewPaymentDisplayStatus');
             var $checkedRadio = this.$('input[type="radio"]:checked');
 
             if ($checkedRadio.length !== 1) {
@@ -218,12 +189,10 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                 var inputsForm = $('input', acquirerForm);
                 var formData = this.getFormData(inputsForm);
                 window.Mercadopago.setPublishableKey(formData.mercadopago_publishable_key);
-                console.log('set_pub_key');
                 window.Mercadopago.getIdentificationTypes();
                 document.getElementById('cc_number').addEventListener('change', guessPaymentMethod);
 
                 function guessPaymentMethod(event) {
-                    console.log('guessPaymentMethod');
                     let cardnumber = document.getElementById("cc_number").value.split(" ").join("");
                     if (cardnumber.length >= 6) {
                         let bin = cardnumber.substring(0,6);
@@ -238,7 +207,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                 };
 
                 function setPaymentMethod(status, response) {
-                    console.log('setPaymentMethod');
                     if (status == 200) {
                         let paymentMethod = response[0];
                         document.getElementById('paymentMethodId').value = paymentMethod.id;
@@ -255,7 +223,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                 };
 
                 function getIssuers(paymentMethodId) {
-                    console.log('getIssuers');
                     window.Mercadopago.getIssuers(
                         paymentMethodId,
                         setIssuers
@@ -263,7 +230,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                 };
 
                 function setIssuers(status, response) {
-                    console.log('setIssuers');
                     if (status == 200) {
                         let issuerSelect = document.getElementById('issuer');
                         issuerSelect.classList.remove("o_hidden");
@@ -285,7 +251,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                 };
 
                 function getInstallments(paymentMethodId, transactionAmount, issuerId){
-                    console.log('getInstallments');
                     window.Mercadopago.getInstallments({
                         "payment_method_id": paymentMethodId,
                         "amount": parseFloat(transactionAmount),
@@ -294,7 +259,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                 };
 
                 function setInstallments(status, response){
-                    console.log('setInstallments');
                     if (status == 200) {
                         let installments = document.getElementById('installments');
                         let show_installments = $(installments).data('show-installments');
@@ -328,7 +292,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
          */
         payEvent: function (ev) {
             ev.preventDefault();
-            console.log('HANDLER: payEvent');
             var $checkedRadio = this.$('input[type="radio"]:checked');
             // first we check that the user has selected a MercadoPago as s2s payment method
             if ($checkedRadio.length === 1 && $checkedRadio.data('provider') === 'mercadopago'){
@@ -345,7 +308,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
          * @override
          */
         addPmEvent: function (ev) {
-            console.log('addPmEvent');
             ev.stopPropagation();
             ev.preventDefault();
             var $checkedRadio = this.$('input[type="radio"]:checked');

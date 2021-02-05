@@ -264,17 +264,14 @@ class PaymentToken(models.Model):
     @api.model
     def mercadopago_create(self, values):
         if values.get('token') and values.get('payment_method_id'):
-            payment_method = values.get('payment_method_id')
-            save_token = False if values.get('save_token') == "false" else True
-
             # create the token
             return {
                 'name': "MercadoPago card token",
-                'acquirer_ref': payment_method,
+                'acquirer_ref': values.get('payment_method_id'),
                 'email': values.get('email'),
                 'issuer': values.get('issuer'),
-                'installments': int(values.get('installments')),
-                'save_token': save_token,
+                'installments': int(values.get('installments', 1)),
+                'save_token': values.get('save_token') == "on",
                 'token': values.get('token'),
             }
         else:
