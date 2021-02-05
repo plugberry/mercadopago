@@ -139,7 +139,7 @@
         <xpath expr="//t[@t-if='pm.verified']" position="before">
             <t t-if="pm.acquirer_id.provider == 'mercadopago' and pm.email != request.env.user.email">
                 <span> - </span>
-                <span class="payment_option_name" t-esc="pm.email"/>
+                <span class="payment_option_name" t-esc="pm.hide_email(pm.email)"/>
             </t>
         </xpath>
 
