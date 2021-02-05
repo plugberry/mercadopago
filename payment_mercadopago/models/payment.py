@@ -290,7 +290,11 @@ class PaymentToken(models.Model):
         # if card not in cards:
         card = MP.create_customer_card(customer_id, self.token)
 
-        self.name = "%s: XXXX XXXX XXXX %s" % (self.acquirer_ref, card['last_four_digits'])
+        self.name = "%s: XXXX XXXX XXXX %s" % (self.acquirer_ref.capitalize(), card['last_four_digits'])
         self.installments = 1
         self.token = card['id']
         self.verified = True
+
+    def hide_email(self, email):
+        username = email.split("@")[0]
+        return(email.replace(username, username[:3]+"***"))
