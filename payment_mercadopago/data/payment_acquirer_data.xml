@@ -9,6 +9,8 @@
         <!-- <field name="sequence">3</field> -->
         <field name="mercadopago_publishable_key">dummy</field>
         <field name="mercadopago_access_token">dummy</field>
+        <field name="check_validity">True</field>
+        <field name="payment_flow">s2s</field>
         <field name="view_template_id" ref="mercadopago_form"/>
         <field name="registration_view_template_id" ref="mercadopago_s2s_form"/>
         <field name="image_128" type="base64" file="payment_mercadopago/static/description/icon.png"/>
