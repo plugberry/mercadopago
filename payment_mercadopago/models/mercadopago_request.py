@@ -1,14 +1,9 @@
 # -*- coding: utf-8 -*-
-import json
 import logging
-import requests
 
 from odoo import _
 from odoo.exceptions import UserError
 from werkzeug import urls
-
-from odoo.addons.payment.models.payment_acquirer import _partner_split_name
-from odoo.addons.payment_mercadopago.controllers.main import MercadoPagoController
 
 _logger = logging.getLogger(__name__)
 
@@ -107,17 +102,17 @@ class MercadoPagoAPI():
         MercadoPago payment
         """
         values = {
-                "token": cvv_token or self.get_card_token(token.token),
-                "installments": token.installments,
-                "transaction_amount": amount,
-                "description": "Odoo ~ MercadoPago payment",
-                "payment_method_id": token.acquirer_ref,
-                "binary_mode": True,
-                "payer": {
-                    "email": token.partner_id.email,
-                },
-                "notification_url": urls.url_join(acquirer.get_base_url(), MercadoPagoController._notify_url),
-                "capture": capture
+            "token": cvv_token or self.get_card_token(token.token),
+            "installments": token.installments,
+            "transaction_amount": amount,
+            "description": "Odoo ~ MercadoPago payment",
+            "payment_method_id": token.acquirer_ref,
+            "binary_mode": True,
+            "payer": {
+                "email": token.partner_id.email,
+            },
+            "notification_url": urls.url_join(acquirer.get_base_url(), "/payment/mercadopago/notification"),
+            "capture": capture
         }
         if token.issuer:
             values.update(issuer_id=token.issuer)
@@ -139,8 +134,8 @@ class MercadoPagoAPI():
         MercadoPago cancelation payment
         """
         values = {
-                "status": "cancelled"
-            }
+            "status": "cancelled"
+        }
 
         resp = self.mp.put("/v1/payments/" + payment_id, values)
         resp = self.check_response(resp)
