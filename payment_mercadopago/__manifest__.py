@@ -5,7 +5,7 @@
     'summary': 'Payment Acquirer: MercadoPago Implementation',
     'version': '13.0.1.0.0',
     'description': """MercadoPago Payment Acquirer""",
-    'depends': ['payment', 'sale_subscription', 'website_sale'],
+    'depends': ['payment'],
     'external_dependencies': {
         'python': ['mercadopago'],
     },

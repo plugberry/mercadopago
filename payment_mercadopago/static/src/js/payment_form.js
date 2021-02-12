@@ -283,10 +283,6 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
         // Handlers
         //--------------------------------------------------------------------------
 
-        isMercadoPagoToken: function(element) {
-            return $(element).data('provider') === 'mercadopago';
-        },
-
         /**
          * @override
          */
@@ -297,7 +293,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
             if ($checkedRadio.length === 1 && $checkedRadio.data('provider') === 'mercadopago'){
                 if (this.isNewPaymentRadio($checkedRadio))
                     return this._createMercadoPagoToken(ev, $checkedRadio);
-                else if (this.isMercadoPagoToken($checkedRadio) && $checkedRadio.data('subscription') != 'True')
+                else if ($checkedRadio.data('cvv') === 'True')
                     return this._mercadoPagoOTP(ev, $checkedRadio);
                 else
                     return this._super.apply(this, arguments);
