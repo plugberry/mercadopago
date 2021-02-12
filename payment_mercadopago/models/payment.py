@@ -1,38 +1,28 @@
 # coding: utf-8
-from werkzeug import urls
-
 from .mercadopago_request import MercadoPagoAPI
-from mercadopago import mercadopago
-import hashlib
-import hmac
 import logging
-import time
 
 from odoo import _, api, fields, models
 from odoo.addons.payment.models.payment_acquirer import ValidationError
 from odoo.http import request
-# from odoo.addons.payment_mercadopago.controllers.sdk-python.mercadopago import
-# from ..controllers.main import MercadoPagoController
-from odoo.tools.float_utils import float_compare, float_repr
-from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
 ERROR_MESSAGES = {
-    'cc_rejected_bad_filled_card_number':   _("Revisa el número de tarjeta."),
-    'cc_rejected_bad_filled_date':          _("Revisa la fecha de vencimiento."),
-    'cc_rejected_bad_filled_other':         _("Revisa los datos."),
+    'cc_rejected_bad_filled_card_number': _("Revisa el número de tarjeta."),
+    'cc_rejected_bad_filled_date': _("Revisa la fecha de vencimiento."),
+    'cc_rejected_bad_filled_other': _("Revisa los datos."),
     'cc_rejected_bad_filled_security_code': _("Revisa el código de seguridad de la tarjeta."),
-    'cc_rejected_blacklist':                _("No pudimos procesar tu pago."),
-    'cc_rejected_call_for_authorize':       _("Debes autorizar el pago ante %s."),
-    'cc_rejected_card_disabled':            _("Llama a %s para activar tu tarjeta o usa otro medio de pago.\nEl teléfono está al dorso de tu tarjeta."),
-    'cc_rejected_card_error':               _("No pudimos procesar tu pago."),
-    'cc_rejected_duplicated_payment':       _("Ya hiciste un pago por ese valor.\nSi necesitas volver a pagar usa otra tarjeta u otro medio de pago."),
-    'cc_rejected_high_risk':                _("Tu pago fue rechazado.\nElige otro de los medios de pago, te recomendamos con medios en efectivo."),
-    'cc_rejected_insufficient_amount':      _("Tu %s no tiene fondos suficientes."),
-    'cc_rejected_invalid_installments':     _("%s no procesa pagos en esa cantidad de cuotas."),
-    'cc_rejected_max_attempts':             _("Llegaste al límite de intentos permitidos.\nElige otra tarjeta u otro medio de pago."),
-    'cc_rejected_other_reason':             _("%s no procesó el pago.")
+    'cc_rejected_blacklist': _("No pudimos procesar tu pago."),
+    'cc_rejected_call_for_authorize': _("Debes autorizar el pago ante %s."),
+    'cc_rejected_card_disabled': _("Llama a %s para activar tu tarjeta o usa otro medio de pago.\nEl teléfono está al dorso de tu tarjeta."),
+    'cc_rejected_card_error': _("No pudimos procesar tu pago."),
+    'cc_rejected_duplicated_payment': _("Ya hiciste un pago por ese valor.\nSi necesitas volver a pagar usa otra tarjeta u otro medio de pago."),
+    'cc_rejected_high_risk': _("Tu pago fue rechazado.\nElige otro de los medios de pago, te recomendamos con medios en efectivo."),
+    'cc_rejected_insufficient_amount': _("Tu %s no tiene fondos suficientes."),
+    'cc_rejected_invalid_installments': _("%s no procesa pagos en esa cantidad de cuotas."),
+    'cc_rejected_max_attempts': _("Llegaste al límite de intentos permitidos.\nElige otra tarjeta u otro medio de pago."),
+    'cc_rejected_other_reason': _("%s no procesó el pago.")
 }
 
 
@@ -57,61 +47,6 @@ class PaymentAcquirerMercadoPago(models.Model):
         res = super(PaymentAcquirerMercadoPago, self)._get_feature_support()
         res['tokenize'].append('mercadopago')
         return res
-
-    def _get_mercadopago_urls(self, environment):
-        """ MercadoPago URLs """
-        import pdb; pdb.set_trace()
-        if environment == 'prod':
-            return {'mercadopago_form_url': 'https://www.mercadopago.com.ar/'}
-        else:
-            return {'mercadopago_form_url': 'https://www.mercadopago.com.ar/'}
-
-    def mercadopago_form_generate_values(self, values):
-        self.ensure_one()
-        import pdb; pdb.set_trace()
-        mercadopago_tx_values = dict(values)
-        base_url = self.get_base_url()
-
-        temp_mercadopago_tx_values = {
-            # 'x_login': self.mercadopago_login,
-            'x_amount': float_repr(values['amount'], values['currency'].decimal_places if values['currency'] else 2),
-            'x_show_form': 'PAYMENT_FORM',
-            'x_type': 'AUTH_CAPTURE' if not self.capture_manually else 'AUTH_ONLY',
-            'x_method': 'CC',
-            'x_fp_sequence': '%s%s' % (self.id, int(time.time())),
-            'x_version': '3.1',
-            'x_relay_response': 'TRUE',
-            'x_fp_timestamp': str(int(time.time())),
-            # 'x_relay_url': urls.url_join(base_url, MercadoPagoController._success_url),
-            # 'x_cancel_url': urls.url_join(base_url, MercadoPagoController._failure_url),
-            'x_currency_code': values['currency'] and values['currency'].name or '',
-            'address': values.get('partner_address'),
-            'city': values.get('partner_city'),
-            'country': values.get('partner_country') and values.get('partner_country').name or '',
-            'email': values.get('partner_email'),
-            'zip_code': values.get('partner_zip'),
-            'first_name': values.get('partner_first_name'),
-            'last_name': values.get('partner_last_name'),
-            'phone': values.get('partner_phone'),
-            'billing_address': values.get('billing_partner_address'),
-            'billing_city': values.get('billing_partner_city'),
-            'billing_country': values.get('billing_partner_country') and values.get(
-            'billing_partner_country').name or '',
-            'billing_email': values.get('billing_partner_email'),
-            'billing_zip_code': values.get('billing_partner_zip'),
-            'billing_first_name': values.get('billing_partner_first_name'),
-            'billing_last_name': values.get('billing_partner_last_name'),
-            'billing_phone': values.get('billing_partner_phone'),
-        }
-        mercadopago_tx_values.update(temp_mercadopago_tx_values)
-        import pdb; pdb.set_trace()
-        return mercadopago_tx_values
-
-    def mercadopago_get_form_action_url(self):
-        self.ensure_one()
-        environment = 'prod' if self.state == 'enabled' else 'test'
-        import pdb; pdb.set_trace()
-        return self._get_mercadopago_urls(environment)['mercadopago_form_url']
 
     @api.model
     def mercadopago_s2s_form_process(self, data):
@@ -140,27 +75,6 @@ class PaymentAcquirerMercadoPago(models.Model):
 
 class PaymentTransactionMercadoPago(models.Model):
     _inherit = 'payment.transaction'
-
-    # --------------------------------------------------
-    # FORM RELATED METHODS
-    # --------------------------------------------------
-
-    @api.model
-    def _mercadopago_form_get_tx_from_data(self, data):
-        """ Given a data dict coming from mercadopago, verify it and find the related
-        transaction record.
-        """
-        import pdb; pdb.set_trace()
-        pass
-
-    def _mercadopago_form_get_invalid_parameters(self, data):
-        invalid_parameters = []
-        import pdb; pdb.set_trace()
-        return invalid_parameters
-
-    def _mercadopago_form_validate(self, data):
-        import pdb; pdb.set_trace()
-        return False
 
     # --------------------------------------------------
     # SERVER2SERVER RELATED METHODS
@@ -297,4 +211,4 @@ class PaymentToken(models.Model):
 
     def hide_email(self, email):
         username = email.split("@")[0]
-        return(email.replace(username, username[:3]+"***"))
+        return(email.replace(username, username[:3] + "***"))

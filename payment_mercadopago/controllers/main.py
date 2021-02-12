@@ -3,24 +3,18 @@
 # directory
 ##############################################################################
 
-import pprint
+# import pprint
 import logging
-from werkzeug import urls, utils
 
-from odoo import http, fields
-from odoo.addons.payment.controllers.portal import PaymentProcessing
+from odoo import http
 from odoo.http import request
-from odoo.tools.safe_eval import safe_eval
+from odoo.addons.payment_mercadopago.models.mercadopago_request import MercadoPagoAPI
+from urllib import parse
 
 _logger = logging.getLogger(__name__)
-try:
-    from mercadopago import mercadopago
-except ImportError:
-    _logger.debug('Cannot import external_dependency mercadopago')
 
 
 class MercadoPagoController(http.Controller):
-    _notify_url = '/payment/mercadopago/notification?source_news=webhooks'
 
     @http.route(['/payment/mercadopago/s2s/create_json_3ds'], type='json', auth='public', csrf=False)
     def mercadopago_s2s_create_json_3ds(self, verify_validity=False, **kwargs):
