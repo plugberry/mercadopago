@@ -112,13 +112,13 @@ class MercadoPagoAPI():
                 "transaction_amount": amount,
                 "description": "Odoo ~ MercadoPago payment",
                 "payment_method_id": token.acquirer_ref,
-                "binary_mode": False,
+                "binary_mode": True,
                 "payer": {
                     "email": token.partner_id.email,
                 },
                 "notification_url": urls.url_join(acquirer.get_base_url(), MercadoPagoController._notify_url),
                 "capture": capture
-            }
+        }
         if token.issuer:
             values.update(issuer_id=token.issuer)
 

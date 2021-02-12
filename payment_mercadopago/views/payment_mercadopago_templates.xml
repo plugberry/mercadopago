@@ -96,11 +96,11 @@
 
             <!-- Installments -->
             <div t-att-class="'form-group col-lg-8' if bootstrap_formatting else 'form-group'">
-                <select type="text" id="installments" name="installments" class="o_hidden form-control" t-att-data-show-installments="'true' if mode == 'payment' and subscription != 'True' and amount else 'false'"></select>
+                <select type="text" id="installments" name="installments" class="o_hidden form-control" t-att-data-show-installments="'true' if mode == 'payment' and not verify_validity and amount else 'false'"></select>
             </div>
 
             <!-- Checkbox save card? -->
-            <div t-att-class="'o_hidden' if request.website.is_public_user() or mode == 'manage' or subscription == 'True' else 'form-group col-lg-12'" >
+            <div t-att-class="'o_hidden' if request.website.is_public_user() or mode == 'manage' or verify_validity == True else 'form-group col-lg-12'" >
                 <input name = "save_token" type="checkbox" t-att-checked="not request.website.is_public_user()" id="save_token"/>
                 <label for="save_token"> Save card? </label>
             </div>
@@ -131,9 +131,7 @@
             <attribute name="t-att-data-acquirer-id">pm.acquirer_id.id</attribute>
             <attribute name="t-att-data-card_id"> pm.token </attribute>
             <attribute name="t-att-data-provider">pm.acquirer_id.provider</attribute>
-            <t t-if="subscription == 'True'">
-                <attribute name="t-att-data-subscription">subscription == 'True'</attribute>
-            </t>
+            <attribute name="t-att-data-cvv">mode == 'payment' and not verify_validity and pm.acquirer_id.provider == 'mercadopago'</attribute>
         </xpath>
 
         <xpath expr="//t[@t-if='pm.verified']" position="before">
@@ -144,7 +142,7 @@
         </xpath>
 
         <xpath expr="//button[@name='delete_pm']" position="after">
-            <input t-if="mode == 'payment' and subscription != 'True' and pm.acquirer_id.provider == 'mercadopago'"
+            <input t-if="mode == 'payment' and not verify_validity and pm.acquirer_id.provider == 'mercadopago'"
                 t-attf-id="cc_cvc_{{pm.id}}"
                 type="text"
                 placeholder="cvv"
@@ -154,33 +152,6 @@
                 data-is-required="true"
                 data-checkout="securityCode">
             </input>
-        </xpath>
-    </template>
-
-    <template id="mercadopago_subscription" name="Subscription MercadoPago" inherit_id="sale_subscription.subscription">
-        <!-- change pm form subscription: remove cvv field -->
-        <xpath expr="//div[@id='payment_method']//t[@t-set='mode']" position="after">
-            <t t-set="subscription" t-value="'True'"/>
-        </xpath>
-        <!-- closed subscription: remove cvv field -->
-        <xpath expr="//div[hasclass('clearfix')]//t[@t-set='mode']" position="after">
-            <t t-set="subscription" t-value="'True'"/>
-        </xpath>
-    </template>
-
-    <template id="mercadopago_confirmation" inherit_id="website_sale.confirmation">
-        <xpath expr="//t[@t-esc='order.get_portal_last_transaction().acquirer_id.name']" position="after">
-            <t t-if="order.client_order_ref and order.get_portal_last_transaction().acquirer_id.provider == 'mercadopago'">
-                <t t-esc="order.client_order_ref.replace('MercadoPago', '')"/>
-            </t>
-        </xpath>
-        <xpath expr="//div[@id='oe_structure_website_sale_confirmation_2']" position="after">
-            <t t-if="payment_tx_id.state == 'error'">
-                <a role="button" href="/shop/payment" class="btn btn-secondary mb32 d-none d-xl-inline-block">
-                    <span class="fa fa-chevron-left" />
-                    <span class="">Return to Payment</span>
-                </a>
-            </t>
         </xpath>
     </template>
 
