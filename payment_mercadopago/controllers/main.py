@@ -62,15 +62,14 @@ class MercadoPagoController(http.Controller):
         return {'result': True}
 
     @http.route(['/payment/mercadopago/notification'], type='json', methods=['POST'], auth='public')
-    def mercadopago_s2s_notification(self, payment_id=None, type=None, **kwargs):
-        IrLogging = request.env['ir.logging']
-        IrLogging.sudo().create({
-                    'name': 'MercadoPago Notification!',
-                    'type': 'client',
-                    'dbname': 'Odoo13',
-                    'level': 'DEBUG',
-                    'message': kwargs,
-                    'path': "/payment/mercadopago/notification",
-                    'func': "mercadopago_s2s_notification",
-                    'line': 1})
-        return True
+    def mercadopago_s2s_notification(self, **kwargs):
+        querys = parse.urlsplit(request.httprequest.url).query
+        params = dict(parse.parse_qsl(querys))
+        if (params and params.get('payment_type') == 'payment' and params.get('data.id')):
+            acquirer = request.env["payment.acquirer"].search([('provider', '=', 'mercadopago')])
+            payment_id = params['data.id']
+            tx = request.env['payment.transaction'].sudo().search([('acquirer_reference', '=', payment_id)])
+            MP = MercadoPagoAPI(acquirer)
+            tree = MP.get_payment(payment_id)
+            return tx._mercadopago_s2s_validate_tree(tree)
+        return False
