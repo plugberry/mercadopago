@@ -113,5 +113,5 @@ class MercadoPayment(PaymentAcquirerCommon):
             'brand': 'VISA'})
 
         res = tx.mercadopago_s2s_execute({})
-    
-    
+
+        self.assertEqual(tx.state, 'done')
