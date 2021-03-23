@@ -6,4 +6,31 @@
         <field name="mercadopago_access_token">TEST-2775253347293690-081210-4dede21e22738444d5fe2f092ee478f3__LC_LB__-113996959</field>
     </record>
 
+    <record id="payment_acquirer_mercadopago_redirect" model="payment.acquirer">
+        <field name="name">MercadoPago Redirect</field>
+        <field name="provider">mercadopago</field>
+        <field name="company_id" ref="base.main_company"/>
+        <field name="image_128" type="base64" file="payment_mercadopago/static/description/icon.png"/>
+        <field name="mercadopago_client_id">2285999378925428</field>
+        <field name="mercadopago_secret_key">BRiYAPa3QAozapMpIFcT1JmilVAYOHNz</field>
+        <field name="display_as">MercadoPago (redirect)</field>
+        <field name="view_template_id" ref="mercadopago_form"/>
+        <field name="fees_active" eval="True"/>
+        <field name="description" type="html">
+            <p>
+                A payment platform to accept online payments.
+            </p>
+            <ul class="list-inline">
+                <li class="list-inline-item"><i class="fa fa-check"/>Online Payment</li>
+                <li class="list-inline-item"><i class="fa fa-check"/>Payment Status Tracking</li>
+            </ul>
+        </field>
+        <field name="pre_msg"><![CDATA[
+            <p>You will be redirected to the MercadoPago website after cliking on the payment button.</p>]]>
+        </field>
+        <field name="pending_msg"><![CDATA[
+            <p>Pendiente de acreditación. Su pago todavía no ha sido confirmado por Mercadopago, le informaremos cuando esto suceda y validaremos el pedido.</p>]]>
+        </field>
+    </record>
+
 </odoo>
