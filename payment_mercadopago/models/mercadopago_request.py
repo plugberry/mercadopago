@@ -19,7 +19,8 @@ class MercadoPagoAPI():
 
     def __init__(self, acquirer):
         self.mp = mercadopago.MP(acquirer.mercadopago_access_token)
-        self.mp.sandbox_mode(False) if acquirer.state == "prod" else self.mp.sandbox_mode(True)
+        self.mp.sandbox_mode(False) if acquirer.state == "enabled" else self.mp.sandbox_mode(True)
+        self.sandbox = not acquirer.state == "enabled"
         self.mp.set_platform_id("BVH38T5N7QOK0PPDGC2G")
 
     def check_response(self, resp):
@@ -40,6 +41,18 @@ class MercadoPagoAPI():
                 'err_code': 500,
                 'err_msg': "Server Error"
             }
+
+    # Preference
+    def create_preference(self, preference):
+        resp = self.mp.create_preference(preference)
+        if self.sandbox:
+            _logger.info('Preference Result:\n%s' % resp)
+        resp = self.check_response(resp)
+
+        if resp.get('err_code'):
+            raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+        else:
+            return resp['sandbox_init_point'] if self.sandbox else resp['init_point']
 
     # Customers
     def get_customer_profile(self, email):
@@ -64,7 +77,6 @@ class MercadoPagoAPI():
     # Cards
     def get_customer_cards(self, customer_id):
         resp = self.mp.get('/v1/customers/%s/cards' % customer_id)
-        import pdb; pdb.set_trace()
         resp = self.check_response(resp)
         if type(resp) != list and resp.get('err_code'):
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
@@ -123,6 +135,8 @@ class MercadoPagoAPI():
             values.update({"payer": {"type": 'customer', 'id': customer_id}})
 
         resp = self.mp.post("/v1/payments", values)
+        if self.sandbox:
+            _logger.info('Payment Result:\n%s' % resp)
         resp = self.check_response(resp)
         if resp.get('err_code'):
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
