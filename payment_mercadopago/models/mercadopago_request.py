@@ -8,7 +8,8 @@ from werkzeug import urls
 _logger = logging.getLogger(__name__)
 
 try:
-    from mercadopago import mercadopago
+    import mercadopago
+    from mercadopago.config import RequestOptions
 except ImportError:
     _logger.debug('Cannot import external_dependency mercadopago')
 
@@ -18,10 +19,10 @@ class MercadoPagoAPI():
     """
 
     def __init__(self, acquirer):
-        self.mp = mercadopago.MP(acquirer.mercadopago_access_token)
-        self.mp.sandbox_mode(False) if acquirer.state == "enabled" else self.mp.sandbox_mode(True)
+        request_options = RequestOptions(acquirer.mercadopago_access_token, platform_id="BVH38T5N7QOK0PPDGC2G")
+        self.mp = mercadopago.SDK(acquirer.mercadopago_access_token, request_options=request_options)
+        # self.mp.sandbox_mode(False) if acquirer.state == "enabled" else self.mp.sandbox_mode(True)
         self.sandbox = not acquirer.state == "enabled"
-        self.mp.set_platform_id("BVH38T5N7QOK0PPDGC2G")
 
     def check_response(self, resp):
         if resp['status'] in [200, 201]:
@@ -44,7 +45,7 @@ class MercadoPagoAPI():
 
     # Preference
     def create_preference(self, preference):
-        resp = self.mp.create_preference(preference)
+        resp = self.mp.preference().create(preference)
         if self.sandbox:
             _logger.info('Preference Result:\n%s' % resp)
         resp = self.check_response(resp)
@@ -56,7 +57,8 @@ class MercadoPagoAPI():
 
     # Customers
     def get_customer_profile(self, email):
-        resp = self.mp.get('/v1/customers/search?%s' % email)
+        values = {'email': email}
+        resp = self.mp.customer().search(values)
         resp = self.check_response(resp)
 
         if resp.get('err_code'):
@@ -66,7 +68,7 @@ class MercadoPagoAPI():
 
     def create_customer_profile(self, email):
         values = {'email': email}
-        resp = self.mp.post('/v1/customers', values)
+        resp = self.mp.customer().create(values)
         resp = self.check_response(resp)
 
         if resp.get('err_code'):
@@ -76,7 +78,7 @@ class MercadoPagoAPI():
 
     # Cards
     def get_customer_cards(self, customer_id):
-        resp = self.mp.get('/v1/customers/%s/cards' % customer_id)
+        resp = self.mp.card().list_all(customer_id)
         resp = self.check_response(resp)
         if type(resp) != list and resp.get('err_code'):
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
@@ -87,7 +89,7 @@ class MercadoPagoAPI():
         values = {
             "token": token
         }
-        resp = self.mp.post('/v1/customers/%s/cards' % customer_id, values)
+        resp = self.mp.card().create(customer_id, values)
         resp = self.check_response(resp)
 
         if resp.get('err_code'):
@@ -99,7 +101,7 @@ class MercadoPagoAPI():
         values = {
             "card_id": card_id
         }
-        resp = self.mp.post("/v1/card_tokens", values)
+        resp = self.mp.card_token().create(values)
         resp = self.check_response(resp)
 
         if resp.get('err_code'):
@@ -108,7 +110,6 @@ class MercadoPagoAPI():
             return resp['id']
 
     # Payments
-
     def payment(self, acquirer, token, amount, capture=True, cvv_token=None):
         """
         MercadoPago payment
@@ -134,7 +135,7 @@ class MercadoPagoAPI():
             customer_id = self.get_customer_profile(token.partner_id.email)
             values.update({"payer": {"type": 'customer', 'id': customer_id}})
 
-        resp = self.mp.post("/v1/payments", values)
+        resp = self.mp.payment().create(values)
         if self.sandbox:
             _logger.info('Payment Result:\n%s' % resp)
         resp = self.check_response(resp)
@@ -151,7 +152,7 @@ class MercadoPagoAPI():
             "status": "cancelled"
         }
 
-        resp = self.mp.put("/v1/payments/" + payment_id, values)
+        resp = self.mp.payment().update(payment_id, values)
         resp = self.check_response(resp)
         if resp.get('err_code'):
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
@@ -159,7 +160,7 @@ class MercadoPagoAPI():
             return resp
 
     def get_payment(self, payment_id):
-        resp = self.mp.get("/v1/payments/%s" % payment_id)
+        resp = self.mp.payment().get(payment_id)
         resp = self.check_response(resp)
 
         if resp.get('err_code'):
