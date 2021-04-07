@@ -376,8 +376,6 @@ class PaymentToken(models.Model):
         # buscamos / creamos un customer
         MP = MercadoPagoAPI(acquirer)
         customer_id = MP.get_customer_profile(self.email)
-        if not customer_id:
-            customer_id = MP.create_customer_profile(self.email)
 
         # TODO: si un cliente tokeniza dos veces la misma tarjeta, debemos buscarla en MercadoPago o crearla nuevamente?
         # card = None  # TODO: delete this

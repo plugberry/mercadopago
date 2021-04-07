@@ -64,7 +64,11 @@ class MercadoPagoAPI():
         if resp.get('err_code'):
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
         else:
-            return resp['results'][0].get('id')
+            try:
+                customer_id = resp['results'][0].get('id')
+            except IndexError:
+                customer_id = self.create_customer_profile(email)
+            return customer_id
 
     def create_customer_profile(self, email):
         values = {'email': email}
