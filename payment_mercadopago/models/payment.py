@@ -33,13 +33,12 @@ class PaymentAcquirerMercadoPago(models.Model):
     _inherit = 'payment.acquirer'
 
     provider = fields.Selection(selection_add=[('mercadopago', 'MercadoPago')])
-    mercadopago_publishable_key = fields.Char('MercadoPago Public Key', required_if_provider='mercadopago')
-    mercadopago_access_token = fields.Char('MercadoPago Access Token', required_if_provider='mercadopago')
+    mercadopago_publishable_key = fields.Char('MercadoPago Public Key')
+    mercadopago_access_token = fields.Char('MercadoPago Access Token')
 
     # Fields add by MercadoPago redirect
-    # TODO Can we use mercadopago_publishable_key and mercadopago_access_token?
-    mercadopago_client_id = fields.Char('MercadoPago Client Id', required_if_provider='mercadopago')
-    mercadopago_secret_key = fields.Char('MercadoPago Secret Key', required_if_provider='mercadopago')
+    mercadopago_client_id = fields.Char('MercadoPago Client Id')
+    mercadopago_secret_key = fields.Char('MercadoPago Secret Key')
 
     def _get_feature_support(self):
         """Get advanced feature support by provider.
