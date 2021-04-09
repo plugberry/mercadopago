@@ -2,8 +2,8 @@
 <odoo>
 
     <record id="payment_acquirer_mercadopago" model="payment.acquirer">
-        <field name="mercadopago_publishable_key">TEST-f68c38b9-ba2d-44bf-b6c6-23578cfde81a</field>
-        <field name="mercadopago_access_token">TEST-2775253347293690-081210-4dede21e22738444d5fe2f092ee478f3__LC_LB__-113996959</field>
+        <field name="mercadopago_publishable_key">TEST-1fe08949-6c28-4696-a5bc-a886d3c042cf</field>
+        <field name="mercadopago_access_token">TEST-7616300812877231-030918-8d03cad83a773e6682abc86a8b891a95-172837665</field>
     </record>
 
     <record id="payment_acquirer_mercadopago_redirect" model="payment.acquirer">
@@ -11,8 +11,8 @@
         <field name="provider">mercadopago</field>
         <field name="company_id" ref="base.main_company"/>
         <field name="image_128" type="base64" file="payment_mercadopago/static/description/icon.png"/>
-        <field name="mercadopago_client_id">2285999378925428</field>
-        <field name="mercadopago_secret_key">BRiYAPa3QAozapMpIFcT1JmilVAYOHNz</field>
+        <field name="mercadopago_publishable_key">TEST-1fe08949-6c28-4696-a5bc-a886d3c042cf</field>
+        <field name="mercadopago_access_token">TEST-7616300812877231-030918-8d03cad83a773e6682abc86a8b891a95-172837665</field>
         <field name="display_as">MercadoPago (redirect)</field>
         <field name="view_template_id" ref="mercadopago_form"/>
         <field name="fees_active" eval="True"/>

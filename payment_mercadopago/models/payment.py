@@ -33,12 +33,8 @@ class PaymentAcquirerMercadoPago(models.Model):
     _inherit = 'payment.acquirer'
 
     provider = fields.Selection(selection_add=[('mercadopago', 'MercadoPago')])
-    mercadopago_publishable_key = fields.Char('MercadoPago Public Key')
-    mercadopago_access_token = fields.Char('MercadoPago Access Token')
-
-    # Fields add by MercadoPago redirect
-    mercadopago_client_id = fields.Char('MercadoPago Client Id')
-    mercadopago_secret_key = fields.Char('MercadoPago Secret Key')
+    mercadopago_publishable_key = fields.Char('MercadoPago Public Key', required_if_provider='mercadopago')
+    mercadopago_access_token = fields.Char('MercadoPago Access Token', required_if_provider='mercadopago')
 
     def _get_feature_support(self):
         """Get advanced feature support by provider.
@@ -74,9 +70,6 @@ class PaymentAcquirerMercadoPago(models.Model):
         self.ensure_one()
         tx_values = dict(values)
         base_url = self.get_base_url()
-        if (not self.mercadopago_client_id or not self.mercadopago_secret_key):
-            raise ValidationError(
-                _('YOU MUST COMPLETE acquirer.mercadopago_client_id and acquirer.mercadopago_secret_key'))
 
         success_url = MercadoPagoController._success_url
         failure_url = MercadoPagoController._failure_url
