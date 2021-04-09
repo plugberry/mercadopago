@@ -21,7 +21,6 @@ class MercadoPagoAPI():
     def __init__(self, acquirer):
         request_options = RequestOptions(acquirer.mercadopago_access_token, platform_id="BVH38T5N7QOK0PPDGC2G")
         self.mp = mercadopago.SDK(acquirer.mercadopago_access_token, request_options=request_options)
-        # self.mp.sandbox_mode(False) if acquirer.state == "enabled" else self.mp.sandbox_mode(True)
         self.sandbox = not acquirer.state == "enabled"
 
     def check_response(self, resp):

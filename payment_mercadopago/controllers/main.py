@@ -11,8 +11,6 @@ from odoo.http import request
 from odoo.tools.safe_eval import safe_eval
 from odoo.addons.payment_mercadopago.models.mercadopago_request import MercadoPagoAPI
 from urllib import parse
-# TODO: remove to use the current sdk
-from ..static.sdkpython.mercadopago import mercadopago
 _logger = logging.getLogger(__name__)
 
 
@@ -28,26 +26,14 @@ class MercadoPagoController(http.Controller):
     def mercadopago_create_preference(self, **post):
         # TODO podriamos pasar cada elemento por separado para no necesitar
         # el literal eval
-        # mercadopago_data = safe_eval(post.get('mercadopago_data', {}))
         acquirer = request.env['payment.acquirer'].browse(safe_eval(post.get('acquirer_id'))).sudo()
-        mercadopago_preference = safe_eval(post.get('mercadopago_preference'))
+        preference = safe_eval(post.get('mercadopago_preference'))
 
         if not acquirer:
             return werkzeug.utils.redirect("/")
 
-        # TODO: Remove this with sdk 1.2.0
-        if (not mercadopago_preference or not acquirer.mercadopago_secret_key or not acquirer.mercadopago_client_id):
-            _logger.warning('Missing parameters!')
-            return werkzeug.utils.redirect("/")
-
-        # TODO: remove to use the current sdk
-        MP = mercadopago.MP(acquirer.mercadopago_client_id, acquirer.mercadopago_secret_key)
-        MP.sandbox_mode(True) if acquirer.state == "enabled" else MP.sandbox_mode(False)
-        resp = MP.post("/checkout/preferences", mercadopago_preference)
-        linkpay = resp['response']['init_point'] if acquirer.state == "enabled" else resp['response']['sandbox_init_point']
-        # TODO: Uncomment to use the current sdk
-        # MP = MercadoPagoAPI(acquirer)
-        # linkpay = MP.create_preference(mercadopago_preference)
+        MP = MercadoPagoAPI(acquirer)
+        linkpay = MP.create_preference(preference)
         return werkzeug.utils.redirect(linkpay)
 
     @http.route([

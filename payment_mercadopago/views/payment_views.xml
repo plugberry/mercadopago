@@ -7,14 +7,27 @@
             <field name="arch" type="xml">
                 <xpath expr='//group[@name="acquirer"]' position='inside'>
                     <group attrs="{'invisible': [('provider', '!=', 'mercadopago')]}">
-                        <field name="mercadopago_publishable_key" attrs="{'invisible':['|', '|', ('provider', '!=', 'mercadopago'), ('payment_flow', '!=', 's2s')], 'required':[ ('provider', '=', 'mercadopago'), ('state', '!=', 'disabled'), ('payment_flow', '=', 's2s')]}"/>
-                        <field name="mercadopago_access_token" password="True" attrs="{'invisible':['|', '|', ('provider', '!=', 'mercadopago'), ('payment_flow', '!=', 's2s')], 'required':[ ('provider', '=', 'mercadopago'), ('state', '!=', 'disabled'), ('payment_flow', '=', 's2s')]}"/>
-                        <!-- Add by MercadoPago redirect -->
-                        <field name="mercadopago_client_id" attrs="{'invisible':['|', '|', ('provider', '!=', 'mercadopago'), ('payment_flow', '!=', 'form')], 'required':[ ('provider', '=', 'mercadopago'), ('state', '!=', 'disabled'), ('payment_flow', '=', 'form')]}"/>
-                        <field name="mercadopago_secret_key" attrs="{'invisible':['|', '|', ('provider', '!=', 'mercadopago'), ('payment_flow', '!=', 'form')], 'required':[ ('provider', '=', 'mercadopago'), ('state', '!=', 'disabled'), ('payment_flow', '=', 'form')]}"/>
-                        <!--  -->
-                        <a colspan="2" href="https://www.mercadopago.com/mla/account/credentials" target="_blank">How to generate this credentials</a>
+                        <field name="mercadopago_publishable_key" attrs="{'required': [('provider', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
+                        <field name="mercadopago_access_token" password="True" attrs="{'required': [('provider', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
                     </group>
+                </xpath>
+                <xpath expr='//group[@name="acquirer"]' position='after'>
+                    <p class="alert alert-info" role="alert" style="margin-bottom:0px;" >
+                        Podés obtener las credenciales de mercadopago
+                        <a colspan="2" href="https://www.mercadopago.com/mla/account/credentials" target="_blank">aquí</a>.
+                        <br/>
+                        Algunas observaciones sobre las credenciales y los ambientes de pruebas y producción:
+                        <ul>
+                            <li>Las credenciales de producción sirven tanto para ambiente de pruebas y de producción.</li>
+                            <li>Las credenciales de test sirven solo para ambiente de pruebas.</li>
+                            <li>Para realizar pruebas podés utilizar las tarjetas que figuran
+                                <a colspan="2" href="https://www.mercadopago.com.ar/developers/es/guides/resources/localization/local-cards" target="_blank">
+                                    aquí
+                                </a>
+                                utilizando cualquier código de seguridad y una fecha devencimiento futura.
+                            </li>
+                        </ul>
+                    </p>
                 </xpath>
             </field>
         </record>
