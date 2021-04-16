@@ -12,22 +12,35 @@
                     </group>
                 </xpath>
                 <xpath expr='//group[@name="acquirer"]' position='after'>
-                    <p class="alert alert-info" role="alert" style="margin-bottom:0px;" >
-                        Podés obtener las credenciales de mercadopago
+                    <p class="alert alert-info" role="alert" style="margin-bottom:0px;">
+                        Podés obtener las credenciales de MercadoPago
                         <a colspan="2" href="https://www.mercadopago.com/mla/account/credentials" target="_blank">aquí</a>.
                         <br/>
-                        Algunas observaciones sobre las credenciales y los ambientes de pruebas y producción:
+                        Algunas observaciones sobre las credenciales y los entornos "habilitado" (producción) y "modo test" (test):
                         <ul>
-                            <li>Las credenciales de producción sirven tanto para ambiente de pruebas y de producción.</li>
-                            <li>Las credenciales de test sirven solo para ambiente de pruebas.</li>
-                            <li>Para realizar pruebas podés utilizar las tarjetas que figuran
+                            <li>Las credenciales de producción sirven tanto para ambos entornos.</li>
+                            <li>Las credenciales de test sirven solo para entorno de test.</li>
+                            <li>Puede realizar pruebas en entorno test utilizando las tarjetas que figuran
                                 <a colspan="2" href="https://www.mercadopago.com.ar/developers/es/guides/resources/localization/local-cards" target="_blank">
                                     aquí
                                 </a>
-                                utilizando cualquier código de seguridad y una fecha devencimiento futura.
+                                con cualquier código de seguridad y una fecha de vencimiento futura.
                             </li>
                         </ul>
                     </p>
+                    <t attrs="{'invisible': [('payment_flow', '!=', 's2s')]}">
+                        <br/>
+                        <p class="alert alert-info" role="alert" style="margin-bottom:0px;">
+                            Algunas observaciones sobre cobros sin CVV para Suscripciones:
+                            <br/>
+                            <ul>
+                                <li>Requiere autorización de MercadoPago que se solicita mediante un email a "mercadopago@gmail.com" indicando en el mismo el Application Id que se puede obtener desde
+                                    <a colspan="2" href="https://www.mercadopago.com/mla/account/credentials" target="_blank">aquí</a>.
+                                </li>
+                                <li>Los cobros sin CVV solo funcionarán en entorno "habilitado" (producción).</li>
+                            </ul>
+                        </p>
+                    </t>
                 </xpath>
             </field>
         </record>
