@@ -19,7 +19,7 @@ class MercadoPagoAPI():
     """
 
     def __init__(self, acquirer):
-        request_options = RequestOptions(acquirer.mercadopago_access_token, platform_id="BVH38T5N7QOK0PPDGC2G")
+        request_options = RequestOptions(acquirer.mercadopago_access_token, platform_id="BVH38T5N7QOK0PPDGC2G", max_retries=10)
         self.mp = mercadopago.SDK(acquirer.mercadopago_access_token, request_options=request_options)
         self.sandbox = not acquirer.state == "enabled"
 
@@ -137,7 +137,6 @@ class MercadoPagoAPI():
         if cvv_token or capture:
             customer_id = self.get_customer_profile(token.partner_id.email)
             values.update({"payer": {"type": 'customer', 'id': customer_id}})
-
         resp = self.mp.payment().create(values)
         if self.sandbox:
             _logger.info('Payment Result:\n%s' % resp)

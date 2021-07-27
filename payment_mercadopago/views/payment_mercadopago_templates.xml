@@ -2,10 +2,12 @@
 <odoo>
 
     <template id="mercadopago_form">
-        <input data-remove-me="" name="data_set" t-att-data-action-url="tx_url" type="hidden"/>
-        <input name="cmd" t-att-value="cmd" type="hidden"/>
-        <input name="acquirer_id" t-att-value="acquirer_id" type="hidden"/>
-        <input name="mercadopago_preference" t-att-value="mercadopago_preference" type="hidden"/>
+        <div>
+            <input data-remove-me="" name="data_set" t-att-data-action-url="tx_url" type="hidden"/>
+            <input name="cmd" t-att-value="cmd" type="hidden"/>
+            <input name="acquirer_id" t-att-value="acquirer_id" type="hidden"/>
+            <input name="mercadopago_preference" t-att-value="mercadopago_preference" type="hidden"/>
+        </div>
     </template>
 
     <template id="mercadopago_s2s_form">
