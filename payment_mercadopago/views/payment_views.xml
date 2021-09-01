@@ -34,7 +34,7 @@
                             Algunas observaciones sobre cobros sin CVV para Suscripciones:
                             <br/>
                             <ul>
-                                <li>Requiere autorización de MercadoPago que se solicita mediante un email a "mercadopago@gmail.com" indicando en el mismo el Application Id que se puede obtener desde
+                                <li>Se debe solicitar a MercadoPago que habilite la cuenta para cobros sin CVV, para esto se le debe indicar el Application Id que se puede obtener desde
                                     <a colspan="2" href="https://www.mercadopago.com/mla/account/credentials" target="_blank">aquí</a>.
                                 </li>
                                 <li>Los cobros sin CVV solo funcionarán en entorno "habilitado" (producción).</li>
