@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
 {
     'name': 'MercadoPago Payment Acquirer',
-    'category': 'Accounting/Payment',
+    'category': 'Accounting/Payment Acquirers',
     'summary': 'Payment Acquirer: MercadoPago',
-    'version': '13.0.1.2.0',
+    'version': "15.0.1.0.0",
     'author': 'ADHOC SA',
     'website': 'www.adhoc.com.ar',
     'description': """MercadoPago Payment Acquirer""",
@@ -12,17 +11,20 @@
         'python': ['mercadopago'],
     },
     'data': [
-        'views/payment_mercadopago_templates.xml',
         'views/payment_views.xml',
-        'views/payment_transaction_views.xml',
-        'views/assets.xml',
+        'views/payment_mercadopago_templates.xml',
         'data/payment_acquirer_data.xml',
     ],
     'demo': [
         'demo/payment_acquirer_demo.xml',
     ],
-    'installable': False,
+    'assets': {
+        'web.assets_frontend': [
+            'payment_mercadopago/static/src/js/payment_form.js',
+        ],
+    },
+    'uninstall_hook': 'uninstall_hook',
+    'application': True,
+    'installable': True,
     'license': 'LGPL-3',
-    'post_init_hook': 'create_missing_journal_for_acquirers',
-    'uninstall_hook': 'uninstall_hook'
 }

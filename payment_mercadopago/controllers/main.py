@@ -5,101 +5,70 @@
 
 import logging
 import pprint
-import werkzeug
-from odoo import http
+from odoo import http, _
 from odoo.http import request
-from odoo.tools.safe_eval import safe_eval
-from odoo.addons.payment_mercadopago.models.mercadopago_request import MercadoPagoAPI
-from urllib import parse
+from odoo.addons.payment import utils as payment_utils
+from odoo.exceptions import ValidationError
+
 _logger = logging.getLogger(__name__)
 
 
 class MercadoPagoController(http.Controller):
 
-    # MercadoPago redirect controller
-    _success_url = '/payment/mercadopago/success/'
-    _pending_url = '/payment/mercadopago/pending/'
-    _failure_url = '/payment/mercadopago/failure/'
-    _create_preference_url = '/payment/mercadopago/create_preference'
+    @http.route('/payment/mercadopago/get_acquirer_info', type='json', auth='public')
+    def mercadopago_get_acquirer_info(self, rec_id, flow):
+        """ Return public information on the acquirer.
 
-    @http.route(['/payment/mercadopago/create_preference'], type='http', auth="none", csrf=False)
-    def mercadopago_create_preference(self, **post):
-        # TODO podriamos pasar cada elemento por separado para no necesitar
-        # el literal eval
-        acquirer = request.env['payment.acquirer'].browse(safe_eval(post.get('acquirer_id'))).sudo()
-        preference = safe_eval(post.get('mercadopago_preference'))
-
-        if not acquirer:
-            return werkzeug.utils.redirect("/")
-
-        MP = MercadoPagoAPI(acquirer)
-        linkpay = MP.create_preference(preference)
-        return werkzeug.utils.redirect(linkpay)
-
-    @http.route([
-        '/payment/mercadopago/success',
-        '/payment/mercadopago/pending',
-        '/payment/mercadopago/failure'
-    ], type='http', auth="none")
-    def mercadopago_back_no_return(self, **post):
+        :param int rec_id: The payment option handling the transaction, as a `payment.acquirer` or `payment.token` id
+        :return: Information on the acquirer, namely: the state, payment method type, login ID, and
+                 public client key
+        :rtype: dict
         """
-        Odoo, si usas el boton de pago desde una sale order o email, no manda
-        una return url, desde website si y la almacena en un valor que vuelve
-        desde el agente de pago. Como no podemos mandar esta "return_url" para
-        que vuelva, directamente usamos dos distintas y vovemos con una u otra
-        """
-        _logger.info('Mercadopago: entering mecadopago_back with post data %s', pprint.pformat(post))
-        request.env['payment.transaction'].sudo().form_feedback(post, 'mercadopago')
-        return werkzeug.utils.redirect("/payment/process")
-
-    @http.route(['/payment/mercadopago/s2s/create_json_3ds'], type='json', auth='public', csrf=False)
-    def mercadopago_s2s_create_json_3ds(self, verify_validity=False, **kwargs):
-        if not kwargs.get('partner_id'):
-            kwargs = dict(kwargs, partner_id=request.env.user.partner_id.id)
-        token = False
-        error = None
-
-        try:
-            token = request.env['payment.acquirer'].browse(int(kwargs.get('acquirer_id'))).s2s_process(kwargs)
-        except Exception as e:
-            error = str(e)
-
-        if not token:
-            res = {
-                'result': False,
-                'error': error,
-            }
-            return res
-
-        res = {
-            'result': True,
-            'id': token.id,
-            'short_name': token.short_name,
-            '3d_secure': False,
-            'verified': False,
+        if flow == "token":
+            acquirer_sudo = request.env['payment.token'].browse(rec_id).acquirer_id.sudo()
+        else:
+            acquirer_sudo = request.env['payment.acquirer'].sudo().browse(rec_id).exists()
+        return {
+            # 'state': acquirer_sudo.state,
+            # 'payment_method_type': acquirer_sudo.authorize_payment_method_type,
+            'publishable_key': acquirer_sudo.mercadopago_publishable_key,
+            'access_token': acquirer_sudo.mercadopago_access_token,
         }
-        if verify_validity:
-            token.validate()
-            res['verified'] = token.verified
 
-        return res
+    @http.route('/payment/mercadopago/payment', type='json', auth='public')
+    def mercadopago_payment(self, reference, partner_id, access_token, **kwargs):
+        """ Make a payment request and handle the response.
 
-    @http.route(['/payment/mercadopago/s2s/otp'], type='json', auth='public')
-    def mercadopago_s2s_otp(self, **kwargs):
-        cvv_token = kwargs.get('token')
-        # request.session.update(kwargs)
-        request.session.update({'cvv_token': cvv_token})
-        return {'result': True}
+        :param str reference: The reference of the transaction
+        :param int partner_id: The partner making the transaction, as a `res.partner` id
+        :param str access_token: The access token used to verify the provided values
+        :param dict mercadopago_token: Token returned by MercadoPago
+        :return: None
+        """
 
-    @http.route(['/payment/mercadopago/notification'], type='json', methods=['POST'], auth='public')
-    def mercadopago_s2s_notification(self, **kwargs):
-        querys = parse.urlsplit(request.httprequest.url).query
-        params = dict(parse.parse_qsl(querys))
-        if (params and params.get('payment_type') == 'payment' and params.get('data.id')):
-            acquirer = request.env["payment.acquirer"].search([('provider', '=', 'mercadopago')])
-            payment_id = params['data.id']
-            tx = request.env['payment.transaction'].sudo().search([('acquirer_reference', '=', payment_id)])
-            MP = MercadoPagoAPI(acquirer)
-            tree = MP.get_payment(payment_id)
-            return tx._mercadopago_s2s_validate_tree(tree)
-        return False
+        # Check that the transaction details have not been altered
+        if not payment_utils.check_access_token(access_token, reference, partner_id):
+            raise ValidationError("MercadoPago: " + _("Received tampered payment request data."))
+
+        # Make the payment request to MercadoPago
+        tx_sudo = request.env['payment.transaction'].sudo().search([('reference', '=', reference)])
+        response_content = tx_sudo._mercadopago_create_transaction_request(kwargs)
+
+        # Handle the payment request response
+        _logger.info("make payment response:\n%s", pprint.pformat(response_content))
+        feedback_data = {'reference': tx_sudo.reference, 'response': response_content}
+        request.env['payment.transaction'].sudo()._handle_feedback_data('mercadopago', feedback_data)
+
+    @http.route('/payment/mercadopago/token', type='json', auth='public')
+    def mercadopago_get_token_info(self, token_id):
+        """ Return public information on the acquirer.
+
+        :param int acquirer_id: The acquirer handling the transaction, as a `payment.acquirer` id
+        :return: Information on the acquirer, namely: the state, payment method type, login ID, and
+                 public client key
+        :rtype: dict
+        """
+        token = request.env['payment.token'].sudo().browse(token_id).exists()
+        return {
+            'card_token': token.card_token,
+        }

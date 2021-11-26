@@ -1,0 +1,231 @@
+from .mercadopago_request import MercadoPagoAPI
+import logging
+import pprint
+
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError, ValidationError
+from odoo.addons.payment import utils as payment_utils
+
+_logger = logging.getLogger(__name__)
+
+ERROR_MESSAGES = {
+    'cc_rejected_bad_filled_card_number': _("Revisa el número de tarjeta."),
+    'cc_rejected_bad_filled_date': _("Revisa la fecha de vencimiento."),
+    'cc_rejected_bad_filled_other': _("Revisa los datos."),
+    'cc_rejected_bad_filled_security_code': _("Revisa el código de seguridad de la tarjeta."),
+    'cc_rejected_blacklist': _("No pudimos procesar tu pago."),
+    'cc_rejected_call_for_authorize': _("Debes autorizar el pago ante %s."),
+    'cc_rejected_card_disabled': _("Llama a %s para activar tu tarjeta o usa otro medio de pago.\nEl teléfono está al dorso de tu tarjeta."),
+    'cc_rejected_card_error': _("No pudimos procesar tu pago."),
+    'cc_rejected_duplicated_payment': _("Ya hiciste un pago por ese valor.\nSi necesitas volver a pagar usa otra tarjeta u otro medio de pago."),
+    'cc_rejected_high_risk': _("Tu pago fue rechazado.\nElige otro de los medios de pago, te recomendamos con medios en efectivo."),
+    'cc_rejected_insufficient_amount': _("Tu %s no tiene fondos suficientes."),
+    'cc_rejected_invalid_installments': _("%s no procesa pagos en esa cantidad de cuotas."),
+    'cc_rejected_max_attempts': _("Llegaste al límite de intentos permitidos.\nElige otra tarjeta u otro medio de pago."),
+    'cc_rejected_other_reason': _("%s no procesó el pago.")
+}
+
+
+class PaymentTransaction(models.Model):
+    _inherit = 'payment.transaction'
+
+    # Fields add by MercadoPago redirect
+    # TODO: remove
+    mercadopago_txn_id = fields.Char('Transaction ID')
+    mercadopago_txn_type = fields.Char('Transaction type', help='Informative field computed after payment')
+    # ----------------------------------
+
+    mercadopago_tmp_token = fields.Char('MercadoPago temporal token')
+
+    def _get_specific_processing_values(self, processing_values):
+        """ Override of payment to return an access token as acquirer-specific processing values.
+
+        Note: self.ensure_one() from `_get_processing_values`
+
+        :param dict processing_values: The generic processing values of the transaction
+        :return: The dict of acquirer-specific processing values
+        :rtype: dict
+        """
+        res = super()._get_specific_processing_values(processing_values)
+        if self.provider != 'mercadopago':
+            return res
+
+        return {
+            'access_token': payment_utils.generate_access_token(
+                processing_values['reference'], processing_values['partner_id']
+            )
+        }
+
+    def _mercadopago_create_transaction_request(self, kwargs):
+        """ Create an MercadoPago payment transaction request.
+
+        Note: self.ensure_one()
+
+        :param dict kwargs: token returned by MercadoPago, issuer, installments and payer email,
+        :return:
+        """
+        self.ensure_one()
+
+        self.mercadopago_tmp_token = kwargs.get('mercadopago_token')
+        mercadopago_API = MercadoPagoAPI(self.acquirer_id)
+        kwargs['validation'] = True if self.acquirer_id.capture_manually or self.operation == 'validation' else False
+        return mercadopago_API.payment(self, form_data=kwargs)
+
+    def _send_payment_request(self):
+        """ Override of payment to send a payment request to MercadoPago.
+
+        Note: self.ensure_one()
+
+        :return: None
+        :raise: UserError if the transaction is not linked to a token
+        """
+        super()._send_payment_request()
+        if self.provider != 'mercadopago':
+            return
+
+        if not self.token_id:
+            raise UserError("MercadoPago: " + _("The transaction is not linked to a token."))
+
+        mercadopago_API = MercadoPagoAPI(self.acquirer_id)
+        res_content = mercadopago_API.payment(self, token=self.token_id)
+        _logger.info("MercadoPago request response:\n%s", pprint.pformat(res_content))
+
+        # Handle the payment request response
+        feedback_data = {'reference': self.reference, 'response': res_content}
+        self._handle_feedback_data('mercadopago', feedback_data)
+
+    def _send_refund_request(self, amount_to_refund=None, create_refund_transaction=True):
+        """ Override of payment to send a refund request to MercadoPago.
+
+        Note: self.ensure_one()
+
+        :param float amount_to_refund: The amount to refund
+        :param bool create_refund_transaction: Whether a refund transaction should be created or not
+        :return: The refund transaction if any
+        :rtype: recordset of `payment.transaction`
+        """
+        import pdb;pdb.set_trace()
+        if self.provider != 'mercadopago':
+            return super()._send_refund_request(
+                amount_to_refund=amount_to_refund,
+                create_refund_transaction=create_refund_transaction,
+            )
+
+        # TODO: implement
+        raise UserError("MercadoPago: _send_refund_request not implemented")
+
+    def _send_void_request(self):
+        """ Override of payment to send a void request to Authorize.
+
+        Note: self.ensure_one()
+
+        :return: None
+        """
+        super()._send_void_request()
+        if self.provider != 'mercadopago':
+            return
+
+        # TODO: implement
+        raise UserError("MercadoPago: _send_void_request not implemented")
+
+    @api.model
+    def _get_tx_from_feedback_data(self, provider, data):
+        """ Find the transaction based on the feedback data.
+
+        :param str provider: The provider of the acquirer that handled the transaction
+        :param dict data: The feedback data sent by the acquirer
+        :return: The transaction if found
+        :rtype: recordset of `payment.transaction`
+        """
+        tx = super()._get_tx_from_feedback_data(provider, data)
+        if provider != 'mercadopago':
+            return tx
+
+        reference = data.get('reference')
+        tx = self.search([('reference', '=', reference), ('provider', '=', 'mercadopago')])
+        if not tx:
+            raise ValidationError(
+                "MercadoPago: " + _("No transaction found matching reference %s.", reference)
+            )
+        return tx
+
+    def _process_feedback_data(self, data):
+        """ Override of payment to process the transaction based on Authorize data.
+
+        Note: self.ensure_one()
+
+        :param dict data: The feedback data sent by the provider
+        :return: None
+        """
+        super()._process_feedback_data(data)
+        if self.provider != 'mercadopago':
+            return
+        response_content = data.get('response')
+
+        self.acquirer_reference = response_content.get('x_trans_id')
+        status = response_content.get('status')
+        if status in ['approved', 'processed']:  # Approved
+            self._set_done()
+            if self.tokenize and not self.token_id:
+                self._mercadopago_tokenize_from_feedback_data(response_content)
+        if status in ['authorized']:  # Authorized: the card validation is ok
+            if self.operation == 'validation':
+                # TODO: revisar si tenemos que hacer algo más
+                self._set_done()
+                if self.tokenize and not self.token_id:
+                    self._mercadopago_tokenize_from_feedback_data(response_content)
+        elif status in ['cancelled', 'refunded', 'charged_back', 'rejected']:  # Declined
+            _logger.info('Received notification for MercadoPago payment %s: set as cancelled' % (self.reference))
+            # data.update(state_message=data.get('cancel_reason', ''))
+            # self.write(data)
+            self._set_canceled()
+        elif status in ['pending', 'in_process', 'in_mediation']:  # Held for Review
+            _logger.info('Received notification for MercadoPago payment %s: set as pending' % (self.reference))
+            # data.update(state_message=data.get('pending_reason', ''))
+            # self.write(data)
+            self._set_pending()
+        else:  # Error / Unknown code
+            # TODO: check how to get the error message
+            error_code = response_content.get('error')
+            _logger.info("received data with invalid status code %s and error code %s", status, error_code)
+            self._set_error(
+                "MercadoPago: " + _(
+                    "Received data with status code \"%(status)s\" and error code \"%(error)s\"",
+                    status=status, error=error_code
+                )
+            )
+
+    def _mercadopago_tokenize_from_feedback_data(self, data):
+        """ Create a new token based on the feedback data.
+
+        Note: self.ensure_one()
+
+        :param dict data: The feedback data sent by the provider
+        :return: None
+        """
+        self.ensure_one()
+
+        mercadopago_API = MercadoPagoAPI(self.acquirer_id)
+        # TODO: podríamos pasar el objeto partner y enviar todos los datos disponibles
+        customer_id = mercadopago_API.get_customer_profile(self.partner_id.email)
+        if customer_id:
+            # TODO: si un cliente tokeniza dos veces la misma tarjeta, debemos buscarla en MercadoPago o crearla nuevamente?
+            card = mercadopago_API.create_customer_card(customer_id, self.mercadopago_tmp_token)
+            token = self.env['payment.token'].create({
+                'acquirer_id': self.acquirer_id.id,
+                'name': payment_utils.build_token_name(card['last_four_digits']),
+                'acquirer_ref': data['payment_method_id'],
+                'partner_id': self.partner_id.id,
+                'card_token': card['id'],
+                # TODO: chequear que el mail sea el correcto, parece que en modo test MercadoPago pone otro mail
+                'email': data['payer']['email'],
+                'customer_id': customer_id,
+                'verified': True,
+            })
+            self.write({
+                'token_id': token.id,
+                'tokenize': False,
+            })
+            _logger.info(
+                "created token with id %s for partner with id %s", token.id, self.partner_id.id
+            )
