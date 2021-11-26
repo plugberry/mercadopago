@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import logging
 
 from odoo import _
@@ -113,30 +112,29 @@ class MercadoPagoAPI():
             return resp['id']
 
     # Payments
-    def payment(self, acquirer, token, amount, capture=True, cvv_token=None):
+    # def payment(self, acquirer, token, amount, capture=True, cvv_token=None):
+    def payment(self, tx, token=None, form_data=None):
         """
         MercadoPago payment
         """
         values = {
-            "token": cvv_token or self.get_card_token(token.token),
-            "installments": token.installments,
-            "transaction_amount": amount,
+            "token": tx.mercadopago_tmp_token if token else form_data['mercadopago_token'],
+            "installments": 1 if token else form_data['installments'],
+            "transaction_amount": tx.amount,
             "description": "Odoo ~ MercadoPago payment",
-            "payment_method_id": token.acquirer_ref,
+            "payment_method_id": token.acquirer_ref if token else form_data['mercadopago_payment_method'],
             "binary_mode": True,
+            "external_reference": tx.reference,
             "payer": {
-                "email": token.partner_id.email,
+                'id': token.customer_id if token else None,
+                "email": token.email if token else form_data['email'],
+                "type": 'customer',
             },
-            "notification_url": urls.url_join(acquirer.get_base_url(), "/payment/mercadopago/notification"),
-            "capture": capture
+            "notification_url": urls.url_join(tx.acquirer_id.get_base_url(), "/payment/mercadopago/notification"),
+            "capture": True if token else not form_data['validation'],
         }
-        if token.issuer:
-            values.update(issuer_id=token.issuer)
-
-        # TODO: revisar si deberíamos hacer esto directamente para todos los casos y ver si guardamos el dato antes
-        if cvv_token or capture:
-            customer_id = self.get_customer_profile(token.partner_id.email)
-            values.update({"payer": {"type": 'customer', 'id': customer_id}})
+        # if token.issuer:
+        #     values.update(issuer_id=token.issuer)
 
         resp = self.mp.payment().create(values)
         if self.sandbox:

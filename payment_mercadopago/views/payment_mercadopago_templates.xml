@@ -1,153 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <template id="mercadopago_form">
-        <input data-remove-me="" name="data_set" t-att-data-action-url="tx_url" type="hidden"/>
-        <input name="cmd" t-att-value="cmd" type="hidden"/>
-        <input name="acquirer_id" t-att-value="acquirer_id" type="hidden"/>
-        <input name="mercadopago_preference" t-att-value="mercadopago_preference" type="hidden"/>
-    </template>
-
-    <template id="mercadopago_s2s_form">
-        <input type="hidden" name="data_set" value="/payment/mercadopago/s2s/create_json_3ds"/>
-        <input type="hidden" name="acquirer_id" t-att-value="id"/>
-        <input t-if="return_url" type="hidden" name="return_url" t-att-value="return_url"/>
-        <input t-if="partner_id" type="hidden" name="partner_id" t-att-value="partner_id"/>
-        <input type="hidden" name="mercadopago_publishable_key" t-att-value="acq.sudo().mercadopago_publishable_key"/>
-        <div t-attf-class="row mt6 #{'' if bootstrap_formatting else 'o_card_brand_detail'}">
-        <t t-set="order" t-value="order or sale_order"/>
-        <t t-set="amount" t-value="order.amount_total if order else amount"/>
+    <template id="inline_form">
+        <div t-attf-id="o_mercadopago_form_{{acquirer_id}}" class="o_mercadopago_form">
 
             <!-- Email -->
-            <div t-att-class="'form-group col-lg-5' if bootstrap_formatting else 'form-group'">
+            <div class="form-group">
                 <t t-set="email" t-value="order.partner_id.email if order and request.website.is_public_user() else request.env.user.email"/>
                 <input id="email" placeholder="email" name="email" t-att-value="email" t-att-class="'o_hidden' if email else 'form-control'"></input>
             </div>
 
             <!-- Card -->
-            <div t-att-class="'form-group col-lg-10' if bootstrap_formatting else 'form-group'">
-                <input type="tel" id="cc_number" data-checkout="cardNumber"
-                    placeholder="XXXX - XXXX - XXXX - XXXX"
-                    onselectstart="return false"
-                    oncopy="return false" oncut="return false"
-                    ondrag="return false" ondrop="return false" autocomplete="off"
-                    class="form-control"
-                    data-is-required="true">
-                </input>
-                <div class="card_placeholder"></div>
-                <div class="visa"></div>
-                <input type="hidden" name="cc_brand" value=""/>
+            <div class="form-group">
+                <label t-attf-for="o_mercadopago_card_number_{{acquirer_id}}" class="col-form-label">Card Number</label>
+                <input type="text" t-attf-id="o_mercadopago_card_number_{{acquirer_id}}" required="" maxlength="19" class="form-control" data-checkout="cardNumber"/>
             </div>
 
-            <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
-                <input type="text" id="cardExpirationMonth" data-checkout="cardExpirationMonth"
-                    placeholder="MM"
-                    maxlength="2"
-                    onselectstart="return false" onpaste="return false"
-                    oncopy="return false" oncut="return false"
-                    ondrag="return false" ondrop="return false" autocomplete="off"
-                    class="form-control">
-                </input>
+            <div class="row">
+                <div class="col-sm-8 form-group">
+                    <label t-attf-for="o_mercadopago_month_{{acquirer_id}}">Expiration</label>
+                    <div class="input-group">
+                        <input type="number" t-attf-id="o_mercadopago_month_{{acquirer_id}}" placeholder="MM" min="1" max="12" required="" class="form-control" data-checkout="cardExpirationMonth"/>
+                        <input type="number" t-attf-id="o_mercadopago_year_{{acquirer_id}}" placeholder="YY" min="00" max="99" required="" class="form-control" data-checkout="cardExpirationYear"/>
+                    </div>
+                </div>
+                <div class="col-sm-4 form-group">
+                    <label t-attf-for="o_mercadopago_code_{{acquirer_id}}">Card Code</label>
+                    <!-- TODO: en Authorize es tipo number -->
+                    <input type="text" t-attf-id="o_mercadopago_code_{{acquirer_id}}" maxlength="4" class="form-control" data-checkout="securityCode"/>
+                </div>
             </div>
 
-            <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
-                <input type="text" id="cardExpirationYear" data-checkout="cardExpirationYear"
-                    placeholder="YY"
-                    maxlength="2"
-                    onselectstart="return false" onpaste="return false"
-                    oncopy="return false" oncut="return false"
-                    ondrag="return false" ondrop="return false" autocomplete="off"
-                    class="form-control">
-                </input>
-            </div>
-
-            <div t-att-class="'form-group col-lg-10' if bootstrap_formatting else 'form-group'">
-                <input id="cardholderName" placeholder="Titular de la tarjeta" data-checkout="cardholderName" type="text" class="form-control"></input>
+            <div class="form-group">
+                <label t-attf-for="o_mercadopago_holder_{{acquirer_id}}" class="col-form-label">Card Holder</label>
+                <input type="text" t-attf-id="o_mercadopago_holder_{{acquirer_id}}" required=""  class="form-control" data-checkout="cardholderName"/>
             </div>
 
             <!-- Identification -->
-            <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
-                <select id="docType" name="docType" data-checkout="docType" type="text" class="form-control"></select>
-            </div>
-
-            <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
-                <input id="docNumber" name="docNumber" placeholder="Número" maxlength="16" data-checkout="docNumber" type="text" class="form-control"/>
-            </div>
-
-            <!-- Security code -->
-            <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
-                <input id="cc_cvc" data-checkout="securityCode" type="text"
-                placeholder="cvv"
-                maxlength="4"
-                onselectstart="return false" onpaste="return false"
-                oncopy="return false" oncut="return false"
-                ondrag="return false" ondrop="return false" autocomplete="off"
-                class="form-control"></input>
+            <label t-attf-for="o_mercadopago_identification_{{acquirer_id}}" class="col-form-label">Identification</label>
+            <div class="row" t-attf-id="o_mercadopago_identification_{{acquirer_id}}">
+                <div class="col-sm-4 form-group">
+                    <select t-attf-id="o_mercadopago_vat_{{acquirer_id}}" type="text" class="form-control" data-checkout="docType"></select>
+                </div>
+                <div class="col-sm-4 form-group">
+                    <input t-attf-id="o_mercadopago_vat_number_{{acquirer_id}}" placeholder="Número" maxlength="16" data-checkout="docNumber" type="text" class="form-control"/>
+                </div>
             </div>
 
             <!-- Issuer -->
-            <div id="issuerInput" t-att-class="'form-group col-lg-6' if bootstrap_formatting else 'form-control'">
-                <select id="issuer" type="text" name="issuer" class="o_hidden form-control" data-checkout="issuer"></select>
+            <div id="issuerInput" class="col-sm-6 form-group">
+                <select t-attf-id="o_mercadopago_issuer_{{acquirer_id}}" type="text" class="o_hidden form-control" data-checkout="issuer"></select>
             </div>
 
             <!-- Installments -->
-            <div t-att-class="'form-group col-lg-8' if bootstrap_formatting else 'form-group'">
-                <select type="text" id="installments" name="installments" class="o_hidden form-control" t-att-data-show-installments="'true' if mode == 'payment' and not verify_validity and amount else 'false'"></select>
-            </div>
-
-            <!-- Checkbox save card? -->
-            <div t-att-class="'o_hidden' if request.website.is_public_user() or mode == 'manage' or verify_validity == True else 'form-group col-lg-12'" >
-                <input name = "save_token" type="checkbox" t-att-checked="not request.website.is_public_user()" id="save_token"/>
-                <label for="save_token"> Save card? </label>
+            <div class="col-sm-4 form-group">
+                <select type="text" t-attf-id="o_mercadopago_installments_{{acquirer_id}}" class="o_hidden form-control" t-att-data-show="'false' if acquirer.is_validation else 'true'"/>
             </div>
 
             <!-- Extra fields -->
             <div>
-                <input type="hidden" name="transactionAmount" id="transactionAmount" t-att-value="amount or None" />
-                <input type="hidden" name="payment_method_id" id="paymentMethodId" />
-                <input type="hidden" name="description" id="description" />
+                <!-- Ver si podemos sacar el amount, debería estar por contexto en js -->
+                <input type="hidden" t-attf-id="o_mercadopago_payment_method_{{acquirer_id}}"/>
             </div>
         </div>
     </template>
 
-    <record id="token_form_mercadopago" model="ir.ui.view">
-        <field name='name'>payment.token.form</field>
-        <field name='model'>payment.token</field>
-        <field name="inherit_id" ref="payment.payment_token_form_view"/>
-        <field name="arch" type="xml">
-        <xpath expr='//field[@name="acquirer_ref"]' position='after'>
-            <field name="email"/>
-        </xpath>
-        </field>
-    </record>
+    <template id="redirect_form">
+        <!-- TODO: robar de alipay -->
+    </template>
 
-    <template id="mercadopago_payment_tokens_list" name="MercadoPago Token List" inherit_id="payment.payment_tokens_list">
 
-        <xpath expr="//div[hasclass('card-body')]/label/input[@name='pm_id']" position="attributes">
-            <attribute name="t-att-data-acquirer-id">pm.acquirer_id.id</attribute>
-            <attribute name="t-att-data-card_id"> pm.token </attribute>
-            <attribute name="t-att-data-provider">pm.acquirer_id.provider</attribute>
-            <attribute name="t-att-data-cvv">mode == 'payment' and not verify_validity and pm.acquirer_id.provider == 'mercadopago'</attribute>
-        </xpath>
-
-        <xpath expr="//t[@t-if='pm.verified']" position="before">
-            <t t-if="pm.acquirer_id.provider == 'mercadopago' and pm.email != request.env.user.email">
-                <span> - </span>
-                <span class="payment_option_name" t-esc="pm.hide_email(pm.email)"/>
+    <template id="mercadopago_checkout" name="MercadoPago Payment Checkout" inherit_id="payment.checkout">
+        <xpath expr="//t[@t-call='payment.verified_token_checkmark']" position="after">
+            <t t-if="token.provider == 'mercadopago'">
+                <!-- === CVV Number === -->
+                <div class="col-6 pull-right">
+                    <input name="o_payment_cvv"
+                        type="text"
+                        t-attf-id="o_token_code_{{token.id}}"
+                        maxlength="4"
+                        required=""
+                        placeholder="cvv"
+                        class="form-control"/>
+                </div>
             </t>
-        </xpath>
-
-        <xpath expr="//button[@name='delete_pm']" position="after">
-            <input t-if="mode == 'payment' and not verify_validity and pm.acquirer_id.provider == 'mercadopago'"
-                t-attf-id="cc_cvc_{{pm.id}}"
-                type="text"
-                placeholder="cvv"
-                maxlength="4"
-                class="form-control col-lg-3"
-                style="float: right"
-                data-is-required="true"
-                data-checkout="securityCode">
-            </input>
         </xpath>
     </template>
 

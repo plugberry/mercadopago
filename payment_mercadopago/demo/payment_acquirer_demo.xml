@@ -6,7 +6,7 @@
         <field name="mercadopago_access_token">TEST-7616300812877231-030918-8d03cad83a773e6682abc86a8b891a95-172837665</field>
     </record>
 
-    <record id="payment_acquirer_mercadopago_redirect" model="payment.acquirer">
+    <!-- <record id="payment_acquirer_mercadopago_redirect" model="payment.acquirer">
         <field name="name">MercadoPago Redirect</field>
         <field name="provider">mercadopago</field>
         <field name="company_id" ref="base.main_company"/>
@@ -31,6 +31,6 @@
         <field name="pending_msg"><![CDATA[
             <p>Pendiente de acreditación. Su pago todavía no ha sido confirmado por Mercadopago, le informaremos cuando esto suceda y validaremos el pedido.</p>]]>
         </field>
-    </record>
+    </record> -->
 
 </odoo>
