@@ -14,7 +14,6 @@
         'views/payment_mercadopago_templates.xml',
         'views/payment_views.xml',
         'views/payment_transaction_views.xml',
-        'views/assets.xml',
         'data/payment_acquirer_data.xml',
     ],
     'demo': [
@@ -22,6 +21,11 @@
     ],
     'installable': True,
     'license': 'LGPL-3',
-    'post_init_hook': 'create_missing_journal_for_acquirers',
-    'uninstall_hook': 'uninstall_hook'
+    # 'post_init_hook': 'create_missing_journal_for_acquirers',
+    'uninstall_hook': 'uninstall_hook',
+    'assets': {
+        'web.assets_frontend': [
+            'payment_adyen/static/src/js/payment_form.js',
+        ],
+    },
 }

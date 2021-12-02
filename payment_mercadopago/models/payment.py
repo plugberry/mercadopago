@@ -31,7 +31,7 @@ ERROR_MESSAGES = {
 class PaymentAcquirerMercadoPago(models.Model):
     _inherit = 'payment.acquirer'
 
-    provider = fields.Selection(selection_add=[('mercadopago', 'MercadoPago')])
+    provider = fields.Selection(selection_add=[('mercadopago', 'MercadoPago')], ondelete={'mercadopago': 'set default'})
     mercadopago_publishable_key = fields.Char('MercadoPago Public Key', required_if_provider='mercadopago')
     mercadopago_access_token = fields.Char('MercadoPago Access Token', required_if_provider='mercadopago')
 

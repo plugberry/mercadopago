@@ -3,7 +3,7 @@
         <record id="acquirer_form_mercadopago" model="ir.ui.view">
             <field name="name">acquirer.form.mercadopago</field>
             <field name="model">payment.acquirer</field>
-            <field name="inherit_id" ref="payment.acquirer_form"/>
+            <field name="inherit_id" ref="payment.payment_acquirer_form"/>
             <field name="arch" type="xml">
                 <xpath expr='//group[@name="acquirer"]' position='inside'>
                     <group attrs="{'invisible': [('provider', '!=', 'mercadopago')]}">
@@ -28,19 +28,19 @@
                             </li>
                         </ul>
                     </p>
-                    <t attrs="{'invisible': [('payment_flow', '!=', 's2s')]}">
-                        <br/>
-                        <p class="alert alert-info" role="alert" style="margin-bottom:0px;">
-                            Algunas observaciones sobre cobros sin CVV para Suscripciones:
-                            <br/>
-                            <ul>
-                                <li>Se debe solicitar a MercadoPago que habilite la cuenta para cobros sin CVV, para esto se le debe indicar el Application Id que se puede obtener desde
-                                    <a colspan="2" href="https://www.mercadopago.com/mla/account/credentials" target="_blank">aquí</a>.
-                                </li>
-                                <li>Los cobros sin CVV solo funcionarán en entorno "habilitado" (producción).</li>
-                            </ul>
-                        </p>
-                    </t>
+<!--                    <t attrs="{'invisible': [('payment_flow', '!=', 's2s')]}">-->
+<!--                        <br/>-->
+<!--                        <p class="alert alert-info" role="alert" style="margin-bottom:0px;">-->
+<!--                            Algunas observaciones sobre cobros sin CVV para Suscripciones:-->
+<!--                            <br/>-->
+<!--                            <ul>-->
+<!--                                <li>Se debe solicitar a MercadoPago que habilite la cuenta para cobros sin CVV, para esto se le debe indicar el Application Id que se puede obtener desde-->
+<!--                                    <a colspan="2" href="https://www.mercadopago.com/mla/account/credentials" target="_blank">aquí</a>.-->
+<!--                                </li>-->
+<!--                                <li>Los cobros sin CVV solo funcionarán en entorno "habilitado" (producción).</li>-->
+<!--                            </ul>-->
+<!--                        </p>-->
+<!--                    </t>-->
                 </xpath>
             </field>
         </record>
