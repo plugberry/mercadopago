@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
 {
     'name': 'MercadoPago Payment Acquirer',
     'category': 'Accounting/Payment',
     'summary': 'Payment Acquirer: MercadoPago',
-    'version': '13.0.1.2.0',
+    'version': "15.0.1.0.0",
     'author': 'ADHOC SA',
     'website': 'www.adhoc.com.ar',
     'description': """MercadoPago Payment Acquirer""",
@@ -21,7 +20,7 @@
     'demo': [
         'demo/payment_acquirer_demo.xml',
     ],
-    'installable': False,
+    'installable': True,
     'license': 'LGPL-3',
     'post_init_hook': 'create_missing_journal_for_acquirers',
     'uninstall_hook': 'uninstall_hook'

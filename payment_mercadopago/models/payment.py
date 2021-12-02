@@ -1,4 +1,3 @@
-# coding: utf-8
 from .mercadopago_request import MercadoPagoAPI
 import logging
 import urllib.parse as urlparse
