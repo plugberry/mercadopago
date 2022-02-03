@@ -74,6 +74,7 @@ class PaymentAcquirerMercadoPago(models.Model):
         success_url = MercadoPagoController._success_url
         failure_url = MercadoPagoController._failure_url
         pending_url = MercadoPagoController._pending_url
+        notification_url = MercadoPagoController._notification_url
         return_url = tx_values.get('return_url')
         # si hay return_url se la pasamos codificada asi cuando vuelve
         # nos devuelve la misma
@@ -124,6 +125,7 @@ class PaymentAcquirerMercadoPago(models.Model):
                 "failure": '%s' % urlparse.urljoin(base_url, failure_url),
                 "pending": '%s' % urlparse.urljoin(base_url, pending_url)
             },
+            "notification_url": '%s/?%s' % (urlparse.urljoin(base_url, notification_url), self.id),
             "auto_return": "approved",
             "external_reference": tx_values["reference"],
             "expires": False

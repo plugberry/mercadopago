@@ -7,7 +7,7 @@ import logging
 import pprint
 import werkzeug
 from odoo import http
-from odoo.http import request
+from odoo.http import request, Response
 from odoo.tools.safe_eval import safe_eval
 from odoo.addons.payment_mercadopago.models.mercadopago_request import MercadoPagoAPI
 from urllib import parse
@@ -20,6 +20,7 @@ class MercadoPagoController(http.Controller):
     _success_url = '/payment/mercadopago/success/'
     _pending_url = '/payment/mercadopago/pending/'
     _failure_url = '/payment/mercadopago/failure/'
+    _notification_url = '/payment/mercadopago/notification/'
     _create_preference_url = '/payment/mercadopago/create_preference'
 
     @http.route(['/payment/mercadopago/create_preference'], type='http', auth="none", csrf=False)
@@ -91,15 +92,37 @@ class MercadoPagoController(http.Controller):
         request.session.update({'cvv_token': cvv_token})
         return {'result': True}
 
-    @http.route(['/payment/mercadopago/notification'], type='json', methods=['POST'], auth='public')
-    def mercadopago_s2s_notification(self, **kwargs):
+    # Por ahora solo esperamos notificaciones IPN
+    @http.route(['/payment/mercadopago/notification/<acquirer_id>'], type='json', methods=['POST'], auth='public')
+    def mercadopago_s2s_notification(self, acquirer_id, **kwargs):
         querys = parse.urlsplit(request.httprequest.url).query
         params = dict(parse.parse_qsl(querys))
-        if (params and params.get('payment_type') == 'payment' and params.get('data.id')):
-            acquirer = request.env["payment.acquirer"].search([('provider', '=', 'mercadopago')])
+        _logger.error('Mercadopago notification: params: %s', params)
+        request.env['ir.logging'].sudo().create({
+            'name': 'MercadoPago Notification',
+            'type': 'client',
+            'level': 'DEBUG',
+            'dbname': request.env.cr.dbname,
+            'message': "Parameters: %s" % params,
+            'func': "mercadopago_s2s_notification",
+            'path': "payment_mercadopago/controllers/main.py",
+            'line': '109',
+        })
+
+        if (params and params.get('type') == 'payment' and params.get('data.id')):
+            acquirer = request.env["payment.acquirer"].browse(int(acquirer_id))
             payment_id = params['data.id']
             tx = request.env['payment.transaction'].sudo().search([('acquirer_reference', '=', payment_id)])
+            _logger.error('Mercadopago notification: tx: %s', tx)
             MP = MercadoPagoAPI(acquirer)
-            tree = MP.get_payment(payment_id)
-            return tx._mercadopago_s2s_validate_tree(tree)
-        return False
+            if tx:
+                _logger.error('Mercadopago notification: tx ID: %s', tx.id)
+                # Workflow: payment in odoo
+                tree = MP.get_payment(payment_id)
+                return tx._mercadopago_s2s_validate_tree(tree)
+            else:
+                # Workflow: payment redirect
+                _logger.error('Mercadopago: payment %s redirect notification' % payment_id)
+                data = MP.get_payment(payment_id)
+                request.env['payment.transaction'].sudo().form_feedback(data, 'mercadopago')
+                return werkzeug.utils.redirect("/payment/process", code=200)
