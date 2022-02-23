@@ -1,10 +1,11 @@
+# -*- coding: utf-8 -*-
 {
     'name': 'MercadoPago Payment Acquirer',
     'category': 'Accounting/Payment Acquirers',
     'summary': 'Payment Acquirer: MercadoPago',
     'version': "15.0.1.0.0",
     'author': 'ADHOC SA - Axcelere S.A.S',
-    'website': 'www.adhoc.com.ar', 'www.axcelere.com',
+    'website': 'www.adhoc.com.ar, www.axcelere.com',
     'description': """MercadoPago Payment Acquirer""",
     'depends': ['payment'],
     'external_dependencies': {
