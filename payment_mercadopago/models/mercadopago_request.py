@@ -111,14 +111,17 @@ class MercadoPagoAPI():
         else:
             return resp['id']
 
-    # Payments
-    # def payment(self, acquirer, token, amount, capture=True, cvv_token=None):
-    def payment(self, tx, token=None, form_data=None):
+    def payment(self, tx, token=None, form_data=None, cvv=True):
         """
         MercadoPago payment
         """
+        if token:
+            payment_token = tx.mercadopago_tmp_token if cvv else self.get_card_token(token.card_token)
+        else:
+            payment_token = form_data['mercadopago_token']
+
         values = {
-            "token": tx.mercadopago_tmp_token if token else form_data['mercadopago_token'],
+            "token": payment_token,
             "installments": 1 if token else form_data['installments'],
             "transaction_amount": tx.amount,
             "description": "Odoo ~ MercadoPago payment",
