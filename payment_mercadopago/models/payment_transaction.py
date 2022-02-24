@@ -73,6 +73,7 @@ class PaymentTransaction(models.Model):
 
     def _send_payment_request(self):
         """ Override of payment to send a payment request to MercadoPago.
+            This method handles payments from token (w/ CVV) or from subscriptions (w/o CVV)
 
         Note: self.ensure_one()
 
@@ -87,7 +88,11 @@ class PaymentTransaction(models.Model):
             raise UserError("MercadoPago: " + _("The transaction is not linked to a token."))
 
         mercadopago_API = MercadoPagoAPI(self.acquirer_id)
-        res_content = mercadopago_API.payment(self, token=self.token_id)
+
+        # If the payment comes from subscription we do not have the cvv: w/o cvv payment flow
+        cvv = self.callback_model_id.model != "sale.subscription"
+
+        res_content = mercadopago_API.payment(self, token=self.token_id, cvv=cvv)
         _logger.info("MercadoPago request response:\n%s", pprint.pformat(res_content))
 
         # Handle the payment request response
@@ -104,7 +109,6 @@ class PaymentTransaction(models.Model):
         :return: The refund transaction if any
         :rtype: recordset of `payment.transaction`
         """
-        import pdb;pdb.set_trace()
         if self.provider != 'mercadopago':
             return super()._send_refund_request(
                 amount_to_refund=amount_to_refund,
@@ -176,13 +180,9 @@ class PaymentTransaction(models.Model):
                     self._mercadopago_tokenize_from_feedback_data(response_content)
         elif status in ['cancelled', 'refunded', 'charged_back', 'rejected']:  # Declined
             _logger.info('Received notification for MercadoPago payment %s: set as cancelled' % (self.reference))
-            # data.update(state_message=data.get('cancel_reason', ''))
-            # self.write(data)
             self._set_canceled()
         elif status in ['pending', 'in_process', 'in_mediation']:  # Held for Review
             _logger.info('Received notification for MercadoPago payment %s: set as pending' % (self.reference))
-            # data.update(state_message=data.get('pending_reason', ''))
-            # self.write(data)
             self._set_pending()
         else:  # Error / Unknown code
             # TODO: check how to get the error message
