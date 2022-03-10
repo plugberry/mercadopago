@@ -3,6 +3,8 @@ import logging
 from odoo import _
 from odoo.exceptions import UserError
 from werkzeug import urls
+import pprint
+from babel.dates import format_datetime
 
 _logger = logging.getLogger(__name__)
 
@@ -120,6 +122,18 @@ class MercadoPagoAPI():
         else:
             payment_token = form_data['mercadopago_token']
 
+        items = []
+        for sale_order in tx.sale_order_ids:
+            for order_line in sale_order.order_line:
+                items.append({
+                    "id": order_line.product_id.default_code,
+                    "title": order_line.product_id.display_name,
+                    "description": order_line.product_id.name,
+                    "category_id": order_line.product_id.mercadopago_category_id or None,
+                    "quantity": order_line.product_uom_qty,
+                    "unit_price": order_line.price_unit,
+                })
+
         values = {
             "token": payment_token,
             "installments": 1 if token else form_data['installments'],
@@ -129,19 +143,37 @@ class MercadoPagoAPI():
             "binary_mode": True,
             "external_reference": tx.reference,
             "payer": {
-                'id': token.customer_id if token else None,
+                "type": "customer",
+                "id": token.customer_id if token else None,
                 "email": token.email if token else form_data['email'],
-                "type": 'customer',
+                "identification": {
+                    "number": tx.partner_id.vat,
+                    "type": tx.partner_id.l10n_latam_identification_type_id.name,
+                },
+                "first_name": tx.partner_name,
+            },
+            "additional_info": {
+                "items": items,
+                "payer": {
+                    "first_name": tx.partner_name,
+                    "phone": {
+                        "number": tx.partner_phone
+                    },
+                    "address": {
+                        "zip_code": tx.partner_zip,
+                        "street_name": tx.partner_address,
+                    },
+                    "registration_date": format_datetime(tx.partner_id.create_date),
+                },
             },
             "notification_url": urls.url_join(tx.acquirer_id.get_base_url(), "/payment/mercadopago/notification"),
             "capture": True if token else not form_data['validation'],
         }
-        # if token.issuer:
-        #     values.update(issuer_id=token.issuer)
+        if form_data.get("issuer"):
+            values.update(issuer_id=form_data['issuer'])
 
+        _logger.info("Payment values:\n%s", pprint.pformat(values))
         resp = self.mp.payment().create(values)
-        if self.sandbox:
-            _logger.info('Payment Result:\n%s' % resp)
         resp = self.check_response(resp)
         if resp.get('err_code'):
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))

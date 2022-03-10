@@ -90,7 +90,6 @@ odoo.define('payment_mercadopago.payment_form', require => {
                 },
             }).then(acquirerInfo => {
                 this.mercadopagoInfo = acquirerInfo;
-                console.log("_MercadoPagoProcessForm", paymentOptionId, acquirerInfo.publishable_key);
                 // Initialize MercadoPago v1
                 window.Mercadopago.setPublishableKey(acquirerInfo.publishable_key);
                 window.Mercadopago.getIdentificationTypes();
@@ -124,7 +123,6 @@ odoo.define('payment_mercadopago.payment_form', require => {
 
             self = this;
             function guessPaymentMethod(event) {
-                console.log("guessPaymentMethod");
                 let cardnumber = document.getElementById('o_mercadopago_card_number_' + paymentOptionId).value.split(" ").join("");
                 if (cardnumber.length >= 6) {
                     let bin = cardnumber.substring(0,6);
@@ -132,14 +130,17 @@ odoo.define('payment_mercadopago.payment_form', require => {
                         "bin": bin
                     }, setPaymentMethod);
                 }
+                let issuerLabel = document.getElementById('o_mercadopago_issuer_label_' + paymentOptionId);
                 let issuerSelect = document.getElementById('o_mercadopago_issuer_' + paymentOptionId);
+                issuerLabel.classList.add("o_hidden");
                 issuerSelect.classList.add("o_hidden");
+                let installmentsLabel = document.getElementById('o_mercadopago_installments_label_' + paymentOptionId);
                 let installments = document.getElementById('o_mercadopago_installments_' + paymentOptionId);
+                installmentsLabel.classList.add("o_hidden");
                 installments.classList.add("o_hidden");
             };
 
             function setPaymentMethod(status, response) {
-                console.log("setPaymentMethod");
                 if (status == 200) {
                     let paymentMethod = response[0];
                     document.getElementById('o_mercadopago_payment_method_' + paymentOptionId).value = paymentMethod.id;
@@ -156,7 +157,6 @@ odoo.define('payment_mercadopago.payment_form', require => {
             };
 
             function getIssuers(paymentMethodId) {
-                console.log("getIssuers");
                 window.Mercadopago.getIssuers(
                     paymentMethodId,
                     setIssuers
@@ -164,9 +164,10 @@ odoo.define('payment_mercadopago.payment_form', require => {
             };
 
             function setIssuers(status, response) {
-                console.log("setIssuers");
                 if (status == 200) {
+                    let issuerLabel = document.getElementById('o_mercadopago_issuer_label_' + paymentOptionId);
                     let issuerSelect = document.getElementById('o_mercadopago_issuer_' + paymentOptionId);
+                    issuerLabel.classList.remove("o_hidden");
                     issuerSelect.classList.remove("o_hidden");
                     response.forEach( issuer => {
                         let opt = document.createElement('option');
@@ -186,7 +187,6 @@ odoo.define('payment_mercadopago.payment_form', require => {
             };
 
             function getInstallments(paymentMethodId, transactionAmount, issuerId){
-                console.log("getInstallments");
                 window.Mercadopago.getInstallments({
                     "payment_method_id": paymentMethodId,
                     "amount": parseFloat(transactionAmount),
@@ -195,11 +195,12 @@ odoo.define('payment_mercadopago.payment_form', require => {
             };
 
             function setInstallments(status, response){
-                console.log("setInstallments");
                 if (status == 200) {
+                    let installmentsLabel = document.getElementById('o_mercadopago_installments_label_' + paymentOptionId);
                     let installments = document.getElementById('o_mercadopago_installments_' + paymentOptionId);
                     let show_installments = $(installments).data('show');
                     if (show_installments)
+                        installmentsLabel.classList.remove("o_hidden");
                         installments.classList.remove("o_hidden");
                     installments.options.length = 0;
                     response[0].payer_costs.forEach( payerCost => {
@@ -307,6 +308,7 @@ odoo.define('payment_mercadopago.payment_form', require => {
                     'mercadopago_token': response.id,
                     'mercadopago_payment_method': document.getElementById('o_mercadopago_payment_method_' + processingValues.acquirer_id).value,
                     'installments': parseInt(document.getElementById('o_mercadopago_installments_' + processingValues.acquirer_id).value),
+                    'issuer': parseInt(document.getElementById('o_mercadopago_issuer_' + processingValues.acquirer_id).value),
                     'email': document.getElementById('email').value,
                 }
             }).then(() => window.location = '/payment/status');
@@ -357,7 +359,6 @@ odoo.define('payment_mercadopago.payment_form', require => {
                             securityCode: document.getElementById(`o_token_code_${paymentOptionId}`).value,
                         })
                         // Use the received token to make a POST request to your backend
-                        console.log('token received: ', token.id)
                         return self._rpc({
                             route: self.txContext.transactionRoute,
                             params: self._prepareTransactionRouteParams(provider, paymentOptionId, flow, token.id),
