@@ -14,7 +14,6 @@
     'data': [
         'views/payment_views.xml',
         'views/payment_mercadopago_templates.xml',
-        'views/product_template_views.xml',
         'data/payment_acquirer_data.xml',
     ],
     'demo': [

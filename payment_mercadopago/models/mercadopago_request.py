@@ -122,18 +122,6 @@ class MercadoPagoAPI():
         else:
             payment_token = form_data['mercadopago_token']
 
-        items = []
-        for sale_order in tx.sale_order_ids:
-            for order_line in sale_order.order_line:
-                items.append({
-                    "id": order_line.product_id.default_code,
-                    "title": order_line.product_id.display_name,
-                    "description": order_line.product_id.name,
-                    "category_id": order_line.product_id.mercadopago_category_id or None,
-                    "quantity": order_line.product_uom_qty,
-                    "unit_price": order_line.price_unit,
-                })
-
         values = {
             "token": payment_token,
             "installments": 1 if token else form_data['installments'],
@@ -153,7 +141,6 @@ class MercadoPagoAPI():
                 "first_name": tx.partner_name,
             },
             "additional_info": {
-                "items": items,
                 "payer": {
                     "first_name": tx.partner_name,
                     "phone": {
