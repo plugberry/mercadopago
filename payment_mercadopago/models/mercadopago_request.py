@@ -113,7 +113,7 @@ class MercadoPagoAPI():
         else:
             return resp['id']
 
-    def payment(self, tx, token=None, form_data=None, cvv=True):
+    def payment(self, tx, token=None, form_data={}, cvv=True):
         """
         MercadoPago payment
         """
@@ -141,6 +141,14 @@ class MercadoPagoAPI():
                 "first_name": tx.partner_name,
             },
             "additional_info": {
+                "items": [{
+                    "id": tx.acquirer_id.mercadopago_item_id,
+                    "title": tx.acquirer_id.mercadopago_item_title,
+                    "description": tx.acquirer_id.mercadopago_item_description,
+                    "category_id": tx.acquirer_id.mercadopago_item_category or None,
+                    "quantity": 1,
+                    "unit_price": tx.amount,
+                }],
                 "payer": {
                     "first_name": tx.partner_name,
                     "phone": {
