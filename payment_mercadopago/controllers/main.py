@@ -5,15 +5,19 @@
 
 import logging
 import pprint
+import json
 from odoo import http, _
-from odoo.http import request
+from odoo.http import request, Response
 from odoo.addons.payment import utils as payment_utils
 from odoo.exceptions import ValidationError
+from ..models.mercadopago_request import MercadoPagoAPI
 
 _logger = logging.getLogger(__name__)
 
 
 class MercadoPagoController(http.Controller):
+
+    _notify_url = '/payment/mercadopago/notify?source_news=webhooks'
 
     @http.route('/payment/mercadopago/get_acquirer_info', type='json', auth='public')
     def mercadopago_get_acquirer_info(self, rec_id, flow):
@@ -72,3 +76,35 @@ class MercadoPagoController(http.Controller):
         return {
             'card_token': token.card_token,
         }
+
+    @http.route(_notify_url, type='json', auth='public')
+    def mercadopago_notification(self):
+        """ Process the data sent by MercadoPago to the webhook based on the event code.
+
+        :return: Status 200 to acknowledge the notification
+        :rtype: Response
+        """
+        data = json.loads(request.httprequest.data)
+        _logger.info("MercadoPago notification: \n%s", pprint.pformat(data))
+        if data['type'] == 'payment':
+            try:
+                # Payment ID
+                payment_id = data['data']['id']
+
+                # Get payment data from MercadoPago
+                acquirer = request.env["payment.acquirer"].search([
+                    ('provider', '=', 'mercadopago'),
+                    ('mercadopago_application_id', '=', data['application_id'])
+                ], limit=1)
+                mercadopago_API = MercadoPagoAPI(acquirer)
+                payment_data = mercadopago_API.get_payment(payment_id)
+
+                # Update transaction state
+                PaymentTransaction = request.env['payment.transaction']
+                PaymentTransaction.sudo()._handle_feedback_data('adyen', payment_data)
+
+            except Exception:  # Acknowledge the notification to avoid getting spammed
+                _logger.exception("Unable to handle the notification data; skipping to acknowledge")
+
+        # Acknowledge the notification
+        return Response('success', status=200)

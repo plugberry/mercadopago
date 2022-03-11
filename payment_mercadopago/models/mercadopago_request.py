@@ -161,7 +161,7 @@ class MercadoPagoAPI():
                     "registration_date": format_datetime(tx.partner_id.create_date),
                 },
             },
-            "notification_url": urls.url_join(tx.acquirer_id.get_base_url(), "/payment/mercadopago/notification"),
+            "notification_url": urls.url_join(tx.acquirer_id.get_base_url(), '/payment/mercadopago/notify?source_news=webhooks'),
             "capture": True if token else not form_data['validation'],
         }
         if form_data.get("issuer"):

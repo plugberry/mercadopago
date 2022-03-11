@@ -16,6 +16,7 @@ class PaymentAcquirer(models.Model):
 
     provider = fields.Selection(
         selection_add=[('mercadopago', 'MercadoPago')], ondelete={'mercadopago': 'set default'})
+    mercadopago_application_id = fields.Char('MercadoPago Application ID', required_if_provider='mercadopago')
     mercadopago_publishable_key = fields.Char('MercadoPago Public Key', required_if_provider='mercadopago')
     mercadopago_access_token = fields.Char('MercadoPago Access Token', required_if_provider='mercadopago')
     is_validation = fields.Boolean()
