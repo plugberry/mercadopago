@@ -50,12 +50,12 @@ msgstr "Cuotas"
 #. module: payment_mercadopago
 #: model_terms:ir.ui.view,arch_db:payment_mercadopago.inline_form
 msgid "Issuer"
-msgstr "Banco"
+msgstr "Emisor"
 
 #. module: payment_mercadopago
 #: model:ir.model,name:payment_mercadopago.model_payment_acquirer
 msgid "Payment Acquirer"
-msgstr "Método de Pago"
+msgstr "Pasarela de Pago"
 
 #. module: payment_mercadopago
 #: model:ir.model,name:payment_mercadopago.model_account_payment_method
@@ -71,13 +71,3 @@ msgstr "Token de pago"
 #: model:ir.model,name:payment_mercadopago.model_payment_transaction
 msgid "Payment Transaction"
 msgstr "Transacción de pago"
-
-#. module: payment_mercadopago
-#: model:ir.model,name:payment_mercadopago.model_product_template
-msgid "Product Template"
-msgstr "Plantilla de Producto"
-
-#. module: payment_mercadopago
-#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_acquirer__provider
-msgid "Provider"
-msgstr "Proveedor"
