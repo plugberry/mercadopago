@@ -57,7 +57,7 @@
 
                 <!-- Issuer -->
                 <div class="col-sm-6 form-group">
-                    <label t-attf-id="o_mercadopago_issuer_label_{{acquirer_id}}" t-attf-for="o_mercadopago_installments_{{acquirer_id}}" class="o_hidden col-form-label">Issuer</label>
+                    <label t-attf-id="o_mercadopago_issuer_label_{{acquirer_id}}" t-attf-for="o_mercadopago_issuer_{{acquirer_id}}" class="o_hidden col-form-label">Issuer</label>
                     <select t-attf-id="o_mercadopago_issuer_{{acquirer_id}}" type="text" class="o_hidden form-control" data-checkout="issuer"></select>
                 </div>
             </div>

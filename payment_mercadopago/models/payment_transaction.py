@@ -8,22 +8,6 @@ from odoo.addons.payment import utils as payment_utils
 
 _logger = logging.getLogger(__name__)
 
-ERROR_MESSAGES = {
-    'cc_rejected_bad_filled_card_number': _("Revisa el número de tarjeta."),
-    'cc_rejected_bad_filled_date': _("Revisa la fecha de vencimiento."),
-    'cc_rejected_bad_filled_other': _("Revisa los datos."),
-    'cc_rejected_bad_filled_security_code': _("Revisa el código de seguridad de la tarjeta."),
-    'cc_rejected_blacklist': _("No pudimos procesar tu pago."),
-    'cc_rejected_call_for_authorize': _("Debes autorizar el pago ante %s."),
-    'cc_rejected_card_disabled': _("Llama a %s para activar tu tarjeta o usa otro medio de pago.\nEl teléfono está al dorso de tu tarjeta."),
-    'cc_rejected_card_error': _("No pudimos procesar tu pago."),
-    'cc_rejected_duplicated_payment': _("Ya hiciste un pago por ese valor.\nSi necesitas volver a pagar usa otra tarjeta u otro medio de pago."),
-    'cc_rejected_high_risk': _("Tu pago fue rechazado.\nElige otro de los medios de pago, te recomendamos con medios en efectivo."),
-    'cc_rejected_insufficient_amount': _("Tu %s no tiene fondos suficientes."),
-    'cc_rejected_invalid_installments': _("%s no procesa pagos en esa cantidad de cuotas."),
-    'cc_rejected_max_attempts': _("Llegaste al límite de intentos permitidos.\nElige otra tarjeta u otro medio de pago."),
-    'cc_rejected_other_reason': _("%s no procesó el pago.")
-}
 
 
 class PaymentTransaction(models.Model):
@@ -168,22 +152,24 @@ class PaymentTransaction(models.Model):
 
         self.acquirer_reference = response_content.get('x_trans_id')
         status = response_content.get('status')
+        message = self._get_mercadopago_response_msg(response_content)
         if status in ['approved', 'processed']:  # Approved
-            self._set_done()
+            self._set_done(state_message=message)
             if self.tokenize and not self.token_id:
                 self._mercadopago_tokenize_from_feedback_data(response_content)
         if status in ['authorized']:  # Authorized: the card validation is ok
             if self.operation == 'validation':
                 # TODO: revisar si tenemos que hacer algo más
-                self._set_done()
+                self._set_done(state_message=message)
                 if self.tokenize and not self.token_id:
                     self._mercadopago_tokenize_from_feedback_data(response_content)
         elif status in ['cancelled', 'refunded', 'charged_back', 'rejected']:  # Declined
             _logger.info('Received notification for MercadoPago payment %s: set as cancelled' % (self.reference))
-            self._set_canceled()
+            # Llamamos a set_error y no set_cancel porque si no Odoo no muestra el mensaje en el portal
+            self._set_error(state_message=message)
         elif status in ['pending', 'in_process', 'in_mediation']:  # Held for Review
             _logger.info('Received notification for MercadoPago payment %s: set as pending' % (self.reference))
-            self._set_pending()
+            self._set_pending(state_message=message)
         else:  # Error / Unknown code
             # TODO: check how to get the error message
             error_code = response_content.get('error')
@@ -229,3 +215,41 @@ class PaymentTransaction(models.Model):
             _logger.info(
                 "created token with id %s for partner with id %s", token.id, self.partner_id.id
             )
+
+    def _get_mercadopago_response_msg(self, data):
+        """ Return the response status in the human language.
+
+        :return: The response message
+        :param dict data: MercadoPago transaction response
+        """
+        mercadopago_messages = {
+            'accredited': _("¡Listo! Se acreditó tu pago. En tu resumen verás el cargo de {amount} como {statement_descriptor}."),
+            'pending_contingency': _("Estamos procesando tu pago. No te preocupes, menos de 2 días hábiles te avisaremos por e-mail si se acreditó."),
+            'pending_review_manual': _("Estamos procesando tu pago. No te preocupes, menos de 2 días hábiles te avisaremos por e-mail si se acreditó o si necesitamos más información."),
+            'cc_rejected_bad_filled_card_number': _("Revisa el número de tarjeta."),
+            'cc_rejected_bad_filled_date': _("Revisa la fecha de vencimiento."),
+            'cc_rejected_bad_filled_other': _("Revisa los datos."),
+            'cc_rejected_bad_filled_security_code': _("Revisa el código de seguridad de la tarjeta."),
+            'cc_rejected_blacklist': _("No pudimos procesar tu pago, utiliza otra tarjeta."),
+            'cc_rejected_call_for_authorize': _("Debes autorizar ante {payment_method_id} el pago de {amount}."),
+            'cc_rejected_card_disabled': _("Llama a {payment_method_id} para activar tu tarjeta o usa otro medio de pago.\nEl teléfono está al dorso de tu tarjeta."),
+            'cc_rejected_card_error': _("No pudimos procesar tu pago, revisa la información de la tarjeta."),
+            'cc_rejected_duplicated_payment': _("Ya hiciste un pago por ese valor.\nSi necesitas volver a pagar usa otra tarjeta u otro medio de pago."),
+            'cc_rejected_high_risk': _("No pudimos procesar tu pago, utiliza otra tarjeta."),
+            'cc_rejected_insufficient_amount': _("Tu {payment_method_id} no tiene fondos suficientes."),
+            'cc_rejected_invalid_installments': _("{payment_method_id} no procesa pagos en {installments} cuotas."),
+            'cc_rejected_max_attempts': _("Llegaste al límite de intentos permitidos.\nElige otra tarjeta u otro medio de pago."),
+            'cc_rejected_other_reason': _("{payment_method_id} no procesó el pago, utiliza otra tarjeta o contacta al emisor.")
+        }
+        status = data['status_detail']
+        try:
+            message = mercadopago_messages[status].format(
+                payment_method_id=data.get('payment_method_id'),
+                amount=data.get('transaction_amount'),
+                statement_descriptor=data.get('statement_descriptor'),
+                installments=data.get('installments')
+            )
+        except KeyError:
+            _logger.warning("MercadoPago transaction with unknown status. Return default message.")
+            message = None
+        return message
