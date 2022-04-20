@@ -1,21 +1,74 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
 # 	* payment_mercadopago
-#
+# 
+# Translators:
+# Juan José Scarafía <scarafia.juanjose@gmail.com>, 2022
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-10 01:41+0000\n"
-"PO-Revision-Date: 2022-03-09 22:50-0300\n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"POT-Creation-Date: 2022-04-20 15:15+0000\n"
+"PO-Revision-Date: 2022-04-19 15:09+0000\n"
+"Last-Translator: Juan José Scarafía <scarafia.juanjose@gmail.com>, 2022\n"
+"Language-Team: Spanish (https://www.transifex.com/adhoc/teams/133229/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: \n"
-"Language: es_AR\n"
-"X-Generator: Poedit 2.0.6\n"
+"Content-Transfer-Encoding: \n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: payment_mercadopago
+#: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_acquirer_form
+msgid ""
+".\n"
+"                    <br/>\n"
+"                    <br/>\n"
+"                    Algunas observaciones sobre las credenciales y los estados \"Habilitado\" (producción) y \"Modo de prueba\" (test):"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_acquirer_form
+msgid ""
+".\n"
+"                    <br/>\n"
+"                    Para más información ver documentación de MercadoPago:"
+msgstr ""
+
+#. module: payment_mercadopago
+#. openerp-web
+#: code:addons/payment_mercadopago/static/src/js/payment_form.js:0
+#: code:addons/payment_mercadopago/static/src/js/payment_form.js:0
+#, python-format
+msgid "An error occurred when displayed this payment form."
+msgstr ""
+
+#. module: payment_mercadopago
+#: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_acquirer_form
+msgid "Aplicaciones y credenciales"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_acquirer_form
+msgid "Aquí"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__electronics
+msgid "Audio & Surveillance, Video & GPS, Others"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__cameras
+msgid "Cameras & Photography"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__car_electronics
+msgid ""
+"Car Audio, Car Alarm Systems & Security, Car DVRs, Car Video Players, Car PC"
+msgstr ""
 
 #. module: payment_mercadopago
 #: model_terms:ir.ui.view,arch_db:payment_mercadopago.inline_form
@@ -33,9 +86,103 @@ msgid "Card Number"
 msgstr "Número de la tarjeta"
 
 #. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_token__card_token
+msgid "Card Token"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__phones
+msgid "Cell Phones & Accessories"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__art
+msgid "Collectibles & Art"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__computing
+msgid "Computers & Tablets"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__coupons
+msgid "Coupons"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:payment.acquirer,display_as:payment_mercadopago.payment_acquirer_mercadopago
+msgid "Credit Card (powered by MercadoPago)"
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/payment_transaction.py:0
+#, python-format
+msgid "Debes autorizar ante {payment_method_id} el pago de {amount}."
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__donations
+msgid "Donations"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__virtual_goods
+msgid ""
+"E-books, Music Files, Software, Digital Images, PDF Files and any item which"
+" can be electronically stored in a file, Mobile Recharge, DTH Recharge and "
+"any Online Recharge"
+msgstr ""
+
+#. module: payment_mercadopago
+#. openerp-web
+#: codeaddons/payment_mercadopago/static/src/js/payment_form copy.js:0
+#, python-format
+msgid "E302"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_token__email
+msgid "Email"
+msgstr ""
+
+#. module: payment_mercadopago
+#. openerp-web
+#: codeaddons/payment_mercadopago/static/src/js/payment_form copy.js:0
+#, python-format
+msgid "Error"
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/payment_transaction.py:0
+#, python-format
+msgid ""
+"Estamos procesando tu pago. No te preocupes, menos de 2 días hábiles te "
+"avisaremos por e-mail si se acreditó o si necesitamos más información."
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/payment_transaction.py:0
+#, python-format
+msgid ""
+"Estamos procesando tu pago. No te preocupes, menos de 2 días hábiles te "
+"avisaremos por e-mail si se acreditó."
+msgstr ""
+
+#. module: payment_mercadopago
 #: model_terms:ir.ui.view,arch_db:payment_mercadopago.inline_form
 msgid "Expiration"
 msgstr "Fecha de vencimiento"
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__services
+msgid "General services"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__home
+msgid "Home appliances. Home & Garden"
+msgstr ""
 
 #. module: payment_mercadopago
 #: model_terms:ir.ui.view,arch_db:payment_mercadopago.inline_form
@@ -43,19 +190,196 @@ msgid "Identification"
 msgstr "Identificación"
 
 #. module: payment_mercadopago
+#: model:ir.model.fields,help:payment_mercadopago.field_payment_transaction__mercadopago_txn_type
+msgid "Informative field computed after payment"
+msgstr ""
+
+#. module: payment_mercadopago
 #: model_terms:ir.ui.view,arch_db:payment_mercadopago.inline_form
 msgid "Installments"
 msgstr "Cuotas"
 
 #. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__musical
+msgid "Instruments & Gear"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_acquirer__is_validation
+msgid "Is Validation"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_token__issuer
 #: model_terms:ir.ui.view,arch_db:payment_mercadopago.inline_form
 msgid "Issuer"
 msgstr "Emisor"
 
 #. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_acquirer__mercadopago_item_description
+msgid "Item Description"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_acquirer__mercadopago_item_id
+msgid "Item ID"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_acquirer__mercadopago_item_title
+msgid "Item Title"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__television
+msgid "LCD, LED, Smart TV, Plasmas, TVs"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_acquirer_form
+msgid "Las credenciales de producción sirven para ambos estados."
+msgstr ""
+
+#. module: payment_mercadopago
+#: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_acquirer_form
+msgid "Las credenciales de test sirven solo para estado de test."
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/payment_transaction.py:0
+#, python-format
+msgid ""
+"Llama a {payment_method_id} para activar tu tarjeta o usa otro medio de pago.\n"
+"El teléfono está al dorso de tu tarjeta."
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/payment_transaction.py:0
+#, python-format
+msgid ""
+"Llegaste al límite de intentos permitidos.\n"
+"Elige otra tarjeta u otro medio de pago."
+msgstr ""
+
+#. module: payment_mercadopago
+#: model_terms:ir.ui.view,arch_db:payment_mercadopago.inline_form
+msgid "MM"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__fashion
+msgid ""
+"Men's, Women's, Kids & baby, Handbags & Accessories, Health & Beauty, Shoes,"
+" Jewelry & Watches"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:account.payment.method,name:payment_mercadopago.payment_method_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__provider__mercadopago
+#: model:payment.acquirer,name:payment_mercadopago.payment_acquirer_mercadopago
+msgid "MercadoPago"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_acquirer__mercadopago_access_token
+msgid "MercadoPago Access Token"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_acquirer__mercadopago_application_id
+msgid "MercadoPago Application ID"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_acquirer__mercadopago_item_category
+msgid "MercadoPago Category"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_token__customer_id
+msgid "MercadoPago Customer"
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/mercadopago_request.py:0
+#: code:addons/payment_mercadopago/models/mercadopago_request.py:0
+#: code:addons/payment_mercadopago/models/mercadopago_request.py:0
+#: code:addons/payment_mercadopago/models/mercadopago_request.py:0
+#: code:addons/payment_mercadopago/models/mercadopago_request.py:0
+#: code:addons/payment_mercadopago/models/mercadopago_request.py:0
+#: code:addons/payment_mercadopago/models/mercadopago_request.py:0
+#: code:addons/payment_mercadopago/models/mercadopago_request.py:0
+#: code:addons/payment_mercadopago/models/mercadopago_request.py:0
+#, python-format
+msgid ""
+"MercadoPago Error:\n"
+"Code: %s\n"
+"Message: %s"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_acquirer__mercadopago_publishable_key
+msgid "MercadoPago Public Key"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_acquirer_form
+msgid "MercadoPago item configuration"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_transaction__mercadopago_tmp_token
+msgid "MercadoPago temporal token"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__entertainment
+msgid "Music, Movies & Series, Books, Magazines & Comics, Board Games & Toys"
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/payment_transaction.py:0
+#, python-format
+msgid "No pudimos procesar tu pago, revisa la información de la tarjeta."
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/payment_transaction.py:0
+#: code:addons/payment_mercadopago/models/payment_transaction.py:0
+#, python-format
+msgid "No pudimos procesar tu pago, utiliza otra tarjeta."
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/payment_transaction.py:0
+#, python-format
+msgid "No transaction found matching reference %s."
+msgstr ""
+
+#. module: payment_mercadopago
+#: model_terms:ir.ui.view,arch_db:payment_mercadopago.inline_form
+msgid "Número"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__games
+msgid "Online Games & Credits"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__others
+msgid "Other categories"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__automotive
+msgid "Parts & Accessories"
+msgstr ""
+
+#. module: payment_mercadopago
 #: model:ir.model,name:payment_mercadopago.model_payment_acquirer
 msgid "Payment Acquirer"
-msgstr "Pasarela de Pago"
+msgstr "Método de Pago"
 
 #. module: payment_mercadopago
 #: model:ir.model,name:payment_mercadopago.model_account_payment_method
@@ -71,3 +395,225 @@ msgstr "Token de pago"
 #: model:ir.model,name:payment_mercadopago.model_payment_transaction
 msgid "Payment Transaction"
 msgstr "Transacción de pago"
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__travels
+msgid "Plane tickets, Hotel vouchers, Travel vouchers"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_acquirer_form
+msgid "Podés obtener las credenciales de MercadoPago"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_acquirer__provider
+msgid "Provider"
+msgstr "Proveedor"
+
+#. module: payment_mercadopago
+#: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_acquirer_form
+msgid ""
+"Puede realizar pruebas en estado de test utilizando las tarjetas que figuran"
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/payment_transaction.py:0
+#, python-format
+msgid "Received data with status code \"%(status)s\" and error code \"%(error)s\""
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/controllers/main.py:0
+#, python-format
+msgid "Received tampered payment request data."
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/payment_transaction.py:0
+#, python-format
+msgid "Revisa el código de seguridad de la tarjeta."
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/payment_transaction.py:0
+#, python-format
+msgid "Revisa el número de tarjeta."
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/payment_transaction.py:0
+#, python-format
+msgid "Revisa la fecha de vencimiento."
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/payment_transaction.py:0
+#, python-format
+msgid "Revisa los datos."
+msgstr ""
+
+#. module: payment_mercadopago
+#. openerp-web
+#: codeaddons/payment_mercadopago/static/src/js/payment_form copy.js:0
+#: codeaddons/payment_mercadopago/static/src/js/payment_form copy.js:0
+#: codeaddons/payment_mercadopago/static/src/js/payment_form copy.js:0
+#: code:addons/payment_mercadopago/static/src/js/payment_form.js:0
+#: code:addons/payment_mercadopago/static/src/js/payment_form.js:0
+#: code:addons/payment_mercadopago/static/src/js/payment_form.js:0
+#: code:addons/payment_mercadopago/static/src/js/payment_form.js:0
+#, python-format
+msgid "Server Error"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,help:payment_mercadopago.field_payment_acquirer__provider
+msgid "The Payment Service Provider to use with this acquirer"
+msgstr "El proveedor de servicios de pago a utilizar con este adquirente"
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,help:payment_mercadopago.field_payment_acquirer__mercadopago_item_category
+msgid "The category"
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/payment_transaction.py:0
+#, python-format
+msgid "The transaction is not linked to a token."
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__tickets
+msgid ""
+"Tickets for Concerts, Sports, Arts, Theater, Family, Excursions tickets, "
+"Events & more"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__baby
+msgid "Toys for Baby, Stroller, Stroller Accessories, Car Safety Seats"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__learnings
+msgid "Trainings, Conferences, Workshops"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_transaction__mercadopago_txn_id
+msgid "Transaction ID"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_transaction__mercadopago_txn_type
+msgid "Transaction type"
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/payment_transaction.py:0
+#, python-format
+msgid "Tu {payment_method_id} no tiene fondos suficientes."
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__video_games
+msgid "Video Games & Consoles"
+msgstr ""
+
+#. module: payment_mercadopago
+#. openerp-web
+#: codeaddons/payment_mercadopago/static/src/js/payment_form copy.js:0
+#, python-format
+msgid "We are not able to add your payment method at the moment.\n"
+msgstr ""
+
+#. module: payment_mercadopago
+#. openerp-web
+#: codeaddons/payment_mercadopago/static/src/js/payment_form copy.js:0
+#, python-format
+msgid "We are not able to process your payment at the moment.\n"
+msgstr ""
+
+#. module: payment_mercadopago
+#. openerp-web
+#: code:addons/payment_mercadopago/static/src/js/payment_form.js:0
+#: code:addons/payment_mercadopago/static/src/js/payment_form.js:0
+#, python-format
+msgid "We are not able to process your payment."
+msgstr ""
+
+#. module: payment_mercadopago
+#: model_terms:ir.ui.view,arch_db:payment_mercadopago.inline_form
+msgid "YY"
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/payment_transaction.py:0
+#, python-format
+msgid ""
+"Ya hiciste un pago por ese valor.\n"
+"Si necesitas volver a pagar usa otra tarjeta u otro medio de pago."
+msgstr ""
+
+#. module: payment_mercadopago
+#: model_terms:payment.acquirer,auth_msg:payment_mercadopago.payment_acquirer_mercadopago
+msgid "Your payment has been authorized."
+msgstr ""
+
+#. module: payment_mercadopago
+#: model_terms:payment.acquirer,cancel_msg:payment_mercadopago.payment_acquirer_mercadopago
+msgid "Your payment has been cancelled."
+msgstr ""
+
+#. module: payment_mercadopago
+#: model_terms:payment.acquirer,pending_msg:payment_mercadopago.payment_acquirer_mercadopago
+msgid ""
+"Your payment has been successfully processed but is waiting for approval."
+msgstr ""
+
+#. module: payment_mercadopago
+#: model_terms:payment.acquirer,done_msg:payment_mercadopago.payment_acquirer_mercadopago
+msgid "Your payment has been successfully processed. Thank you!"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_acquirer_form
+msgid "aquí"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_acquirer_form
+msgid "con cualquier código de seguridad y una fecha de vencimiento futura."
+msgstr ""
+
+#. module: payment_mercadopago
+#: model_terms:ir.ui.view,arch_db:payment_mercadopago.mercadopago_checkout
+msgid "cvv"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model_terms:ir.ui.view,arch_db:payment_mercadopago.inline_form
+msgid "email"
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/payment_transaction.py:0
+#, python-format
+msgid "{payment_method_id} no procesa pagos en {installments} cuotas."
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/payment_transaction.py:0
+#, python-format
+msgid ""
+"{payment_method_id} no procesó el pago, utiliza otra tarjeta o contacta al "
+"emisor."
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/payment_transaction.py:0
+#, python-format
+msgid ""
+"¡Listo! Se acreditó tu pago. En tu resumen verás el cargo de {amount} como "
+"{statement_descriptor}."
+msgstr ""
