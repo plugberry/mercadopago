@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-27 12:12+0000\n"
-"PO-Revision-Date: 2022-04-27 12:12+0000\n"
+"POT-Creation-Date: 2022-04-27 14:07+0000\n"
+"PO-Revision-Date: 2022-04-27 14:07+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -131,22 +131,8 @@ msgid ""
 msgstr ""
 
 #. module: payment_mercadopago
-#. openerp-web
-#: code:addons/payment_mercadopago/static/src/js/payment_form_copy.js:0
-#, python-format
-msgid "E302"
-msgstr ""
-
-#. module: payment_mercadopago
 #: model:ir.model.fields,field_description:payment_mercadopago.field_payment_token__email
 msgid "Email"
-msgstr ""
-
-#. module: payment_mercadopago
-#. openerp-web
-#: code:addons/payment_mercadopago/static/src/js/payment_form_copy.js:0
-#, python-format
-msgid "Error"
 msgstr ""
 
 #. module: payment_mercadopago
@@ -456,9 +442,6 @@ msgstr ""
 
 #. module: payment_mercadopago
 #. openerp-web
-#: code:addons/payment_mercadopago/static/src/js/payment_form_copy.js:0
-#: code:addons/payment_mercadopago/static/src/js/payment_form_copy.js:0
-#: code:addons/payment_mercadopago/static/src/js/payment_form_copy.js:0
 #: code:addons/payment_mercadopago/static/src/js/payment_form.js:0
 #: code:addons/payment_mercadopago/static/src/js/payment_form.js:0
 #: code:addons/payment_mercadopago/static/src/js/payment_form.js:0
@@ -535,20 +518,6 @@ msgstr ""
 #. module: payment_mercadopago
 #: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_acquirer__mercadopago_item_category__video_games
 msgid "Video Games & Consoles"
-msgstr ""
-
-#. module: payment_mercadopago
-#. openerp-web
-#: code:addons/payment_mercadopago/static/src/js/payment_form_copy.js:0
-#, python-format
-msgid "We are not able to add your payment method at the moment.\n"
-msgstr ""
-
-#. module: payment_mercadopago
-#. openerp-web
-#: code:addons/payment_mercadopago/static/src/js/payment_form_copy.js:0
-#, python-format
-msgid "We are not able to process your payment at the moment.\n"
 msgstr ""
 
 #. module: payment_mercadopago
