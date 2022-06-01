@@ -3,7 +3,7 @@
     'name': 'MercadoPago Payment Acquirer',
     'category': 'Accounting/Payment Acquirers',
     'summary': 'Payment Acquirer: MercadoPago',
-    'version': "15.0.1.2.0",
+    'version': "15.0.1.2.1",
     'author': 'ADHOC SA - Axcelere S.A.S',
     'website': 'www.adhoc.com.ar, www.axcelere.com',
     'description': """MercadoPago Payment Acquirer""",
