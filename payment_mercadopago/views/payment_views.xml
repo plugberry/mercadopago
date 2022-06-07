@@ -42,6 +42,14 @@
                         </p>
                     </t>
                 </xpath>
+                <group name="payment_followup" position="after">
+                    <group string="MercadoPago item configuration" attrs="{'invisible': [('provider', '!=', 'mercadopago')]}">
+                        <field name="mercadopago_item_id"/>
+                        <field name="mercadopago_item_title"/>
+                        <field name="mercadopago_item_description"/>
+                        <field name="mercadopago_item_category"/>
+                    </group>
+                </group>
             </field>
         </record>
 </odoo>

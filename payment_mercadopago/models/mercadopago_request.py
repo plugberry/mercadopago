@@ -4,6 +4,7 @@ import logging
 from odoo import _
 from odoo.exceptions import UserError
 from werkzeug import urls
+from babel.dates import format_datetime
 
 _logger = logging.getLogger(__name__)
 
@@ -113,29 +114,52 @@ class MercadoPagoAPI():
             return resp['id']
 
     # Payments
-    def payment(self, acquirer, token, amount, capture=True, cvv_token=None):
+    def payment(self, tx, amount, capture=True, cvv_token=None):
         """
         MercadoPago payment
         """
         values = {
-            "token": cvv_token or self.get_card_token(token.token),
-            "installments": token.installments,
+            "token": cvv_token or self.get_card_token(tx.payment_token_id.token),
+            "installments": tx.payment_token_id.installments,
             "transaction_amount": amount,
             "description": "Odoo ~ MercadoPago payment",
-            "payment_method_id": token.acquirer_ref,
+            "payment_method_id": tx.payment_token_id.acquirer_ref,
             "binary_mode": True,
             "payer": {
-                "email": token.partner_id.email,
+                # Pasamos el main del token porque es el mail con el que se tokenizó la tarjeta
+                # (podría no coincidir con el partner de la tx)
+                "email": tx.payment_token_id.partner_id.email,
             },
-            "notification_url": urls.url_join(acquirer.get_base_url(), "/payment/mercadopago/notification"),
+            "additional_info": {
+                "items": [{
+                    "id": tx.acquirer_id.mercadopago_item_id,
+                    "title": tx.acquirer_id.mercadopago_item_title,
+                    "description": tx.acquirer_id.mercadopago_item_description,
+                    "category_id": tx.acquirer_id.mercadopago_item_category or None,
+                    "quantity": 1,
+                    "unit_price": amount,
+                }],
+                "payer": {
+                    "first_name": tx.partner_name,
+                    "phone": {
+                        "number": tx.partner_phone
+                    },
+                    "address": {
+                        "zip_code": tx.partner_zip,
+                        "street_name": tx.partner_address,
+                    },
+                    "registration_date": format_datetime(tx.partner_id.create_date),
+                },
+            },
+            "notification_url": urls.url_join(tx.acquirer_id.get_base_url(), "/payment/mercadopago/notification"),
             "capture": capture
         }
-        if token.issuer:
-            values.update(issuer_id=token.issuer)
+        if tx.payment_token_id.issuer:
+            values.update(issuer_id=tx.payment_token_id.issuer)
 
         # TODO: revisar si deberíamos hacer esto directamente para todos los casos y ver si guardamos el dato antes
         if cvv_token or capture:
-            customer_id = self.get_customer_profile(token.partner_id.email)
+            customer_id = self.get_customer_profile(tx.payment_token_id.partner_id.email)
             values.update({"payer": {"type": 'customer', 'id': customer_id}})
 
         resp = self.mp.payment().create(values)
