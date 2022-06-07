@@ -7,10 +7,11 @@ import logging
 import pprint
 import werkzeug
 from odoo import http
-from odoo.http import request
+from odoo.http import request, Response
 from odoo.tools.safe_eval import safe_eval
 from odoo.addons.payment_mercadopago.models.mercadopago_request import MercadoPagoAPI
 from urllib import parse
+import json
 _logger = logging.getLogger(__name__)
 
 
@@ -21,6 +22,7 @@ class MercadoPagoController(http.Controller):
     _pending_url = '/payment/mercadopago/pending/'
     _failure_url = '/payment/mercadopago/failure/'
     _create_preference_url = '/payment/mercadopago/create_preference'
+    _notify_url = '/payment/mercadopago/notify?source_news=webhooks'
 
     @http.route(['/payment/mercadopago/create_preference'], type='http', auth="none", csrf=False)
     def mercadopago_create_preference(self, **post):
@@ -103,3 +105,32 @@ class MercadoPagoController(http.Controller):
             tree = MP.get_payment(payment_id)
             return tx._mercadopago_s2s_validate_tree(tree)
         return False
+
+    @http.route('/payment/mercadopago/notify', type='json', auth='none')
+    def mercadopago_notification(self):
+        """ Process the data sent by MercadoPago to the webhook based on the event code.
+        :return: Status 200 to acknowledge the notification
+        :rtype: Response
+        """
+        data = json.loads(request.httprequest.data)
+        _logger.debug("MercadoPago notification: \n%s", pprint.pformat(data))
+        if data['type'] == 'payment':
+            try:
+                # Payment ID
+                payment_id = data['data']['id']
+
+                # Get payment data from MercadoPago
+                acquirer = request.env["payment.acquirer"].sudo().search([
+                    ('provider', '=', 'mercadopago'),
+                    ('mercadopago_application_id', '=', data['application_id'])
+                ], limit=1)
+                MP = MercadoPagoAPI(acquirer)
+                tree = MP.get_payment(payment_id)
+                tx = request.env['payment.transaction'].sudo().search([('acquirer_reference', '=', payment_id)])
+                tx._mercadopago_s2s_validate_tree(tree)
+
+            except Exception:  # Acknowledge the notification to avoid getting spammed
+                _logger.exception("Unable to handle the notification data; skipping to acknowledge")
+
+        # Acknowledge the notification
+        return Response('success', status=200)
