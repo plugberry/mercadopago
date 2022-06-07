@@ -96,8 +96,8 @@
             </div>
 
             <!-- Checkbox save card? -->
-            <div t-att-class="'o_hidden' if request.website.is_public_user() or mode == 'manage' or verify_validity == True else 'form-group col-lg-12'" >
-                <input name = "save_token" type="checkbox" t-att-checked="not request.website.is_public_user()" id="save_token"/>
+            <div t-att-class="'o_hidden' if is_public_user or mode == 'manage' or verify_validity == True else 'form-group col-lg-12'" >
+                <input name = "save_token" type="checkbox" t-att-checked="not is_public_user" id="save_token"/>
                 <label for="save_token"> Save card? </label>
             </div>
 
