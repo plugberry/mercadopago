@@ -7,6 +7,7 @@
             <field name="arch" type="xml">
                 <xpath expr='//group[@name="acquirer"]' position='inside'>
                     <group attrs="{'invisible': [('provider', '!=', 'mercadopago')]}">
+                        <field name="mercadopago_application_id" attrs="{'invisible':[('payment_flow', '!=', 's2s')],'required': [('provider', '=', 'mercadopago'), ('state', '!=', 'disabled'), ('payment_flow', '=', 's2s')]}"/>
                         <field name="mercadopago_publishable_key" attrs="{'required': [('provider', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
                         <field name="mercadopago_access_token" password="True" attrs="{'required': [('provider', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
                     </group>
