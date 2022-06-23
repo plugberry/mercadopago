@@ -93,9 +93,7 @@ class MercadoPagoController(http.Controller):
 
                 # Get payment data from MercadoPago
                 acquirer = request.env["payment.acquirer"].sudo().search([
-                    ('provider', '=', 'mercadopago'),
-                    ('mercadopago_application_id', '=', data['application_id'])
-                ], limit=1)
+                    ('provider', '=', 'mercadopago')], limit=1)
                 mercadopago_API = MercadoPagoAPI(acquirer)
                 payment_data = mercadopago_API.get_payment(payment_id)
 
