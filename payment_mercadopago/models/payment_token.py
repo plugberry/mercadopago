@@ -41,6 +41,5 @@ class PaymentToken(models.Model):
         return super()._handle_reactivation_request()
         # if self.provider != 'authorize':
         #     return
-
         # raise UserError(_("Saved payment methods cannot be restored once they have been deleted."))
 
