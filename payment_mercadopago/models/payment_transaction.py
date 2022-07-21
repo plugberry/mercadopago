@@ -129,7 +129,8 @@ class PaymentTransaction(models.Model):
         if provider != 'mercadopago':
             return tx
 
-        reference = data.get('external_reference')
+        #TO DO : La referencia en que caso no funciona
+        reference = data.get('reference')
         tx = self.search([('reference', '=', reference), ('provider', '=', 'mercadopago')])
         if not tx:
             raise ValidationError(
@@ -195,7 +196,7 @@ class PaymentTransaction(models.Model):
         # TODO: podríamos pasar el objeto partner y enviar todos los datos disponibles
         customer_id = mercadopago_API.get_customer_profile(self.partner_id.email)
         if customer_id:
-            # TODO: si un cliente tokeniza dos veces la misma tarjeta, debemos buscarla en MercadoPago o crearla nuevamente?
+            #  si un cliente tokeniza dos veces la misma tarjeta, debemos buscarla en MercadoPago o crearla nuevamente?
             card = mercadopago_API.create_customer_card(customer_id, self.mercadopago_tmp_token)
             token = self.env['payment.token'].create({
                 'acquirer_id': self.acquirer_id.id,
