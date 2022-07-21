@@ -120,10 +120,7 @@ class MercadoPagoController(http.Controller):
                 payment_id = data['data']['id']
 
                 # Get payment data from MercadoPago
-                acquirer = request.env["payment.acquirer"].sudo().search([
-                    ('provider', '=', 'mercadopago'),
-                    ('mercadopago_application_id', '=', data['application_id'])
-                ], limit=1)
+                acquirer = request.env["payment.acquirer"].sudo().search([('provider', '=', 'mercadopago')], limit=1)
                 MP = MercadoPagoAPI(acquirer)
                 tree = MP.get_payment(payment_id)
                 tx = request.env['payment.transaction'].sudo().search([('acquirer_reference', '=', payment_id)])
