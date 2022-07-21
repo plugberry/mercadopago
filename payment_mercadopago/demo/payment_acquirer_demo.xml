@@ -2,8 +2,8 @@
 <odoo>
     <record id="payment_acquirer_mercadopago" model="payment.acquirer">
         <field name="mercadopago_application_id">12345</field>
-        <field name="mercadopago_publishable_key">TEST-1fe08949-6c28-4696-a5bc-a886d3c042cf</field>
-        <field name="mercadopago_access_token">TEST-7616300812877231-030918-8d03cad83a773e6682abc86a8b891a95-172837665</field>
+        <field name="mercadopago_publishable_key">TEST-4f5a24d1-b016-4d3f-b9ad-c989c3e371e7</field>
+        <field name="mercadopago_access_token">TEST-4811719641145832-020115-c5caffc149634e3e9d72fde2b74544d8__LD_LA__-172837665</field>
         <field name="state">test</field>
         <field name="mercadopago_item_id">001</field>
         <field name="mercadopago_item_title">Test Item</field>

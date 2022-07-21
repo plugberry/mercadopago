@@ -136,10 +136,6 @@ class MercadoPagoAPI():
                 "type": "customer",
                 "id": token.customer_id if token else None,
                 "email": token.email if token else form_data['email'],
-                "identification": {
-                    "number": tx.partner_id.vat,
-                    "type": tx.partner_id.l10n_latam_identification_type_id.name,
-                },
                 "first_name": tx.partner_name,
             },
             "additional_info": {
@@ -166,6 +162,13 @@ class MercadoPagoAPI():
             "notification_url": urls.url_join(tx.acquirer_id.get_base_url(), '/payment/mercadopago/notify?source_news=webhooks'),
             "capture": True if token else not form_data['validation'],
         }
+        _logger.info(tx.partner_id.l10n_latam_identification_type_id)
+        if 'l10n_latam_identification_type_id' in tx.partner_id and tx.partner_id.l10n_latam_identification_type_id:
+            values['payer'].update( identification = {
+                    "number": tx.partner_id.vat,
+                    "type": tx.partner_id.l10n_latam_identification_type_id.name,
+            })
+
         if form_data.get("issuer"):
             values.update(issuer_id=form_data['issuer'])
 
