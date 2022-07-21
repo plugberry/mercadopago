@@ -132,10 +132,10 @@ class MercadoPagoAPI():
             },
             "additional_info": {
                 "items": [{
-                    "id": tx.acquirer_id.mercadopago_item_id,
-                    "title": tx.acquirer_id.mercadopago_item_title,
-                    "description": tx.acquirer_id.mercadopago_item_description,
-                    "category_id": tx.acquirer_id.mercadopago_item_category or None,
+                    "id": 'Venta de ecommerce',
+                    "title": 'Venta de ecommerce',
+                    "description": 'Venta de ecommerce',
+                    "category_id": 'others',
                     "quantity": 1,
                     "unit_price": amount,
                 }],
