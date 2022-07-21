@@ -170,6 +170,8 @@ class MercadoPagoAPI():
             payment_token = tx.mercadopago_tmp_token if cvv and tx.mercadopago_tmp_token else self.get_card_token(token.card_token)
         elif 'mercadopago_token' in form_data:
             payment_token = form_data['mercadopago_token']
+            
+        _logger.info('form %s' % form_data)
 
         capture, validation_capture_method = self.validation_capture_method(tx, form_data, token) 
 
