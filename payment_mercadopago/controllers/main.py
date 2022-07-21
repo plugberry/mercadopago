@@ -28,7 +28,6 @@ class MercadoPagoController(http.Controller):
                  public client key
         :rtype: dict
         """
-        #import time; time.sleep(5)
         if flow == "token":
             acquirer_sudo = request.env['payment.token'].browse(rec_id).acquirer_id.sudo()
         else:
@@ -37,7 +36,7 @@ class MercadoPagoController(http.Controller):
             # 'state': acquirer_sudo.state,
             # 'payment_method_type': acquirer_sudo.authorize_payment_method_type,
             'publishable_key': acquirer_sudo.mercadopago_publishable_key,
-            'access_token': acquirer_sudo.mercadopago_access_token,
+            #'access_token': acquirer_sudo.mercadopago_access_token,
         }
 
     @http.route('/payment/mercadopago/payment', type='json', auth='public')
@@ -78,8 +77,11 @@ class MercadoPagoController(http.Controller):
             'card_token': token.card_token,
         }
 
-    @http.route('/payment/mercadopago/notify', type='json', auth='none')
-    def mercadopago_notification(self):
+    @http.route([
+        '/payment/mercadopago/notify', 
+        '/payment/mercadopago/notify/<int:aquirer_id>'
+        ], type='json', auth='none')
+    def mercadopago_notification(self, aquirer_id=False):
         """ Process the data sent by MercadoPago to the webhook based on the event code.
 
         :return: Status 200 to acknowledge the notification
@@ -93,8 +95,12 @@ class MercadoPagoController(http.Controller):
                 payment_id = data['data']['id']
 
                 # Get payment data from MercadoPago
-                acquirer = request.env["payment.acquirer"].sudo().search([
-                    ('provider', '=', 'mercadopago')], limit=1)
+                leaf=[('provider', '=', 'mercadopago')]
+                #For backward compatibility, add the aquirer_id separately.
+                if aquirer_id:
+                    leaf += [('id', '=', int(aquirer_id))]
+                acquirer = request.env["payment.acquirer"].sudo().search(leaf, limit=1)
+
                 mercadopago_API = MercadoPagoAPI(acquirer)
                 payment_data = mercadopago_API.get_payment(payment_id)
 

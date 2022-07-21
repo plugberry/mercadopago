@@ -15,6 +15,15 @@ class PaymentToken(models.Model):
     issuer = fields.Char('Issuer', readonly=True)
     card_token = fields.Char('Card Token', readonly=True)
 
+
+    def unlink(self):
+        for token in self:
+            if token.acquirer_id.provider == 'mercadopago':
+                mercado_pago = MercadoPagoAPI(token.acquirer_id)
+                mercado_pago.unlink_card_token(token.customer_id, token.card_token)
+
+        return super().unlink()
+
     def _handle_deactivation_request(self):
         """ Override of payment to request Authorize.Net to delete the token.
 
@@ -22,14 +31,12 @@ class PaymentToken(models.Model):
 
         :return: None
         """
-        return super()._handle_deactivation_request()
+        self.ensure_one()
+        if self.acquirer_id.provider == 'mercadopago':
+            mercado_pago = MercadoPagoAPI(self.acquirer_id)
+            mercado_pago.unlink_card_token(self.customer_id, self.card_token)
 
-        # TODO: Borramos la tarjeta de MercadoPago cuando se archiva un token??
-        # if self.provider != 'mercadopago':
-        #     return
-        # authorize_API = AuthorizeAPI(self.acquirer_id)
-        # res_content = authorize_API.delete_customer_profile(self.authorize_profile)
-        # _logger.info("delete_customer_profile request response:\n%s", pprint.pformat(res_content))
+        return super()._handle_deactivation_request()
 
     def _handle_reactivation_request(self):
         """ Override of payment to raise an error informing that Auth.net tokens cannot be restored.
@@ -38,8 +45,9 @@ class PaymentToken(models.Model):
 
         :return: None
         """
+        if self.acquirer_id.provider == 'mercadopago':
+            raise UserError(_('You cannot reactive a Mercadopago token.'))
+
+
         return super()._handle_reactivation_request()
-        # if self.provider != 'authorize':
-        #     return
-        # raise UserError(_("Saved payment methods cannot be restored once they have been deleted."))
 

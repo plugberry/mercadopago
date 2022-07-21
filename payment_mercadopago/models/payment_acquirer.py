@@ -1,12 +1,15 @@
+from locale import currency
 from .mercadopago_request import MercadoPagoAPI
 import logging
 import urllib.parse as urlparse
+
 import werkzeug
 
 from odoo import _, api, fields, models
 from odoo.addons.payment.models.payment_acquirer import ValidationError
 from odoo.http import request
 from ..controllers.main import MercadoPagoController
+import pprint
 
 _logger = logging.getLogger(__name__)
 
@@ -16,7 +19,6 @@ class PaymentAcquirer(models.Model):
 
     provider = fields.Selection(
         selection_add=[('mercadopago', 'MercadoPago')], ondelete={'mercadopago': 'set default'})
-    mercadopago_application_id = fields.Char('MercadoPago Application ID', required_if_provider='mercadopago')
     mercadopago_publishable_key = fields.Char('MercadoPago Public Key', required_if_provider='mercadopago')
     mercadopago_access_token = fields.Char('MercadoPago Access Token', required_if_provider='mercadopago')
     is_validation = fields.Boolean()
@@ -54,6 +56,28 @@ class PaymentAcquirer(models.Model):
         ],
     )
 
+    @api.onchange('provider')
+    def _onchange_provider(self):
+        if self.provider == 'mercadopago':
+            self.inline_form_view_id = self.env.ref('payment_mercadopago.inline_form').id
+
+    def action_create_mercadopago_test_user(self):
+        self.ensure_one()
+        mercadopago_API = MercadoPagoAPI(self)
+        values = mercadopago_API.create_test_user()
+        msg = _("Mercadopago test user id: {id},  nickname: {nickname}, password: {password}, status: {site_status}, email: {email} ").format(**values) 
+
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": msg,
+                "type": "success",
+                "sticky": True,  
+            },
+        }
+
+
     @api.model
     def _get_compatible_acquirers(self, *args, currency_id=None, **kwargs):
         """ Override of payment to unlist MercadoPago acquirers when the currency is not ARS. """
@@ -84,8 +108,11 @@ class PaymentAcquirer(models.Model):
         if self.provider != 'mercadopago':
             return res
 
-        # TODO: definir un monto
-        return 92.5
+        usd_currency_id = self.env.ref('base.USD')
+        currency_id = self.journal_id.currency_id or self.journal_id.company_id.currency_id
+        amount = usd_currency_id._convert(1, currency_id, self.journal_id.company_id, fields.Date.today())
+        return amount
+
 
     def _get_validation_currency(self):
         """ Override of payment to return the currency for MercadoPago validation operations.
