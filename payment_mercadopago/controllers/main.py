@@ -28,6 +28,7 @@ class MercadoPagoController(http.Controller):
                  public client key
         :rtype: dict
         """
+        #import time; time.sleep(5)
         if flow == "token":
             acquirer_sudo = request.env['payment.token'].browse(rec_id).acquirer_id.sudo()
         else:

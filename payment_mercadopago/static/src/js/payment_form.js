@@ -31,8 +31,7 @@ odoo.define('payment_mercadopago.payment_form', require => {
     const mercadopagoMixin = {
 
         start: function () {
-            ajax.loadJS("https://secure.mlstatic.com/sdk/javascript/v1/mercadopago.js");
-            ajax.loadJS("https://sdk.mercadopago.com/js/v2");
+
             this._super(...arguments);
        },
 
@@ -89,19 +88,28 @@ odoo.define('payment_mercadopago.payment_form', require => {
                     'flow': flow,
                 },
             }).then(acquirerInfo => {
-                this.mercadopagoInfo = acquirerInfo;
-                // Initialize MercadoPago v1
-                window.Mercadopago.setPublishableKey(acquirerInfo.publishable_key);
-                window.Mercadopago.getIdentificationTypes();
-                // Initialize MercadoPago v2
-                this.mp = new MercadoPago(acquirerInfo.publishable_key);
-                if (flow === 'token') {
-                    return Promise.resolve(); // Don't show the form for tokens
-                }
-                else {
-                    this._setPaymentFlow('direct');
-                    this._MercadoPagoProcessForm(paymentOptionId)
-                }
+                var self = this;
+                ajax.loadJS("https://secure.mlstatic.com/sdk/javascript/v1/mercadopago.js").then((mp) => {
+                    ajax.loadJS("https://sdk.mercadopago.com/js/v2").then((mp) => {
+                        self.mercadopagoInfo = acquirerInfo;
+                        // Initialize MercadoPago v1
+                        window.Mercadopago.setPublishableKey(acquirerInfo.publishable_key);
+                        window.Mercadopago.getIdentificationTypes();
+                        // Initialize MercadoPago v2
+                        self.mp = new MercadoPago(acquirerInfo.publishable_key);
+                        if (flow === 'token') {
+                            return Promise.resolve(); // Don't show the form for tokens
+                        }
+                        else {
+                            this._setPaymentFlow('direct');
+                            this._MercadoPagoProcessForm(paymentOptionId)
+                        }
+        
+
+                    });
+                });
+                
+
             }).guardedCatch((error) => {
                 error.event.preventDefault();
                 this._displayError(
