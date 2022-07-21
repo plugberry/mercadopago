@@ -121,6 +121,8 @@ class MercadoPagoAPI():
             payment_token = tx.mercadopago_tmp_token if cvv else self.get_card_token(token.card_token)
         else:
             payment_token = form_data['mercadopago_token']
+            
+        _logger.info('form %s' % form_data)
 
         values = {
             "token": payment_token,
