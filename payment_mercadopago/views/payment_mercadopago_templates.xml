@@ -76,7 +76,7 @@
 
             <!-- Security code -->
             <div t-att-class="'form-group col-lg-3' if bootstrap_formatting else 'form-group'">
-                <input id="cc_cvc" data-checkout="securityCode" type="text"
+                <input id="cc_cvc" data-checkout="securityCode" type="password"
                 placeholder="cvv"
                 maxlength="4"
                 onselectstart="return false" onpaste="return false"
@@ -140,7 +140,7 @@
         <xpath expr="//button[@name='delete_pm']" position="after">
             <input t-if="mode == 'payment' and not verify_validity and pm.acquirer_id.provider == 'mercadopago'"
                 t-attf-id="cc_cvc_{{pm.id}}"
-                type="text"
+                type="password"
                 placeholder="cvv"
                 maxlength="4"
                 class="form-control col-lg-3"
@@ -152,4 +152,3 @@
     </template>
 
 </odoo>
-
