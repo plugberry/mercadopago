@@ -5,6 +5,10 @@ from odoo.exceptions import UserError
 from werkzeug import urls
 import pprint
 from babel.dates import format_datetime
+import requests
+
+MP_URL = "https://api.mercadopago.com/"
+
 
 _logger = logging.getLogger(__name__)
 
@@ -42,6 +46,21 @@ class MercadoPagoAPI():
                 'err_code': 500,
                 'err_msg': "Server Error"
             }
+
+
+    #create Test User
+    def create_test_user(self):
+        api_url = MP_URL + "users/test_user" 
+        headers = {"Authorization": "Bearer %s" % self.mercadopago_access_token}
+        request_data = {"site_id":"MLA"}
+        response = requests.post(api_url, headers=headers, json=request_data)
+        resp = self.check_response(response)
+
+        if resp.get('err_code'):
+            raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+        else:
+            return resp
+
 
     # Preference
     def create_preference(self, preference):
@@ -122,8 +141,6 @@ class MercadoPagoAPI():
         else:
             payment_token = form_data['mercadopago_token']
             
-        _logger.info('form %s' % form_data)
-
         values = {
             "token": payment_token,
             "installments": 1 if token else form_data['installments'],
@@ -143,7 +160,7 @@ class MercadoPagoAPI():
                     "id": tx.acquirer_id.mercadopago_item_id,
                     "title": tx.acquirer_id.mercadopago_item_title,
                     "description": tx.acquirer_id.mercadopago_item_description,
-                    "category_id": tx.acquirer_id.mercadopago_item_category or None,
+                    "category_id": tx.acquirer_id.mercadopago_item_category or None,    
                     "quantity": 1,
                     "unit_price": tx.amount,
                 }],
@@ -162,12 +179,11 @@ class MercadoPagoAPI():
             "notification_url": urls.url_join(tx.acquirer_id.get_base_url(), '/payment/mercadopago/notify?source_news=webhooks'),
             "capture": True if token else not form_data['validation'],
         }
-        _logger.info(tx.partner_id.l10n_latam_identification_type_id)
-        if 'l10n_latam_identification_type_id' in tx.partner_id and tx.partner_id.l10n_latam_identification_type_id:
-            values['payer'].update( identification = {
+        if  hasattr(tx.partner_id, 'l10n_latam_identification_type_id'):
+            values['payer']['identification'] = {
                     "number": tx.partner_id.vat,
                     "type": tx.partner_id.l10n_latam_identification_type_id.name,
-            })
+            }
 
         if form_data.get("issuer"):
             values.update(issuer_id=form_data['issuer'])

@@ -33,6 +33,21 @@
                         </li>
                     </ul>
                 </p>
+
+                <div class="alert alert-warning" role="alert" style="margin-bottom:0px;" attrs="{'invisible': ['|',('provider', '!=', 'mercadopago'), ('state','!=', 'test')]}">
+                Los <strong>usuarios de prueba</strong> te permiten probar tu integración al generar flujos de pagos en una copia exacta de tu integración.
+                Podés crear los usuarios de prueba <button name="action_create_mercadopago_test_user" class="btn btn-link" type="object" >Aquí</button>
+                <br/>
+                <ul>
+                    <li>Tanto el comprador como el vendedor deben ser usuarios de prueba.</li>
+                    <li>Puedes generar hasta 10 cuentas de usuarios de prueba en simultáneo. Por eso, te recomendamos guardar el email y password de cada uno.</li>
+                    <li>Los usuarios de prueba caducan luego de 60 días sin actividad en Mercado Pago.</li>
+                    <li>Para hacer pagos de prueba te recomendamos usar montos bajos.</li>
+                    <li>Los montos deben respetar los <a href="https://www.mercadopago.com.ar/ayuda/monto-minimo-maximo-medios-de-pago_620" target="_blank">valores mínimos y máximos para cada medio</a> de pago.</li>
+                </ul>
+                </div>
+
+
                 <!-- TODO: arreglar -->
                 <!-- <t attrs="{'invisible': [('payment_flow', '!=', 's2s')]}">
                     <br/>

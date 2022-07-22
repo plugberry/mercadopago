@@ -1,12 +1,14 @@
 from .mercadopago_request import MercadoPagoAPI
 import logging
 import urllib.parse as urlparse
+
 import werkzeug
 
 from odoo import _, api, fields, models
 from odoo.addons.payment.models.payment_acquirer import ValidationError
 from odoo.http import request
 from ..controllers.main import MercadoPagoController
+import pprint
 
 _logger = logging.getLogger(__name__)
 
@@ -53,6 +55,23 @@ class PaymentAcquirer(models.Model):
             ('others', "Other categories"),
         ],
     )
+
+    def action_create_mercadopago_test_user(self):
+        self.ensure_one()
+        values = MercadoPagoAPI.create_test_user(self)
+        _logger.info(values)
+        msg = _("Mercadopago test user id: {id},  nickname: {nickname}, password: {password}, status: {site_status}, email: {email} ").format(**values) 
+
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": msg,
+                "type": "success",
+                "sticky": True,  
+            },
+        }
+
 
     @api.model
     def _get_compatible_acquirers(self, *args, currency_id=None, **kwargs):
