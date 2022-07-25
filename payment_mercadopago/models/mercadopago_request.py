@@ -148,7 +148,6 @@ class MercadoPagoAPI():
             payment_token = tx.mercadopago_tmp_token if cvv else self.get_card_token(token.card_token)
         else:
             payment_token = form_data['mercadopago_token']
-            
         values = {
             "token": payment_token,
             "installments": 1 if token else form_data['installments'],
@@ -184,7 +183,9 @@ class MercadoPagoAPI():
                     "registration_date": format_datetime(tx.partner_id.create_date),
                 },
             },
-            "notification_url": urls.url_join(tx.acquirer_id.get_base_url(), '/payment/mercadopago/notify?source_news=webhooks'),
+            "notification_url": urls.url_join(tx.acquirer_id.get_base_url(), '/payment/mercadopago/notify/%s?source_news=webhooks' % tx.acquirer_id.id),
+
+            # TODO: Evaluar estrategia de captura  
             "capture": True if token else not form_data['validation'],
         }
         if  hasattr(tx.partner_id, 'l10n_latam_identification_type_id'):
@@ -227,3 +228,8 @@ class MercadoPagoAPI():
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
         else:
             return resp
+
+    def payment_can_capture(self, payment_id):
+        payment = self.get_payment(payment_id)
+        return payment['deferred_capture'] == 'supported'
+        # TODO: min_allowed_amount

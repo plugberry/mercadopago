@@ -18,7 +18,6 @@ class PaymentAcquirer(models.Model):
 
     provider = fields.Selection(
         selection_add=[('mercadopago', 'MercadoPago')], ondelete={'mercadopago': 'set default'})
-    mercadopago_application_id = fields.Char('MercadoPago Application ID', required_if_provider='mercadopago')
     mercadopago_publishable_key = fields.Char('MercadoPago Public Key', required_if_provider='mercadopago')
     mercadopago_access_token = fields.Char('MercadoPago Access Token', required_if_provider='mercadopago')
     is_validation = fields.Boolean()
@@ -59,7 +58,6 @@ class PaymentAcquirer(models.Model):
     def action_create_mercadopago_test_user(self):
         self.ensure_one()
         values = MercadoPagoAPI.create_test_user(self)
-        _logger.info(values)
         msg = _("Mercadopago test user id: {id},  nickname: {nickname}, password: {password}, status: {site_status}, email: {email} ").format(**values) 
 
         return {
