@@ -48,6 +48,13 @@ class MercadoPagoAPI():
             }
 
 
+    def unlink_card_token(self, customer_id, card_id):
+
+        api_url = MP_URL + "v1/customers/%s/cards/%s" % (customer_id, card_id) 
+        headers = {"Authorization": "Bearer %s" % self.mercadopago_access_token}
+        response = requests.delete(api_url, headers=headers)
+ 
+
     #create Test User
     def create_test_user(self):
         api_url = MP_URL + "users/test_user" 
@@ -60,6 +67,7 @@ class MercadoPagoAPI():
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
         else:
             return resp
+
 
 
     # Preference

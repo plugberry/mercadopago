@@ -15,6 +15,13 @@ class PaymentToken(models.Model):
     issuer = fields.Char('Issuer', readonly=True)
     card_token = fields.Char('Card Token', readonly=True)
 
+
+    def unlink(self):
+        for token in self:
+            if token.acquirer_id.provider == 'mercadopago':
+                MercadoPagoAPI.unlink_card_token(token.acquirer_id, token.customer_id, token.card_token)
+        return super().unlink()
+
     def _handle_deactivation_request(self):
         """ Override of payment to request Authorize.Net to delete the token.
 
@@ -22,6 +29,9 @@ class PaymentToken(models.Model):
 
         :return: None
         """
+        self.ensure_one()
+        if self.acquirer_id.provider == 'mercadopago':
+            MercadoPagoAPI.unlink_card_token(self.acquirer_id, self.customer_id, self.card_token)
         return super()._handle_deactivation_request()
 
         # TODO: Borramos la tarjeta de MercadoPago cuando se archiva un token??
