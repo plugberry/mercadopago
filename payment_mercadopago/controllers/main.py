@@ -28,7 +28,6 @@ class MercadoPagoController(http.Controller):
                  public client key
         :rtype: dict
         """
-        #import time; time.sleep(5)
         if flow == "token":
             acquirer_sudo = request.env['payment.token'].browse(rec_id).acquirer_id.sudo()
         else:
@@ -37,7 +36,7 @@ class MercadoPagoController(http.Controller):
             # 'state': acquirer_sudo.state,
             # 'payment_method_type': acquirer_sudo.authorize_payment_method_type,
             'publishable_key': acquirer_sudo.mercadopago_publishable_key,
-            'access_token': acquirer_sudo.mercadopago_access_token,
+            #'access_token': acquirer_sudo.mercadopago_access_token,
         }
 
     @http.route('/payment/mercadopago/payment', type='json', auth='public')

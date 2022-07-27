@@ -27,6 +27,8 @@ class MercadoPagoAPI():
         request_options = RequestOptions(acquirer.mercadopago_access_token, platform_id="BVH38T5N7QOK0PPDGC2G")
         self.mp = mercadopago.SDK(acquirer.mercadopago_access_token, request_options=request_options)
         self.sandbox = not acquirer.state == "enabled"
+        self.mercadopago_access_token = acquirer.mercadopago_access_token
+        
 
     def check_response(self, resp):
         if resp['status'] in [200, 201]:
@@ -40,6 +42,26 @@ class MercadoPagoAPI():
             return {
                 'err_code': resp['response'].get('status', 0),
                 'err_msg': resp['response'].get('error')
+            }
+        else:
+            return {
+                'err_code': 500,
+                'err_msg': "Server Error"
+            }
+
+    def check_api_response(self, resp):
+        resp_json = resp.json()
+        if resp.ok:
+            return resp_json
+        elif resp_json.get('cause'):
+            return {
+                'err_code': resp_json['cause'][0].get('code'),
+                'err_msg': resp_json['cause'][0].get('description')
+            }
+        elif resp_json.get('error'):
+            return {
+                'err_code': resp_json.get('status', 0),
+                'err_msg': resp_json.get('error')
             }
         else:
             return {
@@ -61,7 +83,7 @@ class MercadoPagoAPI():
         headers = {"Authorization": "Bearer %s" % self.mercadopago_access_token}
         request_data = {"site_id":"MLA"}
         response = requests.post(api_url, headers=headers, json=request_data)
-        resp = self.check_response(response)
+        resp = self.check_api_response(response)
 
         if resp.get('err_code'):
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))

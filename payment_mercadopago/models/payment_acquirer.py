@@ -55,9 +55,15 @@ class PaymentAcquirer(models.Model):
         ],
     )
 
+    @api.onchange('provider')
+    def _onchange_provider(self):
+        if self.provider == 'mercadopago':
+            self.inline_form_view_id = self.env.ref('payment_mercadopago.inline_form').id
+
     def action_create_mercadopago_test_user(self):
         self.ensure_one()
-        values = MercadoPagoAPI.create_test_user(self)
+        mercadopago_API = MercadoPagoAPI(self)
+        values = mercadopago_API.create_test_user()
         msg = _("Mercadopago test user id: {id},  nickname: {nickname}, password: {password}, status: {site_status}, email: {email} ").format(**values) 
 
         return {

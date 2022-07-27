@@ -313,6 +313,7 @@ odoo.define('payment_mercadopago.payment_form', require => {
                     'reference': processingValues.reference,
                     'partner_id': processingValues.partner_id,
                     'access_token': processingValues.access_token,
+                    //'acquirer_id': processingValues.acquirer_id,
                     'mercadopago_token': response.id,
                     'mercadopago_payment_method': document.getElementById('o_mercadopago_payment_method_' + processingValues.acquirer_id).value,
                     'installments': parseInt(document.getElementById('o_mercadopago_installments_' + processingValues.acquirer_id).value),
