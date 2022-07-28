@@ -33,7 +33,8 @@ class PaymentToken(models.Model):
         """
         self.ensure_one()
         if self.acquirer_id.provider == 'mercadopago':
-            raise UserError(_('You cannot deactive a Mercadopago token. Delete if no longer needed'))
+            mercado_pago = MercadoPagoAPI(self.acquirer_id)
+            mercado_pago.unlink_card_token(self.customer_id, self.card_token)
 
         return super()._handle_deactivation_request()
 

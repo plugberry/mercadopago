@@ -167,9 +167,10 @@ class MercadoPagoAPI():
         MercadoPago payment
         """
         if token:
-            payment_token = tx.mercadopago_tmp_token if cvv else self.get_card_token(token.card_token)
-        else:
+            payment_token = tx.mercadopago_tmp_token if cvv and tx.mercadopago_tmp_token else self.get_card_token(token.card_token)
+        elif 'mercadopago_token' in form_data:
             payment_token = form_data['mercadopago_token']
+
         values = {
             "token": payment_token,
             "installments": 1 if token else form_data['installments'],
@@ -218,6 +219,7 @@ class MercadoPagoAPI():
 
         if form_data.get("issuer"):
             values.update(issuer_id=form_data['issuer'])
+        _logger.info("values:\n%s", pprint.pformat(values))
 
         _logger.info("Payment values:\n%s", pprint.pformat(values))
         resp = self.mp.payment().create(values)
