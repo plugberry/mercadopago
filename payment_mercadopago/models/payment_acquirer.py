@@ -1,3 +1,4 @@
+from locale import currency
 from .mercadopago_request import MercadoPagoAPI
 import logging
 import urllib.parse as urlparse
@@ -107,8 +108,11 @@ class PaymentAcquirer(models.Model):
         if self.provider != 'mercadopago':
             return res
 
-        # TODO: definir un monto
-        return 92.5
+        usd_currency_id = self.env.ref('base.USD')
+        currency_id = self.journal_id.currency_id or self.journal_id.company_id.currency_id
+        amount = usd_currency_id._convert(1, currency_id, self.journal_id.company_id, fields.Date.today())
+        return amount
+
 
     def _get_validation_currency(self):
         """ Override of payment to return the currency for MercadoPago validation operations.

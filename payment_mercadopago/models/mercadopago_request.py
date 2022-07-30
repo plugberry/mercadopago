@@ -171,6 +171,8 @@ class MercadoPagoAPI():
         elif 'mercadopago_token' in form_data:
             payment_token = form_data['mercadopago_token']
 
+        capture, deferred_capture_method = self.deferred_capture_method(form_data, token) 
+
         values = {
             "token": payment_token,
             "installments": 1 if token else form_data['installments'],
@@ -207,9 +209,7 @@ class MercadoPagoAPI():
                 },
             },
             "notification_url": urls.url_join(tx.acquirer_id.get_base_url(), '/payment/mercadopago/notify/%s?source_news=webhooks' % tx.acquirer_id.id),
-
-            # TODO: Evaluar estrategia de captura  
-            "capture": True if token else not form_data['validation'],
+            "capture": capture,
         }
         if  hasattr(tx.partner_id, 'l10n_latam_identification_type_id'):
             values['payer']['identification'] = {
@@ -219,15 +219,36 @@ class MercadoPagoAPI():
 
         if form_data.get("issuer"):
             values.update(issuer_id=form_data['issuer'])
-        _logger.info("values:\n%s", pprint.pformat(values))
 
         _logger.info("Payment values:\n%s", pprint.pformat(values))
+
         resp = self.mp.payment().create(values)
         resp = self.check_response(resp)
         if resp.get('err_code'):
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
         else:
+            if deferred_capture_method == 'refund_payment':
+                self.payment_refund(resp['id'])
             return resp
+
+    def payment_refund(self, payment_id, amount = 0):
+        """
+        MercadoPago refund payment
+        """
+        if amount:
+            values = {
+                "amount": amount
+            }
+            resp = self.mp.refund().create(payment_id, values)
+        else:
+            resp = self.mp.refund().create(payment_id)
+
+        resp = self.check_response(resp)
+        if resp.get('err_code'):
+            raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+        else:
+            return resp
+
 
     def payment_cancel(self, payment_id):
         """
@@ -253,7 +274,24 @@ class MercadoPagoAPI():
         else:
             return resp
 
-    def payment_can_capture(self, payment_id):
-        payment = self.get_payment(payment_id)
-        return payment['deferred_capture'] == 'supported'
-        # TODO: min_allowed_amount
+    def payment_can_deferred_capture(self, payment_method_id):
+
+        resp = self.mp.payment_methods().list_all()
+        resp = self.check_response(resp)
+        if type(resp) is dict and resp.get('err_code'):
+            _logger.error(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+            return False
+        payment = [d for d in resp if d['id'] == payment_method_id and d['status' ]=='active']
+        if len(payment):                        
+            return payment[0]['deferred_capture'] == 'supported'
+        return False
+    
+    def deferred_capture_method(self, form_data, token):
+        if token or not form_data['validation']:
+            return True , None
+        
+        payment_method_id = token.acquirer_ref if token else form_data['mercadopago_payment_method']
+        if self.payment_can_deferred_capture(payment_method_id):
+            return False , 'deferred_capture'
+        else:
+            return True , 'refund_payment'
