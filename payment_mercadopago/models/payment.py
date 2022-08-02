@@ -5,6 +5,7 @@ import urllib.parse as urlparse
 import werkzeug
 
 from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 from odoo.addons.payment.models.payment_acquirer import ValidationError
 from odoo.http import request
 from ..controllers.main import MercadoPagoController
@@ -250,6 +251,7 @@ class PaymentTransactionMercadoPago(models.Model):
             self._set_transaction_error(error)
             return True
 
+
     # --------------------------------------------------
     # SERVER2SERVER RELATED METHODS
     # --------------------------------------------------
@@ -280,7 +282,7 @@ class PaymentTransactionMercadoPago(models.Model):
         if status_code in ["approved", "authorized"]:
             init_state = self.state
             self.write({
-                'acquirer_reference': tree.get('id'),
+                'acquirer_reference':  str(tree.get('id')),
                 'date': fields.Datetime.now(),
             })
             self._set_transaction_done()
@@ -335,7 +337,15 @@ class PaymentTransactionMercadoPago(models.Model):
         Free the captured amount
         '''
         MP = MercadoPagoAPI(self.acquirer_id)
-        MP.payment_cancel(self.acquirer_reference)
+        MP.payment_cancel(int(self.acquirer_reference))
+
+    def get_tx_info_from_mercadopago(self):
+        self.ensure_one()
+        if self.acquirer_id.provider != 'mercadopago':
+            raise UserError(_('acquirer not is Mercadopago'))
+        MP = MercadoPagoAPI(self.acquirer_id)
+        payment = MP.get_payment(int(self.acquirer_reference))
+        raise UserError("%s" % payment)
 
 
 class PaymentToken(models.Model):
@@ -343,6 +353,7 @@ class PaymentToken(models.Model):
 
     email = fields.Char('Email', readonly=True)
     issuer = fields.Char('Issuer', readonly=True)
+    customer_id = fields.Char('MercadoPago Customer', readonly=True)
     save_token = fields.Boolean('Save Token', default=True, readonly=True)
     token = fields.Char('Token', readonly=True)
     installments = fields.Integer('Installments', readonly=True)
@@ -350,15 +361,20 @@ class PaymentToken(models.Model):
     @api.model
     def mercadopago_create(self, values):
         if values.get('token') and values.get('payment_method_id'):
+
+            #mercadopago_API = MercadoPagoAPI(self.acquirer_id)
+            #customer_id = mercadopago_API.get_customer_profile(self.partner_id.email)
+
             # create the token
             return {
-                'name': "MercadoPago card token",
-                'acquirer_ref': values.get('payment_method_id'),
-                'email': values.get('email'),
-                'issuer': values.get('issuer'),
-                'installments': int(values.get('installments', 1)),
-                'save_token': values.get('save_token') == "on",
-                'token': values.get('token'),
+                    'name': "MercadoPago card token",
+                    'acquirer_ref': values.get('payment_method_id'),
+                    'email': values.get('email'),
+                    #'customer_id': customer_id,
+                    'issuer': values.get('issuer'),
+                    'installments': int(values.get('installments', 1)),
+                    'save_token': values.get('save_token') == "on",
+                    'token': values.get('token'),
             }
         else:
             raise ValidationError(_('The Token creation in MercadoPago failed.'))
@@ -382,3 +398,13 @@ class PaymentToken(models.Model):
     def hide_email(self, email):
         username = email.split("@")[0]
         return(email.replace(username, username[:3] + "***"))
+
+    def unlink(self):
+        for token in self:
+            if token.acquirer_id.provider == 'mercadopago':
+                mercado_pago = MercadoPagoAPI(token.acquirer_id)
+                customer_id = mercado_pago.get_customer_profile(self.partner_id.email)
+
+                mercado_pago.unlink_card_token(customer_id, token.token)
+
+        return super().unlink()

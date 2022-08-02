@@ -6,7 +6,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
     var PaymentForm = require('payment.payment_form');
     var _t = core._t;
     var error_messages = {
-        '205': 'El número de la tarjeta de no puede ser vacío.',
+        '205': 'El número de la tarjeta de no puede estar vacío.',
         '208': 'La fecha de vencimiento no puede esta vacío.',
         '209': 'La fecha de vencimiento no puede esta vacío.',
         '212': 'El tipo de documento no puede ser vacío.',
