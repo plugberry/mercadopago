@@ -129,8 +129,10 @@ class PaymentTransaction(models.Model):
         if provider != 'mercadopago':
             return tx
 
-        #TO DO : La referencia en que caso no funciona
-        reference = data.get('reference')
+        reference = data.get('external_reference', False)
+        if not reference:
+            reference = data.get('reference', False)
+
         tx = self.search([('reference', '=', reference), ('provider', '=', 'mercadopago')])
         if not tx:
             raise ValidationError(

@@ -33,10 +33,7 @@ class MercadoPagoController(http.Controller):
         else:
             acquirer_sudo = request.env['payment.acquirer'].sudo().browse(rec_id).exists()
         return {
-            # 'state': acquirer_sudo.state,
-            # 'payment_method_type': acquirer_sudo.authorize_payment_method_type,
             'publishable_key': acquirer_sudo.mercadopago_publishable_key,
-            #'access_token': acquirer_sudo.mercadopago_access_token,
         }
 
     @http.route('/payment/mercadopago/payment', type='json', auth='public')
