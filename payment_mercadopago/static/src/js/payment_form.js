@@ -98,17 +98,18 @@ odoo.define('payment_mercadopago.payment_form', require => {
                         // Initialize MercadoPago v2
                         self.mp = new MercadoPago(acquirerInfo.publishable_key);
                         if (flow === 'token') {
+                            console.log(acquirerInfo);
+                            this._MercadoPagoTokenForm(paymentOptionId,acquirerInfo.acquirer_ref, self.txContext.amount, acquirerInfo.issuer)
                             return Promise.resolve(); // Don't show the form for tokens
                         }
                         else {
                             this._setPaymentFlow('direct');
                             this._MercadoPagoProcessForm(paymentOptionId)
                         }
-        
+
 
                     });
                 });
-                
 
             }).guardedCatch((error) => {
                 error.event.preventDefault();
@@ -206,6 +207,37 @@ odoo.define('payment_mercadopago.payment_form', require => {
                 if (status == 200) {
                     let installmentsLabel = document.getElementById('o_mercadopago_installments_label_' + paymentOptionId);
                     let installments = document.getElementById('o_mercadopago_installments_' + paymentOptionId);
+                    let show_installments = $(installments).data('show');
+                    if (show_installments)
+                        installmentsLabel.classList.remove("o_hidden");
+                        installments.classList.remove("o_hidden");
+                    installments.options.length = 0;
+                    response[0].payer_costs.forEach( payerCost => {
+                        let opt = document.createElement('option');
+                        opt.text = payerCost.recommended_message;
+                        opt.value = payerCost.installments;
+                        installments.appendChild(opt);
+                    });
+                } else {
+                    alert('installments method info error: ${response}');
+                }
+            };
+        },
+        _MercadoPagoTokenForm: function (paymentOptionId, paymentMethodId, transactionAmount, issuerId) {
+            getTokenInstallments(paymentMethodId, transactionAmount, issuerId);
+            function getTokenInstallments(paymentMethodId, transactionAmount, issuerId){
+                window.Mercadopago.getInstallments({
+                    "payment_method_id": paymentMethodId,
+                    "amount": parseFloat(transactionAmount),
+                    "issuer_id": issuerId ? parseInt(issuerId) : undefined
+                }, setTokenInstallments);
+            };
+
+            function setTokenInstallments(status, response){
+                if (status == 200) {
+                    console.log('o_mercadopago_token_installments_' + paymentOptionId);
+                    let installmentsLabel = document.getElementById('o_mercadopago_token_installments_label_' + paymentOptionId);
+                    let installments = document.getElementById('o_mercadopago_token_installments_' + paymentOptionId);
                     let show_installments = $(installments).data('show');
                     if (show_installments)
                         installmentsLabel.classList.remove("o_hidden");

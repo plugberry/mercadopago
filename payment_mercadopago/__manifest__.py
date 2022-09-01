@@ -3,10 +3,18 @@
     'name': 'MercadoPago Payment Acquirer',
     'category': 'Accounting/Payment Acquirers',
     'summary': 'Payment Acquirer: MercadoPago',
-    'version': "15.0.1.3.3",
-    'author': 'ADHOC SA - Axcelere S.A.S',
-    'website': 'www.adhoc.com.ar, www.axcelere.com',
-    'description': """MercadoPago Payment Acquirer""",
+    'version': "15.0.1.3.4",
+    'description': """
+Mercadopago Payment
+===================
+Mercadopago is the largest online payment platform in Latam.
+This module integrates a checkout form and allows you to make payments through this payment gateway.
+Supports automated payments without CVV for subscriptions and card authorizations.
+
+
+    """,
+    'author': 'Axadoo',
+    'website': 'axadoo',
     'depends': ['payment'],
     'external_dependencies': {
         'python': ['mercadopago'],
@@ -28,5 +36,5 @@
     'uninstall_hook': 'uninstall_hook',
     'application': True,
     'installable': True,
-    'license': 'LGPL-3',
+    'license': 'AGPL-3',
 }

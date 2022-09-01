@@ -28,12 +28,20 @@ class MercadoPagoController(http.Controller):
                  public client key
         :rtype: dict
         """
+        acquirer_ref = False
+        issuer = False
+
         if flow == "token":
-            acquirer_sudo = request.env['payment.token'].browse(rec_id).acquirer_id.sudo()
+            token_sudo = request.env['payment.token'].browse(rec_id).sudo()
+            acquirer_sudo = token_sudo.acquirer_id.sudo()
+            acquirer_ref = token_sudo.acquirer_ref
+            issuer = token_sudo.issuer
         else:
             acquirer_sudo = request.env['payment.acquirer'].sudo().browse(rec_id).exists()
         return {
             'publishable_key': acquirer_sudo.mercadopago_publishable_key,
+            'issuer': issuer,
+            'acquirer_ref': acquirer_ref,
         }
 
     @http.route('/payment/mercadopago/payment', type='json', auth='public')
@@ -92,7 +100,7 @@ class MercadoPagoController(http.Controller):
                 payment_id = data['data']['id']
 
                 # Get payment data from MercadoPago
-                leaf=[('provider', '=', 'mercadopago')]
+                leaf = [('provider', '=', 'mercadopago')]
                 #For backward compatibility, add the aquirer_id separately.
                 if aquirer_id:
                     leaf += [('id', '=', int(aquirer_id))]
