@@ -28,7 +28,6 @@ class MercadoPagoAPI():
         self.mp = mercadopago.SDK(acquirer.mercadopago_access_token, request_options=request_options)
         self.sandbox = not acquirer.state == "enabled"
         self.mercadopago_access_token = acquirer.mercadopago_access_token
-        
 
     def check_response(self, resp):
         if resp['status'] in [200, 201]:
@@ -75,11 +74,10 @@ class MercadoPagoAPI():
         api_url = MP_URL + "v1/customers/%s/cards/%s" % (customer_id, card_id) 
         headers = {"Authorization": "Bearer %s" % self.mercadopago_access_token}
         response = requests.delete(api_url, headers=headers)
- 
 
     #create Test User
     def create_test_user(self):
-        api_url = MP_URL + "users/test_user" 
+        api_url = MP_URL + "users/test_user"
         headers = {"Authorization": "Bearer %s" % self.mercadopago_access_token}
         request_data = {"site_id":"MLA"}
         response = requests.post(api_url, headers=headers, json=request_data)
@@ -100,7 +98,7 @@ class MercadoPagoAPI():
         resp = self.check_response(resp)
 
         if resp.get('err_code'):
-            raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+            raise UserError(_(":\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
         else:
             return resp['sandbox_init_point'] if self.sandbox else resp['init_point']
 
@@ -194,7 +192,7 @@ class MercadoPagoAPI():
                     "id": tx.acquirer_id.mercadopago_item_id,
                     "title": tx.acquirer_id.mercadopago_item_title,
                     "description": tx.acquirer_id.mercadopago_item_description,
-                    "category_id": tx.acquirer_id.mercadopago_item_category or None,    
+                    "category_id": tx.acquirer_id.mercadopago_item_category or None,
                     "quantity": 1,
                     "unit_price": tx.amount,
                 }],
@@ -227,6 +225,7 @@ class MercadoPagoAPI():
         resp = self.mp.payment().create(values)
         resp = self.check_response(resp)
         if resp.get('err_code'):
+            _logger.error("MercadoPago Error response Dump %s" % resp )
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
         else:
             if validation_capture_method == 'refund_payment':
@@ -234,7 +233,7 @@ class MercadoPagoAPI():
                 self.payment_refund(resp['id'])
             return resp
 
-    def payment_refund(self, payment_id, amount = 0):
+    def payment_refund(self, payment_id, amount=0):
         """
         MercadoPago refund payment
         """
@@ -251,7 +250,6 @@ class MercadoPagoAPI():
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
         else:
             return resp
-
 
     def payment_cancel(self, payment_id):
         """
@@ -285,22 +283,22 @@ class MercadoPagoAPI():
             _logger.error(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
             return False
         payment = [d for d in resp if d['id'] == payment_method_id and d['status' ]=='active']
-        if len(payment):                        
+        if len(payment):
             return payment[0]['deferred_capture'] == 'supported'
         return False
-    
-    def validation_capture_method(self,tx, form_data, token):
+
+    def validation_capture_method(self, tx, form_data, token):
         """
         Validation capture method
-            If transaction type is a validation, 
+            If transaction type is a validation,
             Return a strategy to no capture the payment or refund it after validation.
             Return two values
              - Capture: if the transaction should be captured
-             - Method: If a refund should be made.    
+             - Method: If a refund should be made.
         """
         if tx.operation != 'validation':
             return True , None
-        
+
         payment_method_id = token.acquirer_ref if token else form_data['mercadopago_payment_method']
         if self.payment_can_deferred_capture(payment_method_id):
             return False , 'deferred_capture'
