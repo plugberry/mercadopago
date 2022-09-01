@@ -88,8 +88,6 @@ class MercadoPagoAPI():
         else:
             return resp
 
-
-
     # Preference
     def create_preference(self, preference):
         resp = self.mp.preference().create(preference)
@@ -211,7 +209,7 @@ class MercadoPagoAPI():
             "notification_url": urls.url_join(tx.acquirer_id.get_base_url(), '/payment/mercadopago/notify/%s?source_news=webhooks' % tx.acquirer_id.id),
             "capture": capture,
         }
-        if  hasattr(tx.partner_id, 'l10n_latam_identification_type_id'):
+        if hasattr(tx.partner_id, 'l10n_latam_identification_type_id'):
             values['payer']['identification'] = {
                     "number": tx.partner_id.vat,
                     "type": tx.partner_id.l10n_latam_identification_type_id.name,
