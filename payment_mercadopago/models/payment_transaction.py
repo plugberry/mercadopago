@@ -148,9 +148,8 @@ class PaymentTransaction(models.Model):
         :param dict data: The feedback data sent by the provider
         :return: None
         """
-        super()._process_feedback_data(data)
         if self.provider != 'mercadopago':
-            return
+            return super()._process_feedback_data(data)
         response_content = data.get('response')
 
         self.acquirer_reference = response_content.get('x_trans_id')
@@ -160,7 +159,7 @@ class PaymentTransaction(models.Model):
             self._set_done(state_message=message)
             if self.tokenize and not self.token_id:
                 self._mercadopago_tokenize_from_feedback_data(response_content)
-        if status in ['authorized']:  # Authorized: the card validation is ok
+        elif status in ['authorized']:  # Authorized: the card validation is ok
             if self.operation == 'validation':
                 # TODO: revisar si tenemos que hacer algo más
                 self._set_done(state_message=message)

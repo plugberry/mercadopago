@@ -13,7 +13,7 @@
             <!-- Card -->
             <div class="form-group">
                 <label t-attf-for="o_mercadopago_card_number_{{acquirer_id}}" class="col-form-label">Card Number</label>
-                <input type="text" t-attf-id="o_mercadopago_card_number_{{acquirer_id}}" required="" maxlength="19" class="form-control" data-checkout="cardNumber"/>
+                <input type="tel" t-attf-id="o_mercadopago_card_number_{{acquirer_id}}" required="" maxlength="19" class="form-control" data-checkout="cardNumber"/>
             </div>
 
             <div class="row">
@@ -28,7 +28,7 @@
                 <!-- Card Code -->
                 <div class="col-sm-4 form-group">
                     <label t-attf-for="o_mercadopago_code_{{acquirer_id}}">Card Code</label>
-                    <input type="text" t-attf-id="o_mercadopago_code_{{acquirer_id}}" maxlength="4" class="form-control" data-checkout="securityCode"/>
+                    <input type="password" t-attf-id="o_mercadopago_code_{{acquirer_id}}" maxlength="4" class="form-control" data-checkout="securityCode"/>
                 </div>
             </div>
 
@@ -76,17 +76,25 @@
 
 
     <template id="mercadopago_checkout" name="MercadoPago Payment Checkout" inherit_id="payment.checkout">
-        <xpath expr="//t[@t-call='payment.verified_token_checkmark']" position="after">
-            <t t-if="token.provider == 'mercadopago'">
+        <xpath expr="//div[@t-attf-id='o_payment_token_inline_form_{{token.id}}']" position="inside">
+                <t t-if="token.provider == 'mercadopago'">
                 <!-- === CVV Number === -->
-                <div class="col-6 pull-right">
-                    <input name="o_payment_cvv"
-                        type="text"
-                        t-attf-id="o_token_code_{{token.id}}"
-                        maxlength="4"
-                        required=""
-                        placeholder="cvv"
-                        class="form-control"/>
+                <div class="row">
+                    <div class="col-sm-6 form-group">
+                        <label t-attf-id="o_mercadopago_token_installments_label_{{token.id}}" t-attf-for="o_mercadopago_token_installments_{{acquirer_id}}" class="o_hidden col-form-label">Installments</label>
+                        <select type="text" t-attf-id="o_mercadopago_token_installments_{{token.id}}" class="o_hidden form-control" t-att-data-show="'false' if acquirer.is_validation else 'true'"/>
+                    </div>
+                    <div class="col-6 pull-right">
+                        <label t-attf-for="o_token_code_{{token.id}}" class="col-form-label">CVV</label>
+
+                        <input name="o_payment_cvv"
+                            type="password"
+                            t-attf-id="o_token_code_{{token.id}}"
+                            maxlength="4"
+                            required=""
+                            placeholder="cvv"
+                            class="form-control"/>
+                    </div>
                 </div>
             </t>
         </xpath>
