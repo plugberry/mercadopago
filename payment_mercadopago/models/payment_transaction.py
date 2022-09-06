@@ -156,7 +156,10 @@ class PaymentTransaction(models.Model):
         status = response_content.get('status')
         message = self._get_mercadopago_response_msg(response_content)
         if status in ['approved', 'processed']:  # Approved
-            self._set_done(state_message=message)
+            if self.state != 'done':
+                self._set_done(state_message=message)
+            else:
+                _logger.info('The TX %s is already done. Cant set done twise' % self.reference)
             if self.tokenize and not self.token_id:
                 self._mercadopago_tokenize_from_feedback_data(response_content)
         elif status in ['authorized']:  # Authorized: the card validation is ok
