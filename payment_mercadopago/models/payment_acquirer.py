@@ -1,4 +1,3 @@
-from email.policy import default
 from locale import currency
 from .mercadopago_request import MercadoPagoAPI
 import logging

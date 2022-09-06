@@ -174,13 +174,13 @@ class MercadoPagoAPI():
         elif 'mercadopago_token' in form_data:
             payment_token = form_data['mercadopago_token']
 
-        capture, validation_capture_method = self.validation_capture_method(tx, form_data, token) 
+        capture, validation_capture_method = self.validation_capture_method(tx, form_data, token)
 
         capture, validation_capture_method = self.validation_capture_method(tx, form_data, token) 
 
         values = {
             "token": payment_token,
-            "installments": 1 if token else form_data['installments'],
+            "installments": form_data['installments'] if 'installments' in form_data and form_data['installments'] else 1,
             "transaction_amount": tx.amount,
             "description": "Odoo ~ MercadoPago payment",
             "payment_method_id": token.acquirer_ref if token else form_data['mercadopago_payment_method'],
