@@ -174,7 +174,7 @@ class MercadoPagoAPI():
             "payer": {
                 "type": "customer",
                 "id": tx.payment_token_id.customer_id if tx.payment_token_id and tx.payment_token_id.customer_id else None,
-                "email": tx.payment_token_id.partner_id.email,
+                "email": tx.payment_token_id.partner_id.email if tx.payment_token_id  else tx.partner_id.email,
                 "first_name": tx.partner_name,
             },
             "additional_info": {
@@ -224,6 +224,7 @@ class MercadoPagoAPI():
             if validation_capture_method == 'refund_payment' and resp['status'] in ['approved'] :
                 _logger.info(_('Refund validation payment id: %s ' % resp['id']))
                 self.payment_refund(resp['id'])
+            tx.mercadopago_txn_id = str(resp['id'])
             return resp
 
     def payment_cancel(self, payment_id):
