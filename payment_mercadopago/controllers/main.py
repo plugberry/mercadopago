@@ -49,6 +49,7 @@ class MercadoPagoController(http.Controller):
 
     @http.route(['/payment/mercadopago/s2s/create_json_3ds'], type='json', auth='public', csrf=False)
     def mercadopago_s2s_create_json_3ds(self, verify_validity=False, **kwargs):
+        _logger.warning(kwargs)
         if not kwargs.get('partner_id'):
             kwargs = dict(kwargs, partner_id=request.env.user.partner_id.id)
         token = False
@@ -58,6 +59,7 @@ class MercadoPagoController(http.Controller):
             token = request.env['payment.acquirer'].browse(int(kwargs.get('acquirer_id'))).s2s_process(kwargs)
         except Exception as e:
             error = str(e)
+        _logger.warning(token)
 
         if not token:
             res = {

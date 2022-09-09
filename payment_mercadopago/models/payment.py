@@ -305,7 +305,7 @@ class PaymentTransactionMercadoPago(models.Model):
             return True
         elif status_code == "rejected":
             try:
-                error = ERROR_MESSAGES[status_detail] % self.payment_token_id.acquirer_ref.capitalize()
+                error = ERROR_MESSAGES[status_detail] % self.payment_token_id.acquirer_ref
             except TypeError:
                 error = ERROR_MESSAGES[status_detail]
             _logger.info(error)
@@ -361,16 +361,15 @@ class PaymentToken(models.Model):
     @api.model
     def mercadopago_create(self, values):
         if values.get('token') and values.get('payment_method_id'):
-
-            #mercadopago_API = MercadoPagoAPI(self.acquirer_id)
-            #customer_id = mercadopago_API.get_customer_profile(self.partner_id.email)
-
+            acquirer_id = self.env['payment.acquirer'].sudo().browse(values.get('acquirer_id'))
+            mercadopago_API = MercadoPagoAPI(acquirer_id)
+            customer_id = mercadopago_API.get_customer_profile(values.get('email'))
             # create the token
             return {
                     'name': "MercadoPago card token",
                     'acquirer_ref': values.get('payment_method_id'),
                     'email': values.get('email'),
-                    #'customer_id': customer_id,
+                    'customer_id': customer_id,
                     'issuer': values.get('issuer'),
                     'installments': int(values.get('installments', 1)),
                     'save_token': values.get('save_token') == "on",

@@ -105,7 +105,6 @@ class MercadoPagoAPI():
         values = {'email': email}
         resp = self.mp.customer().search(values)
         resp = self.check_response(resp)
-
         if resp.get('err_code'):
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
         else:
@@ -119,7 +118,6 @@ class MercadoPagoAPI():
         values = {'email': email}
         resp = self.mp.customer().create(values)
         resp = self.check_response(resp)
-
         if resp.get('err_code'):
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
         else:
@@ -172,10 +170,12 @@ class MercadoPagoAPI():
             "description": "Odoo ~ MercadoPago payment",
             "payment_method_id": tx.payment_token_id.acquirer_ref,
             "binary_mode": True,
+            "external_reference": tx.reference,
             "payer": {
-                # Pasamos el main del token porque es el mail con el que se tokenizó la tarjeta
-                # (podría no coincidir con el partner de la tx)
+                "type": "customer",
+                "id": tx.payment_token_id.customer_id if tx.payment_token_id and tx.payment_token_id.customer_id else None,
                 "email": tx.payment_token_id.partner_id.email,
+                "first_name": tx.partner_name,
             },
             "additional_info": {
                 "items": [{
@@ -201,28 +201,27 @@ class MercadoPagoAPI():
             "notification_url": urls.url_join(tx.acquirer_id.get_base_url(), '/payment/mercadopago/notify/%s?source_news=webhooks' % tx.acquirer_id.id),
             "capture": capture
         }
+
+        if tx.payment_token_id.issuer:
+            values.update(issuer_id=tx.payment_token_id.issuer)
+
         if  hasattr(tx.partner_id, 'l10n_latam_identification_type_id'):
             values['payer']['identification'] = {
                     "number": tx.partner_id.vat,
                     "type": tx.partner_id.l10n_latam_identification_type_id.name,
             }
 
-        if tx.payment_token_id.issuer:
-            values.update(issuer_id=tx.payment_token_id.issuer)
-
-        # TODO: revisar si deberíamos hacer esto directamente para todos los casos y ver si guardamos el dato antes
-        if cvv_token or capture:
-            customer_id = self.get_customer_profile(tx.payment_token_id.partner_id.email)
-            values.update({"payer": {"type": 'customer', 'id': customer_id}})
+        if self.sandbox:
+            _logger.info('values:\n%s' % values)
 
         resp = self.mp.payment().create(values)
-        if self.sandbox:
-            _logger.info('Payment Result:\n%s' % resp)
+
+        _logger.info('Payment Result:\n%s' % resp)
         resp = self.check_response(resp)
         if resp.get('err_code'):
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
         else:
-            if validation_capture_method == 'refund_payment':
+            if validation_capture_method == 'refund_payment' and resp['status'] in ['approved'] :
                 _logger.info(_('Refund validation payment id: %s ' % resp['id']))
                 self.payment_refund(resp['id'])
             return resp
