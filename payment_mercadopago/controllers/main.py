@@ -17,6 +17,13 @@ _logger = logging.getLogger(__name__)
 
 class MercadoPagoController(http.Controller):
 
+    # MercadoPago redirect controller
+    _success_url = '/payment/mercadopago/success/'
+    _pending_url = '/payment/mercadopago/pending/'
+    _failure_url = '/payment/mercadopago/failure/'
+    _create_preference_url = '/payment/mercadopago/create_preference'
+    _notify_url = '/payment/mercadopago/notify?source_news=webhooks'
+
     @http.route(['/payment/mercadopago/create_preference'], type='http', auth="none", csrf=False)
     def mercadopago_create_preference(self, **post):
         # TODO podriamos pasar cada elemento por separado para no necesitar
