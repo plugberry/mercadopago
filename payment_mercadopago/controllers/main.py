@@ -56,7 +56,6 @@ class MercadoPagoController(http.Controller):
 
     @http.route(['/payment/mercadopago/s2s/create_json_3ds'], type='json', auth='public', csrf=False)
     def mercadopago_s2s_create_json_3ds(self, verify_validity=False, **kwargs):
-        _logger.warning(kwargs)
         if not kwargs.get('partner_id'):
             kwargs = dict(kwargs, partner_id=request.env.user.partner_id.id)
         token = False
@@ -66,7 +65,6 @@ class MercadoPagoController(http.Controller):
             token = request.env['payment.acquirer'].browse(int(kwargs.get('acquirer_id'))).s2s_process(kwargs)
         except Exception as e:
             error = str(e)
-        _logger.warning(token)
 
         if not token:
             res = {
@@ -94,25 +92,6 @@ class MercadoPagoController(http.Controller):
         # request.session.update(kwargs)
         request.session.update({'cvv_token': cvv_token})
         return {'result': True}
-
-    @http.route(['/payment/mercadopago/notification',
-                 '/payment/mercadopago/notification/<int:acquirer_id>'],
-                type='json', methods=['POST'], auth='public')
-    def mercadopago_s2s_notification(self, acquirer_id=False, **kwargs):
-        querys = parse.urlsplit(request.httprequest.url).query
-        params = dict(parse.parse_qsl(querys))
-        if (params and params.get('payment_type') == 'payment' and params.get('data.id')):
-            leaf = [('provider', '=', 'mercadopago')]
-            if acquirer_id:
-                leaf += [('id', '=', acquirer_id)]
-            acquirer = request.env["payment.acquirer"].search(leaf)
-            payment_id = params['data.id']
-            tx = request.env['payment.transaction'].sudo().search(
-                [('acquirer_reference', '=', payment_id)])
-            MP = MercadoPagoAPI(acquirer)
-            tree = MP.get_payment(payment_id)
-            return tx._mercadopago_s2s_validate_tree(tree)
-        return False
 
     @http.route(['/payment/mercadopago/notify',
                  '/payment/mercadopago/notify/<int:acquirer_id>'],
