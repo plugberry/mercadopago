@@ -14,7 +14,7 @@ class PaymentToken(models.Model):
     customer_id = fields.Char('MercadoPago Customer', readonly=True)
     issuer = fields.Char('Issuer', readonly=True)
     card_token = fields.Char('Card Token', readonly=True)
-
+    bin = fields.Char('bin')
 
     def unlink(self):
         for token in self:
@@ -48,6 +48,14 @@ class PaymentToken(models.Model):
         if self.acquirer_id.provider == 'mercadopago':
             raise UserError(_('You cannot reactive a Mercadopago token.'))
 
-
         return super()._handle_reactivation_request()
 
+    def mercadopago_fix_token_bin(self):
+        for token in self:
+
+            mercadopago_API = MercadoPagoAPI(token.acquirer_id)
+            if token.customer_id:
+                customer_id = token.customer_id
+            else:
+                customer_id = mercadopago_API.get_customer_profile(token.partner_id.email)
+            token.bin = mercadopago_API.token_get_info(customer_id, token.card_token)['first_six_digits']

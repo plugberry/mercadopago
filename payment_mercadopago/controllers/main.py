@@ -29,18 +29,22 @@ class MercadoPagoController(http.Controller):
         :rtype: dict
         """
         acquirer_ref = False
-        issuer = False
+        bin = False
 
         if flow == "token":
             token_sudo = request.env['payment.token'].browse(rec_id).sudo()
             acquirer_sudo = token_sudo.acquirer_id.sudo()
             acquirer_ref = token_sudo.acquirer_ref
-            issuer = token_sudo.issuer
+            bin = token_sudo.bin
+            # Esto lo agrego porque SDK V2 requiere el bin para calcular las coutas 
+            if not bin:
+                token_sudo.mercadopago_fix_token_bin()
+                bin = token_sudo.bin
         else:
             acquirer_sudo = request.env['payment.acquirer'].sudo().browse(rec_id).exists()
         return {
             'publishable_key': acquirer_sudo.mercadopago_publishable_key,
-            'issuer': issuer,
+            'bin': bin,
             'acquirer_ref': acquirer_ref,
         }
 
@@ -68,22 +72,22 @@ class MercadoPagoController(http.Controller):
         feedback_data = {'reference': tx_sudo.reference, 'response': response_content}
         request.env['payment.transaction'].sudo()._handle_feedback_data('mercadopago', feedback_data)
 
-    @http.route('/payment/mercadopago/token', type='json', auth='public')
+    @http.route('/payment/mercadopago/token', type='json', auth='user')
     def mercadopago_get_token_info(self, token_id):
         """ Return public information on the acquirer.
 
-        :param int acquirer_id: The acquirer handling the transaction, as a `payment.acquirer` id
+        :param int token_id: The acquirer handling the transaction, as a `payment.acquirer` id
         :return: Information on the acquirer, namely: the state, payment method type, login ID, and
                  public client key
         :rtype: dict
         """
-        token = request.env['payment.token'].sudo().browse(token_id).exists()
+        token = request.env['payment.token'].browse(token_id).exists()
         return {
             'card_token': token.card_token,
         }
 
     @http.route([
-        '/payment/mercadopago/notify', 
+        '/payment/mercadopago/notify',
         '/payment/mercadopago/notify/<int:aquirer_id>'
         ], type='json', auth='none')
     def mercadopago_notification(self, aquirer_id=False):

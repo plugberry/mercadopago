@@ -68,6 +68,7 @@
                     <field name="mercadopago_item_title"/>
                     <field name="mercadopago_item_description"/>
                     <field name="mercadopago_item_category"/>
+                    <field name="mercadopago_capture_method"/>
                 </group>
             </group>
         </field>
@@ -80,6 +81,7 @@
         <field name="arch" type="xml">
         <xpath expr='//field[@name="acquirer_ref"]' position='after'>
             <field name="email"/>
+            <field name="bin"/>
         </xpath>
         </field>
     </record>
