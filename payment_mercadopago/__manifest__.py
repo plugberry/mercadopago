@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'MercadoPago Payment Acquirer',
+    'name': 'Mercado Pago Payment Acquirer',
     'category': 'Accounting/Payment Acquirers',
     'summary': 'Payment Acquirer: MercadoPago',
-    'version': "15.0.1.3.4",
+    'version': "15.0.1.4.0",
     'description': """
-Mercadopago Payment
+Mercado pago Payment
 ===================
 Mercadopago is the largest online payment platform in Latam.
 This module integrates a checkout form and allows you to make payments through this payment gateway.

@@ -71,7 +71,7 @@ class MercadoPagoAPI():
 
     def unlink_card_token(self, customer_id, card_id):
 
-        api_url = MP_URL + "v1/customers/%s/cards/%s" % (customer_id, card_id) 
+        api_url = MP_URL + "v1/customers/%s/cards/%s" % (customer_id, card_id)
         headers = {"Authorization": "Bearer %s" % self.mercadopago_access_token}
         response = requests.delete(api_url, headers=headers)
 
@@ -133,6 +133,13 @@ class MercadoPagoAPI():
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
         else:
             return resp
+
+    def token_get_info(self, customer_id, card_token):
+        customer_cards = self.get_customer_cards(customer_id)
+        for card in customer_cards:
+            if card_token == card['id']:
+                return card
+        return False
 
     def create_customer_card(self, customer_id, token):
         values = {
@@ -226,7 +233,7 @@ class MercadoPagoAPI():
             _logger.error("MercadoPago Error response Dump %s" % resp )
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
         else:
-            if validation_capture_method == 'refund_payment':
+            if validation_capture_method == 'refund_payment' and 'id' in resp:
                 _logger.info(_('Refund validation payment id: %s ' % resp['id']))
                 self.payment_refund(resp['id'])
             return resp
@@ -295,10 +302,12 @@ class MercadoPagoAPI():
              - Method: If a refund should be made.
         """
         if tx.operation != 'validation':
-            return True , None
+            return True, None
+        elif tx.acquirer_id.mercadopago_capture_method == 'refund_payment':
+            return True, 'refund_payment'
 
         payment_method_id = token.acquirer_ref if token else form_data['mercadopago_payment_method']
         if self.payment_can_deferred_capture(payment_method_id):
-            return False , 'deferred_capture'
+            return False, 'deferred_capture'
         else:
-            return True , 'refund_payment'
+            return True, 'refund_payment'

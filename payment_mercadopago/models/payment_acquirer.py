@@ -1,3 +1,4 @@
+from email.policy import default
 from locale import currency
 from .mercadopago_request import MercadoPagoAPI
 import logging
@@ -54,6 +55,13 @@ class PaymentAcquirer(models.Model):
             ('virtual_goods', "E-books, Music Files, Software, Digital Images, PDF Files and any item which can be electronically stored in a file, Mobile Recharge, DTH Recharge and any Online Recharge"),
             ('others', "Other categories"),
         ],
+    )
+    mercadopago_capture_method = fields.Selection([
+        ('deferred_capture', 'Deferred capture is posible'),
+        ('refund_payment', 'Always refund payment')
+        ],
+        string='Capture method',
+        default='deferred_capture'
     )
 
     @api.onchange('provider')
