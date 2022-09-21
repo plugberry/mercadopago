@@ -264,7 +264,8 @@ class PaymentTransactionMercadoPago(models.Model):
         # If the token is not verified then is a new card so we have de cvv_token in the self.payment_token_id.token
         # If not, if the payment cames from token WITH cvv the cvv_token will be in the session.
         # Else, we do not have cvv_token, it's a payment without cvv
-        cvv_token = request.session.pop('cvv_token', None) if self.payment_token_id.verified else self.payment_token_id.token
+        cvv_token = request.session.pop('cvv_token', None) if request and self.payment_token_id.verified else self.payment_token_id.token
+
         capture = self.type != 'validation'
 
         # TODO: revisar, si es validación el amount es 1.5 (viene de Odoo)
