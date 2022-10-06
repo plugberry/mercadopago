@@ -160,7 +160,7 @@ class MercadoPagoAPI():
         MercadoPago payment
         """
         capture, validation_capture_method = self.validation_capture_method(tx)
-
+        partner_email = tx.partner_id.email or tx.payment_token_id.partner_id.email
         values = {
             "token": cvv_token or self.get_card_token(tx.payment_token_id.token),
             "installments": tx.payment_token_id.installments,
@@ -172,7 +172,7 @@ class MercadoPagoAPI():
             "payer": {
                 "type": "customer",
                 "id": tx.payment_token_id.customer_id if tx.payment_token_id and tx.payment_token_id.customer_id else None,
-                "email": tx.payment_token_id.partner_id.email,
+                "email": partner_email,
                 "first_name": tx.partner_name,
             },
             "additional_info": {
