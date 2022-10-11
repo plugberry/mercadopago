@@ -12,6 +12,7 @@ from odoo.tools.safe_eval import safe_eval
 from odoo.addons.payment_mercadopago.models.mercadopago_request import MercadoPagoAPI
 from urllib import parse
 import json
+
 _logger = logging.getLogger(__name__)
 
 
@@ -57,13 +58,30 @@ class MercadoPagoController(http.Controller):
     @http.route(['/payment/mercadopago/s2s/create_json_3ds'], type='json', auth='public', csrf=False)
     def mercadopago_s2s_create_json_3ds(self, verify_validity=False, **kwargs):
         if not kwargs.get('partner_id'):
-            kwargs = dict(kwargs, partner_id=request.env.user.partner_id.id)
+            return_url = kwargs.get('return_url', '')
+            if return_url.startswith('/my/subscription/'):
+
+                return_url = return_url.split('/')
+                res_id = int(return_url[-2])
+                uuid = return_url[-1]
+                subscription = request.env['sale.subscription'].sudo().browse(res_id).exists()
+                if not subscription or not uuid or subscription.uuid != uuid:
+                    res = {
+                            'result': False,
+                            'error': 'La suscripción es invalida',
+                    }
+                    return res
+
+                kwargs = dict(kwargs, partner_id=subscription.partner_id.id)
+            else:
+                kwargs = dict(kwargs, partner_id=request.env.user.partner_id.id)
         token = False
         error = None
 
         try:
-            token = request.env['payment.acquirer'].browse(int(kwargs.get('acquirer_id'))).s2s_process(kwargs)
+            token = request.env['payment.acquirer'].sudo().browse(int(kwargs.get('acquirer_id'))).s2s_process(kwargs)
         except Exception as e:
+            _logger.error(e)
             error = str(e)
 
         if not token:
@@ -95,8 +113,8 @@ class MercadoPagoController(http.Controller):
 
     @http.route(['/payment/mercadopago/notify',
                  '/payment/mercadopago/notify/<int:acquirer_id>'],
-                type='json', auth='none')
-    def mercadopago_notification(self,acquirer_id=False):
+                type='json', auth='public')
+    def mercadopago_notification(self, acquirer_id=False):
         """ Process the data sent by MercadoPago to the webhook based on the event code.
         :return: Status 200 to acknowledge the notification
         :rtype: Response
@@ -117,7 +135,7 @@ class MercadoPagoController(http.Controller):
                 MP = MercadoPagoAPI(acquirer)
                 tree = MP.get_payment(payment_id)
                 tx = request.env['payment.transaction'].sudo().search(
-                    [('acquirer_reference', '=', payment_id), 
+                    [('acquirer_reference', '=', payment_id),
                      ('acquirer_id', '=', acquirer.id)]
                 )
                 tx._mercadopago_s2s_validate_tree(tree)

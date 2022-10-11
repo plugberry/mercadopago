@@ -75,7 +75,7 @@ class MercadoPagoAPI():
 
     #create Test User
     def create_test_user(self):
-        api_url = MP_URL + "users/test_user" 
+        api_url = MP_URL + "users/test_user"
         headers = {"Authorization": "Bearer %s" % self.mercadopago_access_token}
         request_data = {"site_id": "MLA"}
         response = requests.post(api_url, headers=headers, json=request_data)
@@ -213,8 +213,6 @@ class MercadoPagoAPI():
             _logger.info('values:\n%s' % values)
 
         resp = self.mp.payment().create(values)
-
-        _logger.info('Payment Result:\n%s' % resp)
         resp = self.check_response(resp)
         if resp.get('err_code'):
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
