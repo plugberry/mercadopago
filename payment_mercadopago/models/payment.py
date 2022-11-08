@@ -246,7 +246,7 @@ class PaymentTransactionMercadoPago(models.Model):
             error = (
                 'Received unrecognized status for MercadoPago payment %s: %s, '
                 'set as error' % (self.reference, status))
-            _logger.info(error)
+            _logger.error(error)
             data.update(state_message=error)
             self.write(data)
             self._set_transaction_error(error)
@@ -315,7 +315,7 @@ class PaymentTransactionMercadoPago(models.Model):
                 error = ERROR_MESSAGES[status_detail] % self.payment_token_id.acquirer_ref
             except TypeError:
                 error = ERROR_MESSAGES[status_detail]
-            _logger.info(error)
+            _logger.error(error)
             self.write({
                 'acquirer_reference': tree.get('id'),
             })
@@ -323,7 +323,7 @@ class PaymentTransactionMercadoPago(models.Model):
             res = False
         else:
             error = "Error en la transacción"
-            _logger.info(error)
+            _logger.error(error)
             self.write({
                 'acquirer_reference': tree.get('id'),
             })
@@ -344,7 +344,7 @@ class PaymentTransactionMercadoPago(models.Model):
         Free the captured amount
         '''
         MP = MercadoPagoAPI(self.acquirer_id)
-        MP.payment_cancel(int(self.acquirer_reference))
+        # MP.payment_cancel(int(self.acquirer_reference))
 
     def get_tx_info_from_mercadopago(self):
         self.ensure_one()
@@ -388,7 +388,8 @@ class PaymentToken(models.Model):
         'PHP': 100.00,
         'TWD': 70.00,
         'THB': 70.00,
-        'ARS': 100.00
+        'ARS': 5.00,
+        'USD': 2.00
         }
 
 
