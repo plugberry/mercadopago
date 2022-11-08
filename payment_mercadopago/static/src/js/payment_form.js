@@ -98,12 +98,16 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                         }
                     }).guardedCatch(function (error) {
                         // if the rpc fails, pretty obvious
+                        let error_text = _t("We are not able to add your payment method at the moment.\n")
+                        console.error(error)
+                        if (error.message?.data?.message){
+                            error_text = _t(error.message.data.message);
+                        }
                         error.event.preventDefault();
                         acquirerForm.removeClass('d-none');
                         self.enableButton(button);
                         self.displayError(
-                            _t('Server Error'),
-                            _t("We are not able to add your payment method at the moment.\n")
+                            _t('Server Error'), error_text
                         );
                     });
                 } else {
