@@ -209,6 +209,7 @@ class MercadoPagoAPI():
                 "type": tx.partner_id.l10n_latam_identification_type_id.name,
             }
 
+        _logger.info('values:\n%s' % values)
         if self.sandbox:
             _logger.info('values:\n%s' % values)
 

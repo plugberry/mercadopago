@@ -7,6 +7,7 @@ import werkzeug
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 from odoo.addons.payment.models.payment_acquirer import ValidationError
+
 from odoo.http import request
 from ..controllers.main import MercadoPagoController
 
@@ -363,6 +364,34 @@ class PaymentToken(models.Model):
     save_token = fields.Boolean('Save Token', default=True, readonly=True)
     token = fields.Char('Token', readonly=True)
     installments = fields.Integer('Installments', readonly=True)
+
+
+    VALIDATION_AMOUNTS = {
+        'CAD': 2.45,
+        'EUR': 1.50,
+        'GBP': 1.00,
+        'JPY': 200,
+        'AUD': 2.00,
+        'NZD': 3.00,
+        'CHF': 3.00,
+        'HKD': 15.00,
+        'SEK': 15.00,
+        'DKK': 12.50,
+        'PLN': 6.50,
+        'NOK': 15.00,
+        'HUF': 400.00,
+        'CZK': 50.00,
+        'BRL': 4.00,
+        'MYR': 10.00,
+        'MXN': 20.00,
+        'ILS': 8.00,
+        'PHP': 100.00,
+        'TWD': 70.00,
+        'THB': 70.00,
+        'ARS': 100.00
+        }
+
+
 
     @api.model
     def mercadopago_create(self, values):
