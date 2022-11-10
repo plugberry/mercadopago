@@ -107,7 +107,7 @@ odoo.define('payment_mercadopago.payment_form', function(require) {
                         acquirerForm.removeClass('d-none');
                         self.enableButton(button);
                         self.displayError(
-                            _t('Server Error'), error_text
+                            _t('Error en su pago'), error_text
                         );
                     });
                 } else {

@@ -209,8 +209,8 @@ class MercadoPagoAPI():
                 "type": tx.partner_id.l10n_latam_identification_type_id.name,
             }
 
-        #if self.sandbox:
-        _logger.info('values:\n%s' % values)
+        if self.sandbox:
+            _logger.info('values:\n%s' % values)
 
         resp = self.mp.payment().create(values)
         resp = self.check_response(resp)
@@ -219,8 +219,9 @@ class MercadoPagoAPI():
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
         else:
             if validation_capture_method == 'refund_payment' and resp.get('status') in ['approved'] :
-                _logger.info(_('Not Refund validation payment id: %s ' % resp['id']))
-                # self.payment_refund(int(resp['id']))
+                _logger.info(_('try Refund validation payment id: %s ' % resp['id']))
+                # Reevaluar esto
+                self.payment_refund(int(resp['id']))
             return resp
 
     def payment_cancel(self, payment_id):
@@ -255,11 +256,12 @@ class MercadoPagoAPI():
             values = {
                 "amount": amount
             }
-            resp = self.mp.refund().create(payment_id, values)
+            return self.mp.refund().create(payment_id, values)
         else:
-            resp = self.mp.refund().create(payment_id)
+            return self.mp.refund().create(payment_id)
 
-        resp = self.check_response(resp)
+    def ensure_payment_refund(self, payment_id, amount=0):
+        resp = self.payment_refund(payment_id, amount)
         if resp.get('err_code'):
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
         else:

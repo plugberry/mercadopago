@@ -10,6 +10,7 @@ from odoo import http
 from odoo.http import request, Response
 from odoo.tools.safe_eval import safe_eval
 from odoo.addons.payment_mercadopago.models.mercadopago_request import MercadoPagoAPI
+from odoo.exceptions import UserError
 from urllib import parse
 import json
 
@@ -99,7 +100,12 @@ class MercadoPagoController(http.Controller):
             'verified': False,
         }
         if verify_validity:
-            token.validate()
+            tx = token.validate()
+            _logger.info("TX a validar %s" % tx)
+            if tx.state == 'error':
+                # Si la operación dio error la elimino
+                _logger.error("Se hace rollback de la transaccion %s por error %s " % (tx.id, tx.state_message))
+                raise UserError(tx.state_message)
             res['verified'] = token.verified
 
         return res
