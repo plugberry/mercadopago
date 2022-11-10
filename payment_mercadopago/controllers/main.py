@@ -5,13 +5,35 @@
 
 import logging
 import pprint
+<<<<<<< HEAD
+||||||| parent of 0d2d3c6... temp
+import werkzeug
+from odoo import http
+from odoo.http import request, Response
+from odoo.tools.safe_eval import safe_eval
+from odoo.addons.payment_mercadopago.models.mercadopago_request import MercadoPagoAPI
+from urllib import parse
+=======
+import werkzeug
+from odoo import http
+from odoo.http import request, Response
+from odoo.tools.safe_eval import safe_eval
+from odoo.addons.payment_mercadopago.models.mercadopago_request import MercadoPagoAPI
+from odoo.exceptions import UserError
+from urllib import parse
+>>>>>>> 0d2d3c6... temp
 import json
+<<<<<<< HEAD
 from odoo import http, _
 from odoo.http import request, Response
 from odoo.addons.payment import utils as payment_utils
 from odoo.exceptions import ValidationError
 from ..models.mercadopago_request import MercadoPagoAPI
 
+||||||| parent of 0d2d3c6... temp
+=======
+
+>>>>>>> 0d2d3c6... temp
 _logger = logging.getLogger(__name__)
 
 
@@ -69,16 +91,138 @@ class MercadoPagoController(http.Controller):
                  public client key
         :rtype: dict
         """
+<<<<<<< HEAD
         token = request.env['payment.token'].sudo().browse(token_id).exists()
         return {
             'card_token': token.card_token,
+||||||| parent of 0d2d3c6... temp
+        _logger.info('Mercadopago: entering mecadopago_back with post data %s', pprint.pformat(post))
+        request.env['payment.transaction'].sudo().form_feedback(post, 'mercadopago')
+        return werkzeug.utils.redirect("/payment/process")
+
+    @http.route(['/payment/mercadopago/s2s/create_json_3ds'], type='json', auth='public', csrf=False)
+    def mercadopago_s2s_create_json_3ds(self, verify_validity=False, **kwargs):
+        if not kwargs.get('partner_id'):
+            kwargs = dict(kwargs, partner_id=request.env.user.partner_id.id)
+        token = False
+        error = None
+
+        try:
+            token = request.env['payment.acquirer'].browse(int(kwargs.get('acquirer_id'))).s2s_process(kwargs)
+        except Exception as e:
+            error = str(e)
+
+        if not token:
+            res = {
+                'result': False,
+                'error': error,
+            }
+            return res
+
+        res = {
+            'result': True,
+            'id': token.id,
+            'short_name': token.short_name,
+            '3d_secure': False,
+            'verified': False,
+=======
+        _logger.info('Mercadopago: entering mecadopago_back with post data %s', pprint.pformat(post))
+        request.env['payment.transaction'].sudo().form_feedback(post, 'mercadopago')
+        return werkzeug.utils.redirect("/payment/process")
+
+    @http.route(['/payment/mercadopago/s2s/create_json_3ds'], type='json', auth='public', csrf=False)
+    def mercadopago_s2s_create_json_3ds(self, verify_validity=False, **kwargs):
+        if not kwargs.get('partner_id'):
+            return_url = kwargs.get('return_url', '')
+            if return_url.startswith('/my/subscription/'):
+
+                return_url = return_url.split('/')
+                res_id = int(return_url[-2])
+                uuid = return_url[-1]
+                subscription = request.env['sale.subscription'].sudo().browse(res_id).exists()
+                if not subscription or not uuid or subscription.uuid != uuid:
+                    res = {
+                            'result': False,
+                            'error': 'La suscripción es invalida',
+                    }
+                    return res
+
+                kwargs = dict(kwargs, partner_id=subscription.partner_id.id)
+            else:
+                kwargs = dict(kwargs, partner_id=request.env.user.partner_id.id)
+        token = False
+        error = None
+
+        try:
+            token = request.env['payment.acquirer'].sudo().browse(int(kwargs.get('acquirer_id'))).s2s_process(kwargs)
+        except Exception as e:
+            _logger.error(e)
+            error = str(e)
+
+        if not token:
+            res = {
+                'result': False,
+                'error': error,
+            }
+            return res
+
+        res = {
+            'result': True,
+            'id': token.id,
+            'short_name': token.short_name,
+            '3d_secure': False,
+            'verified': False,
+>>>>>>> 0d2d3c6... temp
         }
+<<<<<<< HEAD
 
     @http.route([
         '/payment/mercadopago/notify', 
         '/payment/mercadopago/notify/<int:aquirer_id>'
         ], type='json', auth='none')
     def mercadopago_notification(self, aquirer_id=False):
+||||||| parent of 0d2d3c6... temp
+        if verify_validity:
+            token.validate()
+            res['verified'] = token.verified
+
+        return res
+
+    @http.route(['/payment/mercadopago/s2s/otp'], type='json', auth='public')
+    def mercadopago_s2s_otp(self, **kwargs):
+        cvv_token = kwargs.get('token')
+        # request.session.update(kwargs)
+        request.session.update({'cvv_token': cvv_token})
+        return {'result': True}
+
+    @http.route(['/payment/mercadopago/notify',
+                 '/payment/mercadopago/notify/<int:acquirer_id>'],
+                type='json', auth='none')
+    def mercadopago_notification(self,acquirer_id=False):
+=======
+        if verify_validity:
+            tx = token.validate()
+            _logger.info("TX a validar %s" % tx)
+            if tx.state == 'error':
+                # Si la operación dio error la elimino
+                _logger.error("Se hace rollback de la transaccion %s por error %s " % (tx.id, tx.state_message))
+                raise UserError(tx.state_message)
+            res['verified'] = token.verified
+
+        return res
+
+    @http.route(['/payment/mercadopago/s2s/otp'], type='json', auth='public')
+    def mercadopago_s2s_otp(self, **kwargs):
+        cvv_token = kwargs.get('token')
+        # request.session.update(kwargs)
+        request.session.update({'cvv_token': cvv_token})
+        return {'result': True}
+
+    @http.route(['/payment/mercadopago/notify',
+                 '/payment/mercadopago/notify/<int:acquirer_id>'],
+                type='json', auth='public')
+    def mercadopago_notification(self, acquirer_id=False):
+>>>>>>> 0d2d3c6... temp
         """ Process the data sent by MercadoPago to the webhook based on the event code.
 
         :return: Status 200 to acknowledge the notification
@@ -97,6 +241,7 @@ class MercadoPagoController(http.Controller):
                 if aquirer_id:
                     leaf += [('id', '=', int(aquirer_id))]
                 acquirer = request.env["payment.acquirer"].sudo().search(leaf, limit=1)
+<<<<<<< HEAD
 
                 mercadopago_API = MercadoPagoAPI(acquirer)
                 payment_data = mercadopago_API.get_payment(payment_id)
@@ -105,6 +250,23 @@ class MercadoPagoController(http.Controller):
                 PaymentTransaction = request.env['payment.transaction']
                 feedback_data = {'reference': payment_data['external_reference'], 'response': payment_data}
                 PaymentTransaction.sudo()._handle_feedback_data('mercadopago', feedback_data)
+||||||| parent of 0d2d3c6... temp
+                MP = MercadoPagoAPI(acquirer)
+                tree = MP.get_payment(payment_id)
+                tx = request.env['payment.transaction'].sudo().search(
+                    [('acquirer_reference', '=', payment_id), 
+                     ('acquirer_id', '=', acquirer.id)]
+                )
+                tx._mercadopago_s2s_validate_tree(tree)
+=======
+                MP = MercadoPagoAPI(acquirer)
+                tree = MP.get_payment(payment_id)
+                tx = request.env['payment.transaction'].sudo().search(
+                    [('acquirer_reference', '=', payment_id),
+                     ('acquirer_id', '=', acquirer.id)]
+                )
+                tx._mercadopago_s2s_validate_tree(tree)
+>>>>>>> 0d2d3c6... temp
 
             except Exception:  # Acknowledge the notification to avoid getting spammed
                 _logger.exception("Unable to handle the notification data; skipping to acknowledge")

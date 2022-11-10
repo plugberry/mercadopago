@@ -79,7 +79,7 @@ class MercadoPagoAPI():
 
     #create Test User
     def create_test_user(self):
-        api_url = MP_URL + "users/test_user" 
+        api_url = MP_URL + "users/test_user"
         headers = {"Authorization": "Bearer %s" % self.mercadopago_access_token}
         request_data = {"site_id":"MLA"}
         response = requests.post(api_url, headers=headers, json=request_data)
@@ -166,6 +166,7 @@ class MercadoPagoAPI():
         """
         MercadoPago payment
         """
+<<<<<<< HEAD
         if token:
             payment_token = tx.mercadopago_tmp_token if cvv and tx.mercadopago_tmp_token else self.get_card_token(token.card_token)
         elif 'mercadopago_token' in form_data:
@@ -173,6 +174,13 @@ class MercadoPagoAPI():
 
         capture, validation_capture_method = self.validation_capture_method(tx, form_data, token) 
 
+||||||| parent of 0d2d3c6... temp
+        capture, validation_capture_method = self.validation_capture_method(tx)
+
+=======
+        capture, validation_capture_method = self.validation_capture_method(tx)
+        partner_email = tx.partner_id.email or tx.payment_token_id.partner_id.email
+>>>>>>> 0d2d3c6... temp
         values = {
             "token": payment_token,
             "installments": 1 if token else form_data['installments'],
@@ -183,8 +191,16 @@ class MercadoPagoAPI():
             "external_reference": tx.reference,
             "payer": {
                 "type": "customer",
+<<<<<<< HEAD
                 "id": token.customer_id if token else None,
                 "email": token.email if token else form_data['email'],
+||||||| parent of 0d2d3c6... temp
+                "id": tx.payment_token_id.customer_id if tx.payment_token_id and tx.payment_token_id.customer_id else None,
+                "email": tx.payment_token_id.partner_id.email,
+=======
+                "id": tx.payment_token_id.customer_id if tx.payment_token_id and tx.payment_token_id.customer_id else None,
+                "email": partner_email,
+>>>>>>> 0d2d3c6... temp
                 "first_name": tx.partner_name,
             },
             "additional_info": {
@@ -220,16 +236,36 @@ class MercadoPagoAPI():
         if form_data.get("issuer"):
             values.update(issuer_id=form_data['issuer'])
 
+<<<<<<< HEAD
         _logger.info("Payment values:\n%s", pprint.pformat(values))
 
         resp = self.mp.payment().create(values)
+||||||| parent of 0d2d3c6... temp
+        resp = self.mp.payment().create(values)
+
+        _logger.info('Payment Result:\n%s' % resp)
+=======
+        resp = self.mp.payment().create(values)
+>>>>>>> 0d2d3c6... temp
         resp = self.check_response(resp)
         if resp.get('err_code'):
+            _logger.info('send values:\n%s' % values)
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
         else:
+<<<<<<< HEAD
             if validation_capture_method == 'refund_payment':
                 _logger.info(_('Refund validation payment id: %s ' % resp['id']))
                 self.payment_refund(resp['id'])
+||||||| parent of 0d2d3c6... temp
+            if validation_capture_method == 'refund_payment' and resp['status'] in ['approved'] :
+                _logger.info(_('Refund validation payment id: %s ' % resp['id']))
+                self.payment_refund(resp['id'])
+=======
+            if validation_capture_method == 'refund_payment' and resp.get('status') in ['approved'] :
+                _logger.info(_('try Refund validation payment id: %s ' % resp['id']))
+                # Reevaluar esto
+                self.payment_refund(int(resp['id']))
+>>>>>>> 0d2d3c6... temp
             return resp
 
     def payment_refund(self, payment_id, amount = 0):
@@ -275,6 +311,47 @@ class MercadoPagoAPI():
         else:
             return resp
 
+<<<<<<< HEAD
+||||||| parent of 0d2d3c6... temp
+    def payment_refund(self, payment_id, amount=0):
+        """
+        MercadoPago refund payment
+        """
+        if amount:
+            values = {
+                "amount": amount
+            }
+            resp = self.mp.refund().create(payment_id, values)
+        else:
+            resp = self.mp.refund().create(payment_id)
+
+        resp = self.check_response(resp)
+        if resp.get('err_code'):
+            raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+        else:
+            return resp
+
+=======
+    def payment_refund(self, payment_id, amount=0):
+        """
+        MercadoPago refund payment
+        """
+        if amount:
+            values = {
+                "amount": amount
+            }
+            return self.mp.refund().create(payment_id, values)
+        else:
+            return self.mp.refund().create(payment_id)
+
+    def ensure_payment_refund(self, payment_id, amount=0):
+        resp = self.payment_refund(payment_id, amount)
+        if resp.get('err_code'):
+            raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+        else:
+            return resp
+
+>>>>>>> 0d2d3c6... temp
     def payment_can_deferred_capture(self, payment_method_id):
 
         resp = self.mp.payment_methods().list_all()
