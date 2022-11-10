@@ -344,7 +344,8 @@ class PaymentTransactionMercadoPago(models.Model):
         Free the captured amount
         '''
         MP = MercadoPagoAPI(self.acquirer_id)
-        # MP.payment_cancel(int(self.acquirer_reference))
+        # por ahora desactivo esto
+        # MP.ensure_payment_refund(int(self.acquirer_reference))
 
     def get_tx_info_from_mercadopago(self):
         self.ensure_one()
@@ -352,7 +353,13 @@ class PaymentTransactionMercadoPago(models.Model):
             raise UserError(_('acquirer not is Mercadopago'))
         MP = MercadoPagoAPI(self.acquirer_id)
         payment = MP.get_payment(int(self.acquirer_reference))
-        raise UserError("%s" % payment)
+        txt = ['%s: %s' % (x, payment[x]) for x in payment]
+        try:
+            self._mercadopago_s2s_validate_tree(payment)
+        except:
+            _logger.error('cant validate_tree')
+
+        raise UserError("%s" % ' \n'.join(txt))
 
 
 class PaymentToken(models.Model):
