@@ -16,12 +16,6 @@ Mercadopago Payment
 
 Permite hacer pagos a traves de la pasarela de pago Mercadopago.
 
-Installation
-============
-
-To install this module, you need to:
-
-#. Only need to install the module
 
 Configuration
 =============
