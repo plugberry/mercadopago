@@ -37,6 +37,13 @@ class PaymentAcquirerMercadoPago(models.Model):
     provider = fields.Selection(selection_add=[('mercadopago', 'MercadoPago')])
     mercadopago_publishable_key = fields.Char('MercadoPago Public Key', required_if_provider='mercadopago')
     mercadopago_access_token = fields.Char('MercadoPago Access Token', required_if_provider='mercadopago')
+    mercadopago_capture_method = fields.Selection([
+        ('deferred_capture', 'Deferred capture is posible'),
+        ('refund_payment', 'Always refund payment')
+        ],
+        string='Capture method',
+        default='deferred_capture'
+    )
 
     def _get_feature_support(self):
         """Get advanced feature support by provider.

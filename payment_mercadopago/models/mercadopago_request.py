@@ -165,9 +165,9 @@ class MercadoPagoAPI():
             "token": cvv_token or self.get_card_token(tx.payment_token_id.token),
             "installments": tx.payment_token_id.installments,
             "transaction_amount": amount,
-            "description": "Odoo ~ MercadoPago payment",
+            "description": _("Odoo ~ MercadoPago payment"),
             "payment_method_id": tx.payment_token_id.acquirer_ref,
-            "binary_mode": True,
+            "binary_mode": True if tx.type != 'validation' else False,
             "external_reference": tx.reference,
             "payer": {
                 "type": "customer",
@@ -290,6 +290,8 @@ class MercadoPagoAPI():
         """
         if tx.type != 'validation':
             return True, None
+        elif tx.acquirer_id.mercadopago_capture_method == 'refund_payment':
+            return True, 'refund_payment'
 
         payment_method_id = tx.payment_token_id.acquirer_ref
         if self.payment_can_deferred_capture(payment_method_id):
