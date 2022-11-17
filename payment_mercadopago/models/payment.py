@@ -37,6 +37,13 @@ class PaymentAcquirerMercadoPago(models.Model):
     provider = fields.Selection(selection_add=[('mercadopago', 'MercadoPago')])
     mercadopago_publishable_key = fields.Char('MercadoPago Public Key', required_if_provider='mercadopago')
     mercadopago_access_token = fields.Char('MercadoPago Access Token', required_if_provider='mercadopago')
+    mercadopago_capture_method = fields.Selection([
+        ('deferred_capture', 'Deferred capture is posible'),
+        ('refund_payment', 'Always refund payment')
+        ],
+        string='Capture method',
+        default='deferred_capture'
+    )
 
     def _get_feature_support(self):
         """Get advanced feature support by provider.
@@ -265,16 +272,12 @@ class PaymentTransactionMercadoPago(models.Model):
         # If the token is not verified then is a new card so we have de cvv_token in the self.payment_token_id.token
         # If not, if the payment cames from token WITH cvv the cvv_token will be in the session.
         # Else, we do not have cvv_token, it's a payment without cvv
-        if request and self.payment_token_id.verified:
-            cvv_token = request.session.pop('cvv_token', None)
-        elif request and not self.payment_token_id.verified:
-            cvv_token = request.session.pop('cvv_token', None) if request and self.payment_token_id.verified else self.payment_token_id.token
-        else:
-            cvv_token = False
+        cvv_token = None
+        if request:
+            cvv_token = request.session.pop('cvv_token', None) if self.payment_token_id.verified else self.payment_token_id.token
 
         capture = self.type != 'validation'
 
-        # TODO: revisar, si es validación el amount es 1.5 (viene de Odoo)
         res = MP.payment(self, round(self.amount, self.currency_id.decimal_places), capture, cvv_token)
 
         return self._mercadopago_s2s_validate_tree(res)
