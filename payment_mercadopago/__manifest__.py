@@ -3,7 +3,7 @@
     'name': 'MercadoPago Payment Acquirer',
     'category': 'Accounting/Payment',
     'summary': 'Payment Acquirer: MercadoPago',
-    'version': '13.0.1.7.0',
+    'version': '13.0.1.8.0',
     'author': 'ADHOC SA',
     'website': 'www.adhoc.com.ar',
     'description': """MercadoPago Payment Acquirer""",
