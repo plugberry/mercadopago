@@ -19,21 +19,33 @@ class MercadoPagoController(http.Controller):
 
     _notify_url = '/payment/mercadopago/notify?source_news=webhooks'
 
-    @http.route('/payment/mercadopago/get_acquirer_info', type='json', auth='public')
-    def mercadopago_get_acquirer_info(self, rec_id, flow):
-        """ Return public information on the acquirer.
+    @http.route('/payment/mercadopago/get_provider_info', type='json', auth='public')
+    def mercadopago_get_provider_info(self, rec_id, flow):
+        """ Return public information on the provider.
 
-        :param int rec_id: The payment option handling the transaction, as a `payment.acquirer` or `payment.token` id
-        :return: Information on the acquirer, namely: the state, payment method type, login ID, and
+        :param int rec_id: The payment option handling the transaction, as a `payment.provider` or `payment.token` id
+        :return: Information on the provider, namely: the state, payment method type, login ID, and
                  public client key
         :rtype: dict
         """
+        provider_ref = False
+        bin = False
+
         if flow == "token":
-            acquirer_sudo = request.env['payment.token'].browse(rec_id).acquirer_id.sudo()
+            token_sudo = request.env['payment.token'].browse(rec_id).sudo()
+            provider_sudo = token_sudo.provider_id.sudo()
+            provider_ref = token_sudo.provider_ref
+            bin = token_sudo.bin
+            # Esto lo agrego porque SDK V2 requiere el bin para calcular las coutas 
+            if not bin:
+                token_sudo.mercadopago_fix_token_bin()
+                bin = token_sudo.bin
         else:
-            acquirer_sudo = request.env['payment.acquirer'].sudo().browse(rec_id).exists()
+            provider_sudo = request.env['payment.provider'].sudo().browse(rec_id).exists()
         return {
-            'publishable_key': acquirer_sudo.mercadopago_publishable_key,
+            'publishable_key': provider_sudo.mercadopago_publishable_key,
+            'bin': bin,
+            'provider_ref': provider_ref,
         }
 
     @http.route('/payment/mercadopago/payment', type='json', auth='public')
@@ -58,24 +70,24 @@ class MercadoPagoController(http.Controller):
         # Handle the payment request response
         _logger.info("make payment response:\n%s", pprint.pformat(response_content))
         feedback_data = {'reference': tx_sudo.reference, 'response': response_content}
-        request.env['payment.transaction'].sudo()._handle_feedback_data('mercadopago', feedback_data)
+        request.env['payment.transaction'].sudo()._handle_notification_data('mercadopago', feedback_data)
 
-    @http.route('/payment/mercadopago/token', type='json', auth='public')
+    @http.route('/payment/mercadopago/token', type='json', auth='user')
     def mercadopago_get_token_info(self, token_id):
         """ Return public information on the acquirer.
 
-        :param int acquirer_id: The acquirer handling the transaction, as a `payment.acquirer` id
+        :param int token_id: The acquirer handling the transaction, as a `payment.acquirer` id
         :return: Information on the acquirer, namely: the state, payment method type, login ID, and
                  public client key
         :rtype: dict
         """
-        token = request.env['payment.token'].sudo().browse(token_id).exists()
+        token = request.env['payment.token'].browse(token_id).exists()
         return {
             'card_token': token.card_token,
         }
 
     @http.route([
-        '/payment/mercadopago/notify', 
+        '/payment/mercadopago/notify',
         '/payment/mercadopago/notify/<int:aquirer_id>'
         ], type='json', auth='none')
     def mercadopago_notification(self, aquirer_id=False):
@@ -85,15 +97,16 @@ class MercadoPagoController(http.Controller):
         :rtype: Response
         """
         data = json.loads(request.httprequest.data)
-        _logger.info("MercadoPago notification: \n%s", pprint.pformat(data))
+        _logger.debug("MercadoPago notification: \n%s", pprint.pformat(data))
+
         if data['type'] == 'payment':
             try:
                 # Payment ID
                 payment_id = data['data']['id']
 
                 # Get payment data from MercadoPago
-                leaf=[('provider', '=', 'mercadopago')]
-                #For backward compatibility, add the aquirer_id separately.
+                leaf = [('code', '=', 'mercadopago')]
+                # For backward compatibility, add the aquirer_id separately.
                 if aquirer_id:
                     leaf += [('id', '=', int(aquirer_id))]
                 acquirer = request.env["payment.acquirer"].sudo().search(leaf, limit=1)
