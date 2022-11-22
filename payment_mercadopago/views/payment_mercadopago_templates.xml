@@ -2,7 +2,7 @@
 <odoo>
 
     <template id="inline_form">
-        <div t-attf-id="o_mercadopago_form_{{acquirer_id}}" class="o_mercadopago_form">
+        <div t-attf-id="o_mercadopago_form_{{provider_id}}" class="o_mercadopago_form">
 
             <!-- Email -->
             <div class="form-group">
@@ -12,60 +12,60 @@
 
             <!-- Card -->
             <div class="form-group">
-                <label t-attf-for="o_mercadopago_card_number_{{acquirer_id}}" class="col-form-label">Card Number</label>
-                <input type="text" t-attf-id="o_mercadopago_card_number_{{acquirer_id}}" required="" maxlength="19" class="form-control" data-checkout="cardNumber"/>
+                <label t-attf-for="o_mercadopago_card_number_{{provider_id}}" class="col-form-label">Card Number</label>
+                <input type="tel" t-attf-id="o_mercadopago_card_number_{{provider_id}}" required="" maxlength="19" class="form-control" data-checkout="cardNumber"/>
             </div>
 
             <div class="row">
                 <!-- Expiration -->
                 <div class="col-sm-8 form-group">
-                    <label t-attf-for="o_mercadopago_month_{{acquirer_id}}">Expiration</label>
+                    <label t-attf-for="o_mercadopago_month_{{provider_id}}">Expiration</label>
                     <div class="input-group">
-                        <input type="number" t-attf-id="o_mercadopago_month_{{acquirer_id}}" placeholder="MM" min="1" max="12" required="" class="form-control" data-checkout="cardExpirationMonth"/>
-                        <input type="number" t-attf-id="o_mercadopago_year_{{acquirer_id}}" placeholder="YY" min="00" max="99" required="" class="form-control" data-checkout="cardExpirationYear"/>
+                        <input type="number" t-attf-id="o_mercadopago_month_{{provider_id}}" placeholder="MM" min="1" max="12" required="" class="form-control" data-checkout="cardExpirationMonth"/>
+                        <input type="number" t-attf-id="o_mercadopago_year_{{provider_id}}" placeholder="YY" min="00" max="99" required="" class="form-control" data-checkout="cardExpirationYear"/>
                     </div>
                 </div>
                 <!-- Card Code -->
                 <div class="col-sm-4 form-group">
-                    <label t-attf-for="o_mercadopago_code_{{acquirer_id}}">Card Code</label>
-                    <input type="text" t-attf-id="o_mercadopago_code_{{acquirer_id}}" maxlength="4" class="form-control" data-checkout="securityCode"/>
+                    <label t-attf-for="o_mercadopago_code_{{provider_id}}">Card Code</label>
+                    <input type="password" t-attf-id="o_mercadopago_code_{{provider_id}}" maxlength="4" class="form-control" data-checkout="securityCode"/>
                 </div>
             </div>
 
             <div class="form-group">
-                <label t-attf-for="o_mercadopago_holder_{{acquirer_id}}" class="col-form-label">Card Holder</label>
-                <input type="text" t-attf-id="o_mercadopago_holder_{{acquirer_id}}" required=""  class="form-control" data-checkout="cardholderName"/>
+                <label t-attf-for="o_mercadopago_holder_{{provider_id}}" class="col-form-label">Card Holder</label>
+                <input type="text" t-attf-id="o_mercadopago_holder_{{provider_id}}" required=""  class="form-control" data-checkout="cardholderName"/>
             </div>
 
             <!-- Identification -->
-            <label t-attf-for="o_mercadopago_identification_{{acquirer_id}}" class="col-form-label">Identification</label>
-            <div class="row" t-attf-id="o_mercadopago_identification_{{acquirer_id}}">
+            <label t-attf-for="o_mercadopago_identification_{{provider_id}}" class="col-form-label">Identification</label>
+            <div class="row" t-attf-id="o_mercadopago_identification_{{provider_id}}">
                 <div class="col-sm-4 form-group">
-                    <select t-attf-id="o_mercadopago_vat_{{acquirer_id}}" type="text" class="form-control" data-checkout="docType"></select>
+                    <select t-attf-id="o_mercadopago_vat_{{provider_id}}" type="text" class="form-control" data-checkout="docType"></select>
                 </div>
                 <div class="col-sm-4 form-group">
-                    <input t-attf-id="o_mercadopago_vat_number_{{acquirer_id}}" placeholder="Número" maxlength="16" data-checkout="docNumber" type="text" class="form-control"/>
+                    <input t-attf-id="o_mercadopago_vat_number_{{provider_id}}" placeholder="Número" maxlength="16" data-checkout="docNumber" type="text" class="form-control"/>
                 </div>
             </div>
 
             <div class="row">
                 <!-- Installments -->
                 <div class="col-sm-6 form-group">
-                    <label t-attf-id="o_mercadopago_installments_label_{{acquirer_id}}" t-attf-for="o_mercadopago_installments_{{acquirer_id}}" class="o_hidden col-form-label">Installments</label>
-                    <select type="text" t-attf-id="o_mercadopago_installments_{{acquirer_id}}" class="o_hidden form-control" t-att-data-show="'false' if acquirer.is_validation else 'true'"/>
+                    <label t-attf-id="o_mercadopago_installments_label_{{provider_id}}" t-attf-for="o_mercadopago_installments_{{provider_id}}" class="o_hidden col-form-label">Installments</label>
+                    <select type="text" t-attf-id="o_mercadopago_installments_{{provider_id}}" class="o_hidden form-control" t-att-data-show="'false' if provider.is_validation else 'true'"/>
                 </div>
 
                 <!-- Issuer -->
                 <div class="col-sm-6 form-group">
-                    <label t-attf-id="o_mercadopago_issuer_label_{{acquirer_id}}" t-attf-for="o_mercadopago_issuer_{{acquirer_id}}" class="o_hidden col-form-label">Issuer</label>
-                    <select t-attf-id="o_mercadopago_issuer_{{acquirer_id}}" type="text" class="o_hidden form-control" data-checkout="issuer"></select>
+                    <label t-attf-id="o_mercadopago_issuer_label_{{provider_id}}" t-attf-for="o_mercadopago_issuer_{{provider_id}}" class="o_hidden col-form-label">Issuer</label>
+                    <select t-attf-id="o_mercadopago_issuer_{{provider_id}}" type="text" class="o_hidden form-control" data-checkout="issuer"></select>
                 </div>
             </div>
 
             <!-- Extra fields -->
             <div>
                 <!-- Ver si podemos sacar el amount, debería estar por contexto en js -->
-                <input type="hidden" t-attf-id="o_mercadopago_payment_method_{{acquirer_id}}"/>
+                <input type="hidden" t-attf-id="o_mercadopago_payment_method_{{provider_id}}"/>
             </div>
         </div>
     </template>
@@ -76,17 +76,25 @@
 
 
     <template id="mercadopago_checkout" name="MercadoPago Payment Checkout" inherit_id="payment.checkout">
-        <xpath expr="//t[@t-call='payment.verified_token_checkmark']" position="after">
-            <t t-if="token.provider == 'mercadopago'">
+        <xpath expr="//div[@t-attf-id='o_payment_token_inline_form_{{token.id}}']" position="inside">
+                <t t-if="token.provider_id.code == 'mercadopago'">
                 <!-- === CVV Number === -->
-                <div class="col-6 pull-right">
-                    <input name="o_payment_cvv"
-                        type="text"
-                        t-attf-id="o_token_code_{{token.id}}"
-                        maxlength="4"
-                        required=""
-                        placeholder="cvv"
-                        class="form-control"/>
+                <div class="row">
+                    <div class="col-sm-6 form-group">
+                        <label t-attf-id="o_mercadopago_token_installments_label_{{token.id}}" t-attf-for="o_mercadopago_token_installments_{{provider_id}}" class="o_hidden col-form-label">Installments</label>
+                        <select type="text" t-attf-id="o_mercadopago_token_installments_{{token.id}}" class="o_hidden form-control" t-att-data-show="'false' if provider.is_validation else 'true'"/>
+                    </div>
+                    <div class="col-6 pull-right">
+                        <label t-attf-for="o_token_code_{{token.id}}" class="col-form-label">CVV</label>
+
+                        <input name="o_payment_cvv"
+                            type="password"
+                            t-attf-id="o_token_code_{{token.id}}"
+                            maxlength="4"
+                            required=""
+                            placeholder="cvv"
+                            class="form-control"/>
+                    </div>
                 </div>
             </t>
         </xpath>

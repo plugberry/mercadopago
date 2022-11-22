@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="payment_acquirer_form" model="ir.ui.view">
-        <field name="name">MercadoPago Acquirer Form</field>
-        <field name="model">payment.acquirer</field>
-        <field name="inherit_id" ref="payment.payment_acquirer_form"/>
+    <record id="payment_provider_form" model="ir.ui.view">
+        <field name="name">MercadoPago provider Form</field>
+        <field name="model">payment.provider</field>
+        <field name="inherit_id" ref="payment.payment_provider_form"/>
         <field name="arch" type="xml">
-            <xpath expr='//group[@name="acquirer"]' position='inside'>
-                <group attrs="{'invisible': [('provider', '!=', 'mercadopago')]}">
-                    <field name="mercadopago_publishable_key" attrs="{'required': [('provider', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
-                    <field name="mercadopago_access_token" password="True" attrs="{'required': [('provider', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
+            <xpath expr='//group[@name="provider_credentials"]' position='inside'>
+                <group attrs="{'invisible': [('code', '!=', 'mercadopago')]}">
+                    <field name="mercadopago_publishable_key" attrs="{'required': [('code', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
+                    <field name="mercadopago_access_token" password="True" attrs="{'required': [('code', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
                 </group>
             </xpath>
-            <xpath expr='//group[@name="acquirer"]' position='after'>
-                <p class="alert alert-info" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('provider', '!=', 'mercadopago')]}">
+            <xpath expr='//group[@name="provider_credentials"]' position='after'>
+                <p class="alert alert-info" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('code', '!=', 'mercadopago')]}">
                     Podés obtener las credenciales de MercadoPago
                     <a colspan="2" href="https://www.mercadopago.com/mla/account/credentials" target="_blank">Aquí</a>.
                     <br/>
@@ -33,7 +33,7 @@
                     </ul>
                 </p>
 
-                <!--<div class="alert alert-warning" role="alert" style="margin-bottom:0px;" attrs="{'invisible': ['|',('provider', '!=', 'mercadopago'), ('state','!=', 'test')]}">
+                <!--<div class="alert alert-warning" role="alert" style="margin-bottom:0px;" attrs="{'invisible': ['|',('code', '!=', 'mercadopago'), ('state','!=', 'test')]}">
                 Los <strong>usuarios de prueba</strong> te permiten probar tu integración al generar flujos de pagos en una copia exacta de tu integración.
                 Podés crear los usuarios de prueba <button name="action_create_mercadopago_test_user" class="btn btn-link" type="object" >Aquí</button>
                 <br/>
@@ -63,11 +63,12 @@
                 </t> -->
             </xpath>
             <group name="payment_followup" position="after">
-                <group string="MercadoPago item configuration" attrs="{'invisible': [('provider', '!=', 'mercadopago')]}">
+                <group string="MercadoPago item configuration" attrs="{'invisible': [('code', '!=', 'mercadopago')]}">
                     <field name="mercadopago_item_id"/>
                     <field name="mercadopago_item_title"/>
                     <field name="mercadopago_item_description"/>
                     <field name="mercadopago_item_category"/>
+                    <field name="mercadopago_capture_method"/>
                 </group>
             </group>
         </field>
@@ -78,9 +79,19 @@
         <field name='model'>payment.token</field>
         <field name="inherit_id" ref="payment.payment_token_form"/>
         <field name="arch" type="xml">
-        <xpath expr='//field[@name="acquirer_ref"]' position='after'>
+        <xpath expr='//field[@name="provider_ref"]' position='after'>
             <field name="email"/>
+            <field name="bin"/>
         </xpath>
         </field>
     </record>
+    <record id="action_info_from_mercadopago" model="ir.actions.server">
+        <field name="name">Check in Mercadopago</field>
+        <field name="model_id" ref="payment.model_payment_transaction"/>
+        <field name="state">code</field>
+        <field name="code">action = records.get_tx_info_from_mercadopago()</field>
+        <field name="binding_model_id" ref="payment.model_payment_transaction"/>
+        <field name="binding_type">action</field>
+    </record>
+
 </odoo>
