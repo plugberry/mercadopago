@@ -1,10 +1,4 @@
-.. |company| replace:: ADHOC SA
-
-.. |company_logo| image:: https://raw.githubusercontent.com/ingadhoc/maintainer-tools/master/resources/adhoc-logo.png
-   :alt: ADHOC SA
-   :target: https://www.adhoc.com.ar
-
-.. |icon| image:: https://raw.githubusercontent.com/ingadhoc/maintainer-tools/master/resources/adhoc-icon.png
+.. |company| replace:: Axadoo
 
 .. image:: https://img.shields.io/badge/license-AGPL--3-blue.png
    :target: https://www.gnu.org/licenses/agpl
@@ -14,7 +8,10 @@
 Mercadopago Payment
 ===================
 
-Permite hacer pagos a traves de la pasarela de pago Mercadopago.
+Mercado pago is the largest online payment platform in Latam.
+This module integrates a checkout form and allows you to make payments through this payment gateway.
+Supports automated payments without CVV for subscriptions and card authorizations.
+
 
 Installation
 ============
@@ -40,9 +37,6 @@ Usage
 
 TEST MODE
 ---------
-
-Sobre sandbox
-https://www.mercadopago.com.ar/developers/es/solutions/payments/basic-checkout/test/basic-sandbox/
 
 
 Formas de pagar:
@@ -78,7 +72,7 @@ Credits
 Images
 ------
 
-* |company| |icon|
+* |company|
 
 Contributors
 ------------

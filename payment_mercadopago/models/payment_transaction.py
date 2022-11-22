@@ -31,7 +31,7 @@ class PaymentTransaction(models.Model):
         :rtype: dict
         """
         res = super()._get_specific_processing_values(processing_values)
-        if self.provider != 'mercadopago':
+        if self.provider_code != 'mercadopago':
             return res
 
         return {
@@ -51,8 +51,8 @@ class PaymentTransaction(models.Model):
         self.ensure_one()
 
         self.mercadopago_tmp_token = kwargs.get('mercadopago_token')
-        mercadopago_API = MercadoPagoAPI(self.acquirer_id)
-        kwargs['validation'] = True if self.acquirer_id.capture_manually or self.operation == 'validation' else False
+        mercadopago_API = MercadoPagoAPI(self.provider_id)
+        kwargs['validation'] = True if self.provider_id.capture_manually or self.operation == 'validation' else False
         return mercadopago_API.payment(self, form_data=kwargs)
 
     def _send_payment_request(self):
@@ -65,13 +65,13 @@ class PaymentTransaction(models.Model):
         :raise: UserError if the transaction is not linked to a token
         """
         super()._send_payment_request()
-        if self.provider != 'mercadopago':
+        if self.provider_code != 'mercadopago':
             return
 
         if not self.token_id:
             raise UserError("MercadoPago: " + _("The transaction is not linked to a token."))
 
-        mercadopago_API = MercadoPagoAPI(self.acquirer_id)
+        mercadopago_API = MercadoPagoAPI(self.provider_id)
 
         # If the payment comes from subscription we do not have the cvv: w/o cvv payment flow
         cvv = self.callback_model_id.model != "sale.subscription"
@@ -93,7 +93,7 @@ class PaymentTransaction(models.Model):
         :return: The refund transaction if any
         :rtype: recordset of `payment.transaction`
         """
-        if self.provider != 'mercadopago':
+        if self.provider_code != 'mercadopago':
             return super()._send_refund_request(
                 amount_to_refund=amount_to_refund,
                 create_refund_transaction=create_refund_transaction,
@@ -110,14 +110,14 @@ class PaymentTransaction(models.Model):
         :return: None
         """
         super()._send_void_request()
-        if self.provider != 'mercadopago':
+        if self.provider_code != 'mercadopago':
             return
 
         # TODO: implement
         raise UserError("MercadoPago: _send_void_request not implemented")
 
     @api.model
-    def _get_tx_from_feedback_data(self, provider, data):
+    def _get_tx_from_notification_data(self, provider_code, notification_data):
         """ Find the transaction based on the feedback data.
 
         :param str provider: The provider of the acquirer that handled the transaction
@@ -125,42 +125,44 @@ class PaymentTransaction(models.Model):
         :return: The transaction if found
         :rtype: recordset of `payment.transaction`
         """
-        tx = super()._get_tx_from_feedback_data(provider, data)
-        if provider != 'mercadopago':
+        tx = super()._get_tx_from_notification_data(provider_code, notification_data)
+        if provider_code != 'mercadopago':
             return tx
 
-        reference = data.get('external_reference', False)
+        reference = notification_data.get('external_reference', False)
         if not reference:
-            reference = data.get('reference', False)
+            reference = notification_data.get('reference', False)
 
-        tx = self.search([('reference', '=', reference), ('provider', '=', 'mercadopago')])
+        tx = self.search([('reference', '=', reference), ('provider_code', '=', 'mercadopago')])
         if not tx:
             raise ValidationError(
                 "MercadoPago: " + _("No transaction found matching reference %s.", reference)
             )
         return tx
 
-    def _process_feedback_data(self, data):
+    def _process_notification_data(self, notification_data):
         """ Override of payment to process the transaction based on Authorize data.
 
         Note: self.ensure_one()
 
-        :param dict data: The feedback data sent by the provider
+        :param dict notification_data: The feedback data sent by the provider
         :return: None
         """
-        super()._process_feedback_data(data)
-        if self.provider != 'mercadopago':
-            return
-        response_content = data.get('response')
+        if self.provider_code != 'mercadopago':
+            return super()._process_notification_data(notification_data)
+        response_content = notification_data.get('response')
 
         self.acquirer_reference = response_content.get('x_trans_id')
         status = response_content.get('status')
         message = self._get_mercadopago_response_msg(response_content)
         if status in ['approved', 'processed']:  # Approved
-            self._set_done(state_message=message)
+            if self.state != 'done':
+                self._set_done(state_message=message)
+            else:
+                _logger.info('The TX %s is already done. Cant set done twise' % self.reference)
             if self.tokenize and not self.token_id:
                 self._mercadopago_tokenize_from_feedback_data(response_content)
-        if status in ['authorized']:  # Authorized: the card validation is ok
+        elif status in ['authorized']:  # Authorized: the card validation is ok
             if self.operation == 'validation':
                 # TODO: revisar si tenemos que hacer algo más
                 self._set_done(state_message=message)
@@ -194,16 +196,17 @@ class PaymentTransaction(models.Model):
         """
         self.ensure_one()
 
-        mercadopago_API = MercadoPagoAPI(self.acquirer_id)
+        mercadopago_API = MercadoPagoAPI(self.provider_id)
         # TODO: podríamos pasar el objeto partner y enviar todos los datos disponibles
         customer_id = mercadopago_API.get_customer_profile(self.partner_id.email)
         if customer_id:
             #  si un cliente tokeniza dos veces la misma tarjeta, debemos buscarla en MercadoPago o crearla nuevamente?
             card = mercadopago_API.create_customer_card(customer_id, self.mercadopago_tmp_token)
             token = self.env['payment.token'].create({
-                'acquirer_id': self.acquirer_id.id,
+                'provider_id': self.provider_id.id,
                 'name': payment_utils.build_token_name(card['last_four_digits']),
                 'acquirer_ref': data['payment_method_id'],
+                'bin': card['first_six_digits'],
                 'partner_id': self.partner_id.id,
                 'card_token': card['id'],
                 # TODO: chequear que el mail sea el correcto, parece que en modo test MercadoPago pone otro mail
