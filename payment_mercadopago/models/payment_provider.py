@@ -6,7 +6,7 @@ import urllib.parse as urlparse
 import werkzeug
 
 from odoo import _, api, fields, models
-from odoo.addons.payment.models.payment_acquirer import ValidationError
+from odoo.addons.payment.models.payment_provider import ValidationError
 from odoo.http import request
 from ..controllers.main import MercadoPagoController
 import pprint
@@ -14,10 +14,10 @@ import pprint
 _logger = logging.getLogger(__name__)
 
 
-class PaymentAcquirer(models.Model):
-    _inherit = 'payment.acquirer'
+class PaymentProvider(models.Model):
+    _inherit = 'payment.provider'
 
-    provider = fields.Selection(
+    code = fields.Selection(
         selection_add=[('mercadopago', 'MercadoPago')], ondelete={'mercadopago': 'set default'})
     mercadopago_publishable_key = fields.Char('MercadoPago Public Key', required_if_provider='mercadopago')
     mercadopago_access_token = fields.Char('MercadoPago Access Token', required_if_provider='mercadopago')
@@ -55,15 +55,25 @@ class PaymentAcquirer(models.Model):
             ('others', "Other categories"),
         ],
     )
+    mercadopago_capture_method = fields.Selection([
+        ('deferred_capture', 'Deferred capture is posible'),
+        ('refund_payment', 'Always refund payment')
+        ],
+        string='Capture method',
+        default='deferred_capture'
+    )
 
-    @api.onchange('provider')
-    def _onchange_provider(self):
-        if self.provider == 'mercadopago':
+    def _get_mercadopago_request(self):
+        return MercadoPagoAPI(self)
+
+    @api.onchange('code')
+    def _onchange_code(self):
+        if self.code == 'mercadopago':
             self.inline_form_view_id = self.env.ref('payment_mercadopago.inline_form').id
 
     def action_create_mercadopago_test_user(self):
         self.ensure_one()
-        mercadopago_API = MercadoPagoAPI(self)
+        mercadopago_API = self._get_mercadopago_request()
         values = mercadopago_API.create_test_user()
         msg = _("Mercadopago test user id: {id},  nickname: {nickname}, password: {password}, status: {site_status}, email: {email} ").format(**values) 
 
@@ -73,25 +83,25 @@ class PaymentAcquirer(models.Model):
             "params": {
                 "title": msg,
                 "type": "success",
-                "sticky": True,  
+                "sticky": True,
             },
         }
 
 
     @api.model
-    def _get_compatible_acquirers(self, *args, currency_id=None, **kwargs):
+    def _get_compatible_providers(self, *args, currency_id=None, **kwargs):
         """ Override of payment to unlist MercadoPago acquirers when the currency is not ARS. """
-        acquirers = super()._get_compatible_acquirers(*args, currency_id=currency_id, **kwargs)
+        providers = super()._get_compatible_providers(*args, currency_id=currency_id, **kwargs)
 
         # TODO: Deberíamos forzar la moneda a ARS ??
         # currency = self.env['res.currency'].browse(currency_id).exists()
         # if currency and currency.name != 'ARS':
-        #     acquirers = acquirers.filtered(lambda a: a.provider != 'mercadopago')
+        #     providers = providers.filtered(lambda a: a.provider != 'mercadopago')
 
-        return acquirers
+        return providers
 
     def _should_build_inline_form(self, is_validation=False):
-        # if self.provider != 'mercadopago':
+        # if self.code != 'mercadopago':
         #     return super()._should_build_inline_form(self, is_validation=is_validation)
 
         # TODO: modify for redirect integration
@@ -105,7 +115,7 @@ class PaymentAcquirer(models.Model):
         :rtype: float
         """
         res = super()._get_validation_amount()
-        if self.provider != 'mercadopago':
+        if self.code != 'mercadopago':
             return res
 
         usd_currency_id = self.env.ref('base.USD')
@@ -121,14 +131,9 @@ class PaymentAcquirer(models.Model):
         :rtype: recordset of `res.currency`
         """
         res = super()._get_validation_currency()
-        if self.provider != 'mercadopago':
+        if self.code != 'mercadopago':
             return res
 
         # TODO: Deberíamos forzar la moneda a ARS ??
         return res
 
-    def _get_default_payment_method_id(self):
-        self.ensure_one()
-        if self.provider != 'mercadopago':
-            return super()._get_default_payment_method_id()
-        return self.env.ref('payment_mercadopago.payment_method_mercadopago').id

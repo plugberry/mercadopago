@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="payment_acquirer_mercadopago" model="payment.acquirer">
+    <record id="payment_provider_mercadopago" model="payment.provider">
         <field name="mercadopago_publishable_key">TEST-4f5a24d1-b016-4d3f-b9ad-c989c3e371e7</field>
         <field name="mercadopago_access_token">TEST-4811719641145832-020115-c5caffc149634e3e9d72fde2b74544d8__LD_LA__-172837665</field>
         <field name="mercadopago_item_id">001</field>
@@ -8,8 +8,8 @@
         <field name="mercadopago_item_description">Item Description</field>
         <field name="mercadopago_item_category">others</field> 
     </record>
-    <!--function model="payment.acquirer" name="write">
-        <value eval="ref('payment_mercadopago.payment_acquirer_mercadopago')"/>
+    <!--function model="payment.provider" name="write">
+        <value eval="ref('payment_mercadopago.payment_provider_mercadopago')"/>
         <value model="account.journal" eval="{
             'state':'test',
             'journal_id':  obj().search([('type', '=', 'bank')], limit=1).id}"/>
