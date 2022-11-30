@@ -1,3 +1,2 @@
 
-
-# Mercadopago for Odoo
+# Mercadopago for Odoo.
