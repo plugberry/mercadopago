@@ -10,6 +10,8 @@ from odoo.addons.payment.models.payment_acquirer import ValidationError
 
 from odoo.http import request
 from ..controllers.main import MercadoPagoController
+from datetime import datetime, timedelta
+
 
 _logger = logging.getLogger(__name__)
 
@@ -135,8 +137,8 @@ class PaymentAcquirerMercadoPago(models.Model):
             },
             "auto_return": "approved",
             "external_reference": tx_values["reference"],
-            "expires": False
         }
+        preference.update(self.mercadopago_preference_date_due(tx_values))
         tx_values.update({
             'acquirer_id': self.id,
             'mercadopago_preference': preference
@@ -146,6 +148,13 @@ class PaymentAcquirerMercadoPago(models.Model):
     def mercadopago_get_form_action_url(self):
         self.ensure_one()
         return MercadoPagoController._create_preference_url
+
+    @api.model
+    def mercadopago_preference_date_due(self, tx_values):
+        expires_days = int(self.env['ir.config_parameter'].sudo().get_param('mercadopago.preference_expires_days', '0')) 
+        return {'date_of_expiration':
+                (datetime.now() + timedelta(days=expires_days)).isoformat()
+        } if expires_days else {"expires": False}
 
     @api.model
     def mercadopago_s2s_form_process(self, data):
@@ -272,12 +281,11 @@ class PaymentTransactionMercadoPago(models.Model):
         # If the token is not verified then is a new card so we have de cvv_token in the self.payment_token_id.token
         # If not, if the payment cames from token WITH cvv the cvv_token will be in the session.
         # Else, we do not have cvv_token, it's a payment without cvv
-        if request and self.payment_token_id.verified:
-            cvv_token = request.session.pop('cvv_token', None)
-        elif request and not self.payment_token_id.verified:
-            cvv_token = request.session.pop('cvv_token', None) if request and self.payment_token_id.verified else self.payment_token_id.token
-        else:
-            cvv_token = False
+        cvv_token = None
+        if request:
+            cvv_token = request.session.pop('cvv_token', None) if self.payment_token_id.verified else self.payment_token_id.token
+
+
 
         capture = self.type != 'validation'
 
