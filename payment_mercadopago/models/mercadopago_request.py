@@ -159,6 +159,8 @@ class MercadoPagoAPI():
         """
         MercadoPago payment
         """
+        _logger.info('Inicio tx con MP token %s' % cvv_token)
+
         capture, validation_capture_method = self.validation_capture_method(tx)
         partner_email = tx.partner_id.email or tx.payment_token_id.partner_id.email
         values = {
@@ -209,8 +211,7 @@ class MercadoPagoAPI():
                 "type": tx.partner_id.l10n_latam_identification_type_id.name,
             }
 
-        if self.sandbox:
-            _logger.info('values:\n%s' % values)
+        _logger.info('values:\n%s' % values)
 
         resp = self.mp.payment().create(values)
         resp = self.check_response(resp)
