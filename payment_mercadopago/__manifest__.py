@@ -26,7 +26,7 @@
         ],
     },
     'uninstall_hook': 'uninstall_hook',
-    'application': True,
+    'application': False,
     'installable': False,
     'license': 'LGPL-3',
 }
