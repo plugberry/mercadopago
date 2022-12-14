@@ -11,6 +11,7 @@ from odoo.addons.payment.models.payment_acquirer import ValidationError
 from odoo.http import request
 from ..controllers.main import MercadoPagoController
 from datetime import datetime, timedelta
+import requests
 
 
 _logger = logging.getLogger(__name__)
@@ -135,6 +136,7 @@ class PaymentAcquirerMercadoPago(models.Model):
                 "failure": '%s' % urlparse.urljoin(base_url, failure_url),
                 "pending": '%s' % urlparse.urljoin(base_url, pending_url)
             },
+            "notification_url": '%s' % urlparse.urljoin(self.get_base_url(), '/payment/mercadopago/notify/%s?source_news=webhooks' % self.id),
             "auto_return": "approved",
             "external_reference": tx_values["reference"],
         }
@@ -363,17 +365,26 @@ class PaymentTransactionMercadoPago(models.Model):
         # MP.ensure_payment_refund(int(self.acquirer_reference))
 
     def get_tx_info_from_mercadopago(self):
-        self.ensure_one()
-        if self.acquirer_id.provider != 'mercadopago':
-            raise UserError(_('acquirer not is Mercadopago'))
-        MP = MercadoPagoAPI(self.acquirer_id)
-        payment = MP.get_payment(int(self.acquirer_reference))
-        txt = ['%s: %s' % (x, payment[x]) for x in payment]
-        try:
-            self._mercadopago_s2s_validate_tree(payment)
-        except:
-            _logger.error('cant validate_tree')
+        txt = []
+        for rec in self:
+            if rec.acquirer_id.provider != 'mercadopago':
+                continue
+            MP = MercadoPagoAPI(rec.acquirer_id)
 
+            payments = MP.mp.payment().search(filters = {'external_reference': rec.reference})
+            for payment in payments['response']['results']:
+                txt += ['---------------------------']
+                txt += ["STATUS: %s" % payment['status']]
+                txt += ["AMOUNT: %s" % payment['transaction_amount']]
+                txt += ["description: %s" % payment['description']]
+                txt += ['---------------------------']
+                txt += ['%s: %s' % (x, payment[x]) for x in payment]
+                txt += ['---------------------------']
+                try:
+                    rec._mercadopago_s2s_validate_tree(payment)
+                except:
+                    _logger.error('cant validate_tree')
+        self.env.cr.commit()
         raise UserError("%s" % ' \n'.join(txt))
 
 
