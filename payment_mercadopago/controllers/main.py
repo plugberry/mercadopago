@@ -117,7 +117,7 @@ class MercadoPagoController(http.Controller):
                 # Update transaction state
                 PaymentTransaction = request.env['payment.transaction']
                 feedback_data = {'reference': payment_data['external_reference'], 'response': payment_data}
-                PaymentTransaction.sudo()._handle_feedback_data('mercadopago', feedback_data)
+                PaymentTransaction.sudo()._handle_notification_data('mercadopago', feedback_data)
 
             except Exception:  # Acknowledge the notification to avoid getting spammed
                 _logger.exception("Unable to handle the notification data; skipping to acknowledge")

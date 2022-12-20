@@ -15,7 +15,7 @@ Supports automated payments without CVV for subscriptions and card authorization
     'author': 'Plugberry',
     'website': 'Plugberry',
     'sequence': 350,
-    'depends': ['payment'],
+    'depends': ['payment', 'account'],
     'external_dependencies': {
         'python': ['mercadopago'],
     },

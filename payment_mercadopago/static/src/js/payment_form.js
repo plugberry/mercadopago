@@ -321,9 +321,19 @@ odoo.define('payment_mercadopago.payment_form', require => {
                 self._MercadoPagoResponseHandler(processingValues, response)
             }).catch((error)=> {
                 console.error(error);
+                var error_msg  = '';
+                if (error['message']){
+                    error_msg = error['message'];
+                } else if (error[0].code) {
+                    error_msg = error[error[0].code];
+
+                } else {
+                    error_msg = error.stringify()
+                }
+
                 self._displayError(
                     _t("Server Error"),
-                    error_messages[error[0]['code']]
+                    error_msg
                 );
                 return Promise.resolve();
             }

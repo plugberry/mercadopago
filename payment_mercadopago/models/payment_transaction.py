@@ -1,4 +1,3 @@
-from .mercadopago_request import MercadoPagoAPI
 import logging
 import pprint
 
@@ -51,7 +50,7 @@ class PaymentTransaction(models.Model):
         self.ensure_one()
 
         self.mercadopago_tmp_token = kwargs.get('mercadopago_token')
-        mercadopago_API = MercadoPagoAPI(self.provider_id)
+        mercadopago_API = self.provider_id.get_mercadopago_request()
         kwargs['validation'] = True if self.provider_id.capture_manually or self.operation == 'validation' else False
         return mercadopago_API.payment(self, form_data=kwargs)
 
@@ -71,7 +70,7 @@ class PaymentTransaction(models.Model):
         if not self.token_id:
             raise UserError("MercadoPago: " + _("The transaction is not linked to a token."))
 
-        mercadopago_API = MercadoPagoAPI(self.provider_id)
+        mercadopago_API = self.provider_id.get_mercadopago_request()
 
         # If the payment comes from subscription we do not have the cvv: w/o cvv payment flow
         cvv = self.callback_model_id.model != "sale.subscription"
@@ -81,7 +80,7 @@ class PaymentTransaction(models.Model):
 
         # Handle the payment request response
         feedback_data = {'reference': self.reference, 'response': res_content}
-        self._handle_feedback_data('mercadopago', feedback_data)
+        self._handle_notification_data('mercadopago', feedback_data)
 
     def _send_refund_request(self, amount_to_refund=None, create_refund_transaction=True):
         """ Override of payment to send a refund request to MercadoPago.
@@ -198,7 +197,7 @@ class PaymentTransaction(models.Model):
         """
         self.ensure_one()
 
-        mercadopago_API = MercadoPagoAPI(self.provider_id)
+        mercadopago_API = self.provider_id.get_mercadopago_request()
         # TODO: podríamos pasar el objeto partner y enviar todos los datos disponibles
         customer_id = mercadopago_API.get_customer_profile(self.partner_id.email)
         if customer_id:
