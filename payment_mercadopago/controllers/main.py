@@ -73,12 +73,63 @@ class MercadoPagoController(http.Controller):
         return {
             'card_token': token.card_token,
         }
+<<<<<<< HEAD
 
     @http.route([
         '/payment/mercadopago/notify', 
         '/payment/mercadopago/notify/<int:aquirer_id>'
         ], type='json', auth='none')
     def mercadopago_notification(self, aquirer_id=False):
+||||||| parent of aedad5c... temp
+        if verify_validity:
+            tx = token.validate()
+            _logger.info("TX a validar %s" % tx)
+            if tx.state == 'error':
+                # Si la operación dio error la elimino
+                _logger.error("Se hace rollback de la transaccion %s por error %s " % (tx.id, tx.state_message))
+                raise UserError(tx.state_message)
+            res['verified'] = token.verified
+
+        return res
+
+    @http.route(['/payment/mercadopago/s2s/otp'], type='json', auth='public')
+    def mercadopago_s2s_otp(self, **kwargs):
+        cvv_token = kwargs.get('token')
+        # request.session.update(kwargs)
+        request.session.update({'cvv_token': cvv_token})
+        return {'result': True}
+
+    @http.route(['/payment/mercadopago/notify',
+                 '/payment/mercadopago/notify/<int:acquirer_id>'],
+                type='json', auth='public')
+    def mercadopago_notification(self, acquirer_id=False):
+=======
+        if verify_validity:
+            tx = token.validate()
+            _logger.info("TX a validar %s" % tx)
+            if tx.state == 'error':
+                # Si la operación dio error realizo un commit y raise
+                # para poder dar un error y guardar los datos
+                _logger.error("Error en la tx %s: %s " % (tx.id, tx.state_message))
+                # TODO: usar savepoint en ves de commit?
+                request.env.cr.commit()
+                raise UserError(tx.state_message)
+            res['verified'] = token.verified
+
+        return res
+
+    @http.route(['/payment/mercadopago/s2s/otp'], type='json', auth='public')
+    def mercadopago_s2s_otp(self, **kwargs):
+        cvv_token = kwargs.get('token')
+        # request.session.update(kwargs)
+        request.session.update({'cvv_token': cvv_token})
+        return {'result': True}
+
+    @http.route(['/payment/mercadopago/notify',
+                 '/payment/mercadopago/notify/<int:acquirer_id>'],
+                type='json', auth='public')
+    def mercadopago_notification(self, acquirer_id=False):
+>>>>>>> aedad5c... temp
         """ Process the data sent by MercadoPago to the webhook based on the event code.
 
         :return: Status 200 to acknowledge the notification

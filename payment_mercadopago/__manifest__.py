@@ -3,9 +3,19 @@
     'name': 'MercadoPago Payment Acquirer',
     'category': 'Accounting/Payment Acquirers',
     'summary': 'Payment Acquirer: MercadoPago',
+<<<<<<< HEAD
     'version': "15.0.1.3.3",
     'author': 'ADHOC SA - Axcelere S.A.S',
     'website': 'www.adhoc.com.ar, www.axcelere.com',
+||||||| parent of aedad5c... temp
+    'version': '13.0.1.10.0',
+    'author': 'ADHOC SA',
+    'website': 'www.adhoc.com.ar',
+=======
+    'version': '13.0.1.11.0',
+    'author': 'ADHOC SA',
+    'website': 'www.adhoc.com.ar',
+>>>>>>> aedad5c... temp
     'description': """MercadoPago Payment Acquirer""",
     'depends': ['payment'],
     'external_dependencies': {
