@@ -64,6 +64,9 @@ class PaymentAcquirerMercadoPago(models.Model):
         res['fees'].append('mercadopago')
         return res
 
+    def get_mercadopago_request(self):
+        return MercadoPagoAPI(self)
+
     def mercadopago_compute_fees(self, amount, currency_id, country_id):
         self.ensure_one()
         if not self.fees_active:
@@ -356,6 +359,14 @@ class PaymentTransactionMercadoPago(models.Model):
 
         return res
 
+    def action_mercadopago_refund(self):
+        '''
+        Free the captured amount
+        '''
+        for rec in self.filtered(lambda x: x.acquirer_id.provider == 'mercadopago'):
+            MP = MercadoPagoAPI(rec.acquirer_id)
+            resp = MP.ensure_payment_refund(int(self.acquirer_reference))
+
     def mercadopago_s2s_do_refund(self, **data):
         '''
         Free the captured amount
@@ -431,14 +442,14 @@ class PaymentToken(models.Model):
     def mercadopago_create(self, values):
         if values.get('token') and values.get('payment_method_id'):
             acquirer_id = self.env['payment.acquirer'].sudo().browse(values.get('acquirer_id'))
-            mercadopago_API = MercadoPagoAPI(acquirer_id)
-            customer_id = mercadopago_API.get_customer_profile(values.get('email'))
+            # mercadopago_API = MercadoPagoAPI(acquirer_id)
+            # customer_id = mercadopago_API.get_customer_profile(values.get('email'))
             # create the token
             return {
                     'name': "MercadoPago card token",
                     'acquirer_ref': values.get('payment_method_id'),
                     'email': values.get('email'),
-                    'customer_id': customer_id,
+                    # 'customer_id': customer_id,
                     'issuer': values.get('issuer'),
                     'installments': int(values.get('installments', 1)),
                     'save_token': values.get('save_token') == "on",

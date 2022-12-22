@@ -104,11 +104,13 @@ class MercadoPagoAPI():
         resp = self.mp.customer().search(values)
         resp = self.check_response(resp)
         if resp.get('err_code'):
-            raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+            _logger.error(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+            return None
         else:
             try:
                 customer_id = resp['results'][0].get('id')
             except IndexError:
+                _logger.info("create_customer_profile %s" % email)
                 customer_id = self.create_customer_profile(email)
             return customer_id
 
@@ -117,7 +119,8 @@ class MercadoPagoAPI():
         resp = self.mp.customer().create(values)
         resp = self.check_response(resp)
         if resp.get('err_code'):
-            raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+                _logger.info(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+                return None
         else:
             return resp.get('id')
 
@@ -162,7 +165,8 @@ class MercadoPagoAPI():
         _logger.info('Inicio tx con MP token %s' % cvv_token)
 
         capture, validation_capture_method = self.validation_capture_method(tx)
-        partner_email = tx.partner_id.email or tx.payment_token_id.partner_id.email
+        partner_email = tx.payment_token_id.email or tx.partner_id.email
+        customer_id =  self.get_customer_profile(partner_email) if partner_email else None
         values = {
             "token": cvv_token or self.get_card_token(tx.payment_token_id.token),
             "installments": tx.payment_token_id.installments,
@@ -173,7 +177,7 @@ class MercadoPagoAPI():
             "external_reference": tx.reference,
             "payer": {
                 "type": "customer",
-                "id": tx.payment_token_id.customer_id if tx.payment_token_id and tx.payment_token_id.customer_id else None,
+                "id": customer_id,
                 "email": partner_email,
                 "first_name": tx.partner_name,
             },
