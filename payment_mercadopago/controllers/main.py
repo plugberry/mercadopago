@@ -103,8 +103,11 @@ class MercadoPagoController(http.Controller):
             tx = token.validate()
             _logger.info("TX a validar %s" % tx)
             if tx.state == 'error':
-                # Si la operación dio error la elimino
-                _logger.error("Se hace rollback de la transaccion %s por error %s " % (tx.id, tx.state_message))
+                # Si la operación dio error realizo un commit y raise
+                # para poder dar un error y guardar los datos
+                _logger.error("Error en la tx %s: %s " % (tx.id, tx.state_message))
+                # TODO: usar savepoint en ves de commit?
+                request.env.cr.commit()
                 raise UserError(tx.state_message)
             res['verified'] = token.verified
 
