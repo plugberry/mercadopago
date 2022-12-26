@@ -1,4 +1,3 @@
-from .mercadopago_request import MercadoPagoAPI
 import logging
 
 from odoo import _, fields, models
@@ -19,7 +18,7 @@ class PaymentToken(models.Model):
     def unlink(self):
         for token in self:
             if token.provider_id.code == 'mercadopago':
-                mercado_pago = MercadoPagoAPI(token.provider_id)
+                mercado_pago = token.provider_id.get_mercadopago_request()
                 mercado_pago.unlink_card_token(token.customer_id, token.card_token)
 
         return super().unlink()
@@ -33,7 +32,7 @@ class PaymentToken(models.Model):
         """
         self.ensure_one()
         if self.provider_id.code == 'mercadopago':
-            mercado_pago = MercadoPagoAPI(self.provider_id)
+            mercado_pago = self.provider_id.get_mercadopago_request()
             mercado_pago.unlink_card_token(self.customer_id, self.card_token)
 
         return super()._handle_deactivation_request()
@@ -53,7 +52,7 @@ class PaymentToken(models.Model):
     def mercadopago_fix_token_bin(self):
         for token in self:
 
-            mercadopago_API = MercadoPagoAPI(token.provider_id)
+            mercadopago_API = token.provider_id.get_mercadopago_request()
             if token.customer_id:
                 customer_id = token.customer_id
             else:

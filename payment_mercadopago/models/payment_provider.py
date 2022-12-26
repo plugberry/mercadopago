@@ -63,6 +63,9 @@ class PaymentProvider(models.Model):
         default='deferred_capture'
     )
 
+    def get_mercadopago_request(self):
+        return MercadoPagoAPI(self)
+
     @api.onchange('code')
     def _onchange_code(self):
         if self.code == 'mercadopago':
@@ -70,7 +73,7 @@ class PaymentProvider(models.Model):
 
     def action_create_mercadopago_test_user(self):
         self.ensure_one()
-        mercadopago_API = MercadoPagoAPI(self)
+        mercadopago_API = self.get_mercadopago_request()
         values = mercadopago_API.create_test_user()
         msg = _("Mercadopago test user id: {id},  nickname: {nickname}, password: {password}, status: {site_status}, email: {email} ").format(**values) 
 

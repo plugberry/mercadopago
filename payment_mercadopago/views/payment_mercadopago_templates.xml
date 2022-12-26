@@ -77,7 +77,7 @@
 
     <template id="mercadopago_checkout" name="MercadoPago Payment Checkout" inherit_id="payment.checkout">
         <xpath expr="//div[@t-attf-id='o_payment_token_inline_form_{{token.id}}']" position="inside">
-                <t t-if="token.provider == 'mercadopago'">
+                <t t-if="token.provider_id.code == 'mercadopago'">
                 <!-- === CVV Number === -->
                 <div class="row">
                     <div class="col-sm-6 form-group">
