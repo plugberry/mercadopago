@@ -141,7 +141,7 @@ odoo.define('payment_mercadopago.payment_form', require => {
 
             self = this;
             function guessPaymentMethod(event) {
-                let cardnumber = document.getElementById('o_mercadopago_card_number_' + paymentOptionId).value.split(" ").join("");
+                let cardnumber = document.getElementById('o_mercadopago_card_number_' + paymentOptionId).value.replace(/[^0-9]/gi, '');
                 if (cardnumber.length >= 6) {
                     let bin = cardnumber.substring(0,6);
                     self.mp.getPaymentMethods({
@@ -348,7 +348,7 @@ odoo.define('payment_mercadopago.payment_form', require => {
          * @return {Promise}
          */
         _createMercadoPagoToken: async function(providerId) {
-            let cardNumber = document.getElementById('o_mercadopago_card_number_' + providerId).value.split(" ").join("");
+            let cardNumber = document.getElementById('o_mercadopago_card_number_' + providerId).value.replace(/[^0-9]/gi, '');
             let cardHolder = document.getElementById('o_mercadopago_holder_' + providerId).value;
             let expirationMonth = document.getElementById('o_mercadopago_month_' + providerId).value;
             let expirationYear = document.getElementById('o_mercadopago_year_' + providerId).value;

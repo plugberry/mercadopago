@@ -140,6 +140,29 @@ class PaymentTransaction(models.Model):
             )
         return tx
 
+    def get_tx_info_from_mercadopago(self):
+        txt = []
+        for rec in self:
+            if rec.provider_id.code != 'mercadopago':
+                continue
+            MP = self.provider_id.get_mercadopago_request()
+
+            payments = MP.mp.payment().search(filters = {'external_reference': rec.reference})
+            for payment in payments['response']['results']:
+                txt += ['---------------------------']
+                txt += ["STATUS: %s" % payment['status']]
+                txt += ["AMOUNT: %s" % payment['transaction_amount']]
+                txt += ["description: %s" % payment['description']]
+                txt += ['---------------------------']
+                txt += ['%s: %s' % (x, payment[x]) for x in payment]
+                txt += ['---------------------------']
+                try:
+                    rec._process_notification_data({'reference': rec.reference, 'response': payment})
+                except:
+                    _logger.error('cant validate_tree')
+        self.env.cr.commit()
+        raise UserError("%s" % ' \n'.join(txt))
+
     def _process_notification_data(self, notification_data):
         """ Override of payment to process the transaction based on Authorize data.
 

@@ -85,4 +85,13 @@
         </xpath>
         </field>
     </record>
+    <record id="action_info_from_mercadopago" model="ir.actions.server">
+        <field name="name">Check in Mercadopago</field>
+        <field name="model_id" ref="payment.model_payment_transaction"/>
+        <field name="state">code</field>
+        <field name="code">action = records.get_tx_info_from_mercadopago()</field>
+        <field name="binding_model_id" ref="payment.model_payment_transaction"/>
+        <field name="binding_type">action</field>
+    </record>
+
 </odoo>
