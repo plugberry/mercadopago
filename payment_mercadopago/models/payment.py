@@ -306,6 +306,10 @@ class PaymentTransactionMercadoPago(models.Model):
         status_code = tree.get('status')
         status_detail = tree.get('status_detail')
 
+        # Busco el customer en el result de MP en ves de pedirlo por el emai porque
+        # hay casos la creacion del payer es mas lenta que la del pago y si lo pedimos nos dice que no existe
+        # Pero hay casos donde payer o id no estan definidos en el result. para esos casos los busco en la funcion update
+        customer_id = tree.get('payer', {}).get('id', False)
         if status_code in ["approved", "authorized"]:
             init_state = self.state
             self.write({
@@ -321,11 +325,11 @@ class PaymentTransactionMercadoPago(models.Model):
         # elif status_code == "authorized" and status_detail == "pending_capture":
         #     self._set_transaction_authorized()
         #     return True
-        elif status_code == "in_process":
+        elif status_code in ["in_process", "pending"]:
             self.write({'acquirer_reference': tree.get('id')})
             self._set_transaction_pending()
             res = True
-        elif status_code == "cancelled" and status_detail == 'by_collector':
+        elif status_code == "cancelled" and status_detail in ['by_collector', 'expired']:
             # TODO: Cancelamos la reserva para validación
             # Hay que hacer algo más del lado de Odoo?
             self._set_transaction_cancel()
@@ -353,7 +357,7 @@ class PaymentTransactionMercadoPago(models.Model):
         if self.payment_token_id:
             if self.payment_token_id.save_token:
                 if not self.payment_token_id.verified:
-                    self.payment_token_id.mercadopago_update(self.acquirer_id)
+                    self.payment_token_id.mercadopago_update(customer_id)
             else:
                 self.payment_token_id.unlink()
 
@@ -441,15 +445,10 @@ class PaymentToken(models.Model):
     @api.model
     def mercadopago_create(self, values):
         if values.get('token') and values.get('payment_method_id'):
-            acquirer_id = self.env['payment.acquirer'].sudo().browse(values.get('acquirer_id'))
-            # mercadopago_API = MercadoPagoAPI(acquirer_id)
-            # customer_id = mercadopago_API.get_customer_profile(values.get('email'))
-            # create the token
             return {
                     'name': "MercadoPago card token",
                     'acquirer_ref': values.get('payment_method_id'),
                     'email': values.get('email'),
-                    # 'customer_id': customer_id,
                     'issuer': values.get('issuer'),
                     'installments': int(values.get('installments', 1)),
                     'save_token': values.get('save_token') == "on",
@@ -458,10 +457,11 @@ class PaymentToken(models.Model):
         else:
             raise ValidationError(_('The Token creation in MercadoPago failed.'))
 
-    def mercadopago_update(self, acquirer):
-        # buscamos / creamos un customer
-        MP = MercadoPagoAPI(acquirer)
-        customer_id = MP.get_customer_profile(self.email)
+    def mercadopago_update(self, customer_id=False):
+        # buscamos / creamos un customer si no viene desde el res de MP
+        MP = MercadoPagoAPI(self.acquirer_id)
+        if not customer_id:
+            customer_id = MP.get_customer_profile(self.email)
 
         # TODO: si un cliente tokeniza dos veces la misma tarjeta, debemos buscarla en MercadoPago o crearla nuevamente?
         # card = None  # TODO: delete this
