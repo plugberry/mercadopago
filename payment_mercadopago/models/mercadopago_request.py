@@ -176,8 +176,6 @@ class MercadoPagoAPI():
 
         capture, validation_capture_method = self.validation_capture_method(tx, form_data, token)
 
-        capture, validation_capture_method = self.validation_capture_method(tx, form_data, token) 
-
         values = {
             "token": payment_token,
             "installments": form_data['installments'] if 'installments' in form_data and form_data['installments'] else 1,

@@ -204,7 +204,7 @@ class PaymentTransaction(models.Model):
             card = mercadopago_API.create_customer_card(customer_id, self.mercadopago_tmp_token)
             token = self.env['payment.token'].create({
                 'acquirer_id': self.acquirer_id.id,
-                'name': payment_utils.  (card['last_four_digits']),
+                'name': payment_utils.build_token_name(card['last_four_digits']),
                 'acquirer_ref': data['payment_method_id'],
                 'bin': card['first_six_digits'],
                 'partner_id': self.partner_id.id,
