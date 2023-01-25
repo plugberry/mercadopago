@@ -3,6 +3,7 @@
     'name': 'Mercado Pago Payment Acquirer',
     'category': 'Accounting/Payment Acquirers',
     'summary': 'Payment Acquirer: MercadoPago',
+<<<<<<< HEAD
     'version': "15.0.2.0.0",
     'description': """
 Mercado pago Payment
@@ -15,6 +16,17 @@ Supports automated payments without CVV for subscriptions and card authorization
     """,
     'author': 'Axadoo',
     'website': 'axadoo',
+||||||| parent of 7d9c10b (temp)
+    'version': '13.0.1.15.0',
+    'author': 'ADHOC SA',
+    'website': 'www.adhoc.com.ar',
+    'description': """MercadoPago Payment Acquirer""",
+=======
+    'version': '13.0.1.16.0',
+    'author': 'ADHOC SA',
+    'website': 'www.adhoc.com.ar',
+    'description': """MercadoPago Payment Acquirer""",
+>>>>>>> 7d9c10b (temp)
     'depends': ['payment'],
     'external_dependencies': {
         'python': ['mercadopago'],

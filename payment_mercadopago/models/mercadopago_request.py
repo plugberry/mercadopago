@@ -169,6 +169,7 @@ class MercadoPagoAPI():
         """
         MercadoPago payment
         """
+<<<<<<< HEAD
         if token:
             payment_token = tx.mercadopago_tmp_token if cvv and tx.mercadopago_tmp_token else self.get_card_token(token.card_token)
         elif 'mercadopago_token' in form_data:
@@ -176,13 +177,41 @@ class MercadoPagoAPI():
 
         capture, validation_capture_method = self.validation_capture_method(tx, form_data, token)
 
+||||||| parent of 7d9c10b (temp)
+        _logger.info('Inicio tx con MP token %s' % cvv_token)
+
+        capture, validation_capture_method = self.validation_capture_method(tx)
+        partner_email = tx.payment_token_id.email or tx.partner_id.email
+        customer_id =  self.get_customer_profile(partner_email) if partner_email else None
+=======
+        _logger.info('Inicio tx con MP token %s' % cvv_token)
+        capture, validation_capture_method = self.validation_capture_method(tx)
+        partner_email = tx.payment_token_id.email or tx.partner_id.email
+        customer_id =  self.get_customer_profile(partner_email) if partner_email else None
+>>>>>>> 7d9c10b (temp)
         values = {
+<<<<<<< HEAD
             "token": payment_token,
             "installments": form_data['installments'] if 'installments' in form_data and form_data['installments'] else 1,
             "transaction_amount": tx.amount,
             "description": "Odoo ~ MercadoPago payment",
             "payment_method_id": token.acquirer_ref if token else form_data['mercadopago_payment_method'],
             "binary_mode": True,
+||||||| parent of 7d9c10b (temp)
+            "token": cvv_token or self.get_card_token(tx.payment_token_id.token),
+            "installments": tx.payment_token_id.installments,
+            "transaction_amount": amount,
+            "description": _("Odoo ~ MercadoPago payment"),
+            "payment_method_id": tx.payment_token_id.acquirer_ref,
+            "binary_mode": True if tx.type != 'validation' else False,
+=======
+            "token": cvv_token or self.get_card_token(tx.payment_token_id.token),
+            "installments": tx.payment_token_id.installments,
+            "transaction_amount": amount,
+            "description": _("Odoo ~ MercadoPago payment"),
+            "payment_method_id": tx.payment_token_id.acquirer_ref,
+            "binary_mode": tx.acquirer_id.mercadopago_binary if tx.type != 'validation' else False,
+>>>>>>> 7d9c10b (temp)
             "external_reference": tx.reference,
             "payer": {
                 "type": "customer",

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+<<<<<<< HEAD
     <record id="payment_acquirer_form" model="ir.ui.view">
         <field name="name">MercadoPago Acquirer Form</field>
         <field name="model">payment.acquirer</field>
@@ -52,6 +53,42 @@
                     <br/>
                     <p class="alert alert-info" role="alert" style="margin-bottom:0px;">
                         Algunas observaciones sobre cobros sin CVV para Suscripciones:
+||||||| parent of 7d9c10b (temp)
+        <record id="acquirer_form_mercadopago" model="ir.ui.view">
+            <field name="name">acquirer.form.mercadopago</field>
+            <field name="model">payment.acquirer</field>
+            <field name="inherit_id" ref="payment.acquirer_form"/>
+            <field name="arch" type="xml">
+                <xpath expr='//group[@name="acquirer"]' position='inside'>
+                    <group attrs="{'invisible': [('provider', '!=', 'mercadopago')]}">
+                        <field name="mercadopago_publishable_key" attrs="{'required': [('provider', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
+                        <field name="mercadopago_access_token" password="True" attrs="{'required': [('provider', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
+                        <field name="mercadopago_capture_method" attrs="{'invisible': [('payment_flow', '!=', 's2s')]}"/>
+                    </group>
+                </xpath>
+                <xpath expr='//group[@name="acquirer"]' position='after'>
+                    <p class="alert alert-info" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('provider', '!=', 'mercadopago')]}">
+                        Podés obtener las credenciales de MercadoPago
+                        <a colspan="2" href="https://www.mercadopago.com/mla/account/credentials" target="_blank">aquí</a>.
+=======
+        <record id="acquirer_form_mercadopago" model="ir.ui.view">
+            <field name="name">acquirer.form.mercadopago</field>
+            <field name="model">payment.acquirer</field>
+            <field name="inherit_id" ref="payment.acquirer_form"/>
+            <field name="arch" type="xml">
+                <xpath expr='//group[@name="acquirer"]' position='inside'>
+                    <group attrs="{'invisible': [('provider', '!=', 'mercadopago')]}">
+                        <field name="mercadopago_publishable_key" attrs="{'required': [('provider', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
+                        <field name="mercadopago_access_token" password="True" attrs="{'required': [('provider', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
+                        <field name="mercadopago_capture_method" attrs="{'invisible': [('payment_flow', '!=', 's2s')]}"/>
+                        <field name="mercadopago_binary" attrs="{'invisible': [('payment_flow', '!=', 's2s')]}"/>
+                    </group>
+                </xpath>
+                <xpath expr='//group[@name="acquirer"]' position='after'>
+                    <p class="alert alert-info" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('provider', '!=', 'mercadopago')]}">
+                        Podés obtener las credenciales de MercadoPago
+                        <a colspan="2" href="https://www.mercadopago.com/mla/account/credentials" target="_blank">aquí</a>.
+>>>>>>> 7d9c10b (temp)
                         <br/>
                         <ul>
                             <li>Se debe solicitar a MercadoPago que habilite la cuenta para cobros sin CVV, para esto se le debe indicar el Application Id que se puede obtener desde
