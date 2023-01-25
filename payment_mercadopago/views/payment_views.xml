@@ -10,6 +10,7 @@
                         <field name="mercadopago_publishable_key" attrs="{'required': [('provider', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
                         <field name="mercadopago_access_token" password="True" attrs="{'required': [('provider', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
                         <field name="mercadopago_capture_method" attrs="{'invisible': [('payment_flow', '!=', 's2s')]}"/>
+                        <field name="mercadopago_binary" attrs="{'invisible': [('payment_flow', '!=', 's2s')]}"/>
                     </group>
                 </xpath>
                 <xpath expr='//group[@name="acquirer"]' position='after'>
