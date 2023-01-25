@@ -163,7 +163,6 @@ class MercadoPagoAPI():
         MercadoPago payment
         """
         _logger.info('Inicio tx con MP token %s' % cvv_token)
-
         capture, validation_capture_method = self.validation_capture_method(tx)
         partner_email = tx.payment_token_id.email or tx.partner_id.email
         customer_id =  self.get_customer_profile(partner_email) if partner_email else None
@@ -173,7 +172,7 @@ class MercadoPagoAPI():
             "transaction_amount": amount,
             "description": _("Odoo ~ MercadoPago payment"),
             "payment_method_id": tx.payment_token_id.acquirer_ref,
-            "binary_mode": True if tx.type != 'validation' else False,
+            "binary_mode": tx.acquirer_id.mercadopago_binary if tx.type != 'validation' else False,
             "external_reference": tx.reference,
             "payer": {
                 "type": "customer",

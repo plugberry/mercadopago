@@ -47,6 +47,7 @@ class PaymentAcquirerMercadoPago(models.Model):
         string='Capture method',
         default='deferred_capture'
     )
+    mercadopago_binary = fields.Boolean('Use binary mode', default=True)
 
     def _get_feature_support(self):
         """Get advanced feature support by provider.
@@ -296,7 +297,6 @@ class PaymentTransactionMercadoPago(models.Model):
 
         # TODO: revisar, si es validación el amount es 1.5 (viene de Odoo)
         res = MP.payment(self, round(self.amount, self.currency_id.decimal_places), capture, cvv_token)
-
         return self._mercadopago_s2s_validate_tree(res)
 
     def _mercadopago_s2s_validate_tree(self, tree):
