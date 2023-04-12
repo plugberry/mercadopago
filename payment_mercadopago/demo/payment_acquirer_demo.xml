@@ -4,6 +4,8 @@
     <record id="payment_acquirer_mercadopago" model="payment.acquirer">
         <field name="mercadopago_publishable_key">TEST-4f5a24d1-b016-4d3f-b9ad-c989c3e371e7</field>
         <field name="mercadopago_access_token">TEST-4811719641145832-020115-c5caffc149634e3e9d72fde2b74544d8__LD_LA__-172837665</field>
+        <field name="mercadopago_test_publishable_key">TEST-4f5a24d1-b016-4d3f-b9ad-c989c3e371e7</field>
+        <field name="mercadopago_test_access_token">TEST-4811719641145832-020115-c5caffc149634e3e9d72fde2b74544d8__LD_LA__-172837665</field>
     </record>
 
     <record id="payment_acquirer_mercadopago_redirect" model="payment.acquirer">
@@ -13,6 +15,8 @@
         <field name="image_128" type="base64" file="payment_mercadopago/static/description/icon.png"/>
         <field name="mercadopago_publishable_key">TEST-4f5a24d1-b016-4d3f-b9ad-c989c3e371e7</field>
         <field name="mercadopago_access_token">TEST-4811719641145832-020115-c5caffc149634e3e9d72fde2b74544d8__LD_LA__-172837665</field>
+        <field name="mercadopago_test_publishable_key">TEST-4f5a24d1-b016-4d3f-b9ad-c989c3e371e7</field>
+        <field name="mercadopago_test_access_token">TEST-4811719641145832-020115-c5caffc149634e3e9d72fde2b74544d8__LD_LA__-172837665</field>
         <field name="display_as">MercadoPago (redirect)</field>
         <field name="view_template_id" ref="mercadopago_form"/>
         <field name="fees_active" eval="True"/>

@@ -24,10 +24,10 @@ class MercadoPagoAPI():
     """
 
     def __init__(self, acquirer):
-        request_options = RequestOptions(acquirer.mercadopago_access_token, platform_id="BVH38T5N7QOK0PPDGC2G")
-        self.mp = mercadopago.SDK(acquirer.mercadopago_access_token, request_options=request_options)
+        request_options = RequestOptions(acquirer._get_mercadopago_access_token(), platform_id="BVH38T5N7QOK0PPDGC2G")
+        self.mp = mercadopago.SDK(acquirer._get_mercadopago_access_token(), request_options=request_options)
         self.sandbox = not acquirer.state == "enabled"
-        self.mercadopago_access_token = acquirer.mercadopago_access_token
+        self.mercadopago_access_token = acquirer._get_mercadopago_access_token()
 
     def check_response(self, resp):
         if resp['status'] in [200, 201]:
@@ -70,13 +70,13 @@ class MercadoPagoAPI():
 
     def unlink_card_token(self, customer_id, card_id):
         api_url = MP_URL + "v1/customers/%s/cards/%s" % (customer_id, card_id)
-        headers = {"Authorization": "Bearer %s" % self.mercadopago_access_token}
+        headers = {"Authorization": "Bearer %s" % self._get_mercadopago_access_token()}
         response = requests.delete(api_url, headers=headers)
 
     #create Test User
     def create_test_user(self):
         api_url = MP_URL + "users/test_user"
-        headers = {"Authorization": "Bearer %s" % self.mercadopago_access_token}
+        headers = {"Authorization": "Bearer %s" % self._get_mercadopago_access_token()}
         request_data = {"site_id": "MLA"}
         response = requests.post(api_url, headers=headers, json=request_data)
         resp = self.check_api_response(response)

@@ -7,8 +7,10 @@
             <field name="arch" type="xml">
                 <xpath expr='//group[@name="acquirer"]' position='inside'>
                     <group attrs="{'invisible': [('provider', '!=', 'mercadopago')]}">
-                        <field name="mercadopago_publishable_key" attrs="{'required': [('provider', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
-                        <field name="mercadopago_access_token" password="True" attrs="{'required': [('provider', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
+                        <field name="mercadopago_publishable_key" attrs="{'invisible': [('state', '!=', 'enabled')], 'required': [('provider', '=', 'mercadopago'), ('state', '==', 'enabled')]}"/>
+                        <field name="mercadopago_access_token" password="True" attrs="{'invisible': [('state', '!=', 'enabled')], 'required': [('provider', '=', 'mercadopago'), ('state', '=', 'enabled')]}"/>
+                        <field name="mercadopago_test_publishable_key" attrs="{'invisible': [('state', '!=', 'test')], 'required': [('provider', '=', 'mercadopago'), ('state', '==', 'test')]}"/>
+                        <field name="mercadopago_test_access_token" password="True" attrs="{'invisible': [('state', '!=', 'test')], 'required': [('provider', '=', 'mercadopago'), ('state', '=', 'test')]}"/>
                         <field name="mercadopago_capture_method" attrs="{'invisible': [('payment_flow', '!=', 's2s')]}"/>
                     </group>
                 </xpath>

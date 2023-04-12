@@ -38,8 +38,10 @@ class PaymentAcquirerMercadoPago(models.Model):
     _inherit = 'payment.acquirer'
 
     provider = fields.Selection(selection_add=[('mercadopago', 'MercadoPago')])
-    mercadopago_publishable_key = fields.Char('MercadoPago Public Key', required_if_provider='mercadopago')
-    mercadopago_access_token = fields.Char('MercadoPago Access Token', required_if_provider='mercadopago')
+    mercadopago_publishable_key = fields.Char('MercadoPago Public Key')
+    mercadopago_access_token = fields.Char('MercadoPago Access Token')
+    mercadopago_test_publishable_key = fields.Char('MercadoPago test Public Key')
+    mercadopago_test_access_token = fields.Char('MercadoPago test Access Token')
     mercadopago_capture_method = fields.Selection([
         ('deferred_capture', 'Deferred capture is posible'),
         ('refund_payment', 'Always refund payment')
@@ -48,6 +50,21 @@ class PaymentAcquirerMercadoPago(models.Model):
         default='deferred_capture'
     )
 
+    def _get_mercadopago_publishable_key(self):
+        self.ensure_one()
+        if self.state == 'test':
+            return self.mercadopago_test_publishable_key
+        elif self.state == 'enabled':
+            return self.mercadopago_publishable_key
+
+    def _get_mercadopago_access_token(self):
+        self.ensure_one()
+        if self.state == 'test':
+            return self.mercadopago_test_access_token
+        elif self.state == 'enabled':
+            return self.mercadopago_publishable_key
+
+            
     def _get_feature_support(self):
         """Get advanced feature support by provider.
 
