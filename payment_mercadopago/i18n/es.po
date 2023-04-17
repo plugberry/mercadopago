@@ -1,19 +1,23 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
 # 	* payment_mercadopago
-#
+# 
+# Translators:
+# Juan José Scarafía <scarafia.juanjose@gmail.com>, 2023
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-27 14:07+0000\n"
-"PO-Revision-Date: 2022-04-27 14:07+0000\n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"POT-Creation-Date: 2023-04-04 13:29+0000\n"
+"PO-Revision-Date: 2022-04-19 15:09+0000\n"
+"Last-Translator: Juan José Scarafía <scarafia.juanjose@gmail.com>, 2023\n"
+"Language-Team: Spanish (https://app.transifex.com/adhoc/teams/133229/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Plural-Forms: \n"
+"Language: es\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
 
 #. module: payment_mercadopago
 #: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_acquirer_form
@@ -268,11 +272,6 @@ msgid "MercadoPago Access Token"
 msgstr ""
 
 #. module: payment_mercadopago
-#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_acquirer__mercadopago_application_id
-msgid "MercadoPago Application ID"
-msgstr ""
-
-#. module: payment_mercadopago
 #: model:ir.model.fields,field_description:payment_mercadopago.field_payment_acquirer__mercadopago_item_category
 msgid "MercadoPago Category"
 msgstr ""
@@ -283,6 +282,9 @@ msgid "MercadoPago Customer"
 msgstr ""
 
 #. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/mercadopago_request.py:0
+#: code:addons/payment_mercadopago/models/mercadopago_request.py:0
+#: code:addons/payment_mercadopago/models/mercadopago_request.py:0
 #: code:addons/payment_mercadopago/models/mercadopago_request.py:0
 #: code:addons/payment_mercadopago/models/mercadopago_request.py:0
 #: code:addons/payment_mercadopago/models/mercadopago_request.py:0
@@ -312,6 +314,14 @@ msgstr ""
 #. module: payment_mercadopago
 #: model:ir.model.fields,field_description:payment_mercadopago.field_payment_transaction__mercadopago_tmp_token
 msgid "MercadoPago temporal token"
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/payment_acquirer.py:0
+#, python-format
+msgid ""
+"Mercadopago test user id: {id},  nickname: {nickname}, password: {password},"
+" status: {site_status}, email: {email} "
 msgstr ""
 
 #. module: payment_mercadopago
@@ -361,7 +371,7 @@ msgstr ""
 #. module: payment_mercadopago
 #: model:ir.model,name:payment_mercadopago.model_payment_acquirer
 msgid "Payment Acquirer"
-msgstr "Método de Pago"
+msgstr "Proveedor de pago"
 
 #. module: payment_mercadopago
 #: model:ir.model,name:payment_mercadopago.model_account_payment_method
@@ -409,6 +419,12 @@ msgstr ""
 #: code:addons/payment_mercadopago/controllers/main.py:0
 #, python-format
 msgid "Received tampered payment request data."
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/mercadopago_request.py:0
+#, python-format
+msgid "Refund validation payment id: %s id"
 msgstr ""
 
 #. module: payment_mercadopago
@@ -539,6 +555,12 @@ msgstr ""
 msgid ""
 "Ya hiciste un pago por ese valor.\n"
 "Si necesitas volver a pagar usa otra tarjeta u otro medio de pago."
+msgstr ""
+
+#. module: payment_mercadopago
+#: code:addons/payment_mercadopago/models/payment_token.py:0
+#, python-format
+msgid "You cannot reactive a Mercadopago token."
 msgstr ""
 
 #. module: payment_mercadopago
