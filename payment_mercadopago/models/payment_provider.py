@@ -24,9 +24,9 @@ class PaymentProvider(models.Model):
     is_validation = fields.Boolean()
 
     # MercadoPago general item fields
-    mercadopago_item_id = fields.Char('Item ID')
-    mercadopago_item_title = fields.Char('Item Title')
-    mercadopago_item_description = fields.Char('Item Description')
+    mercadopago_item_id = fields.Char('Item ID', default='001')
+    mercadopago_item_title = fields.Char('Item Title', default='Website sale')
+    mercadopago_item_description = fields.Char('Item Description', default='Website sale item')
     mercadopago_item_category = fields.Selection(
         string='MercadoPago Category', help="The category",
         selection=[
@@ -54,6 +54,7 @@ class PaymentProvider(models.Model):
             ('virtual_goods', "E-books, Music Files, Software, Digital Images, PDF Files and any item which can be electronically stored in a file, Mobile Recharge, DTH Recharge and any Online Recharge"),
             ('others', "Other categories"),
         ],
+        default='others'
     )
     mercadopago_capture_method = fields.Selection([
         ('deferred_capture', 'Deferred capture is posible'),

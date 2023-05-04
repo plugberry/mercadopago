@@ -109,7 +109,7 @@ class MercadoPagoController(http.Controller):
                 # For backward compatibility, add the aquirer_id separately.
                 if aquirer_id:
                     leaf += [('id', '=', int(aquirer_id))]
-                acquirer = request.env["payment.acquirer"].sudo().search(leaf, limit=1)
+                acquirer = request.env["payment.provider"].sudo().search(leaf, limit=1)
 
                 mercadopago_API = MercadoPagoAPI(acquirer)
                 payment_data = mercadopago_API.get_payment(payment_id)
