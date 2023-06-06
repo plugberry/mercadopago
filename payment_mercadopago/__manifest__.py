@@ -13,7 +13,7 @@ Supports automated payments without CVV for subscriptions and card authorization
 
     """,
     'author': 'Plugberry',
-    'website': 'Plugberry',
+    'website': 'www.plugberry.com',
     'sequence': 350,
     'depends': ['payment', 'account'],
     'external_dependencies': {
@@ -27,6 +27,7 @@ Supports automated payments without CVV for subscriptions and card authorization
     'demo': [
         'demo/payment_acquirer_demo.xml',
     ],
+    'images':  ['static/description/odoomp.png'],
     'assets': {
         'web.assets_frontend': [
             'payment_mercadopago/static/src/scss/payment_mercadopago.scss',
