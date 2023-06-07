@@ -60,11 +60,113 @@ odoo.define('payment_mercadopago.payment_form', require => {
             }
         },
 
+<<<<<<< HEAD
         _prepareTransactionRouteParams: function (provider, paymentOptionId, flow, token=null) {
             var dict = this._super(...arguments);
             if (token)
                 dict['mercadopago_tmp_token'] = token;
             return dict;
+||||||| parent of 0d2d3c6... temp
+            function setCardTokenAndPay(status, response) {
+                if (status == 200 || status == 201) {
+                    let form = document.getElementById(formID);
+                    let card = document.createElement('input');
+                    card.setAttribute('name', 'token');
+                    card.setAttribute('type', 'hidden');
+                    card.setAttribute('value', response.id);
+                    form.appendChild(card);
+                    doSubmit=true;
+                    var inputsForm = $('input', acquirerForm);
+                    var formInputs = self.getFormData(inputsForm);
+                    var selectForm = $('select', acquirerForm);
+                    var formSelects = self.getFormData(selectForm);
+                    var formData = {...formInputs,...formSelects}
+                    self._rpc({
+                        route: formData.data_set,
+                        params: formData
+                    }).then (function (data) {
+                        if (addPmEvent) {
+                            if (formData.return_url) {
+                                window.location = formData.return_url;
+                            } else {
+                                window.location.reload();
+                            }
+                        } else {
+                            $checkedRadio.val(data.id);
+                            self.el.submit();
+                        }
+                    }).guardedCatch(function (error) {
+                        // if the rpc fails, pretty obvious
+                        error.event.preventDefault();
+                        acquirerForm.removeClass('d-none');
+                        self.enableButton(button);
+                        self.displayError(
+                            _t('Server Error'),
+                            _t("We are not able to add your payment method at the moment.\n")
+                        );
+                    });
+                } else {
+                    acquirerForm.removeClass('d-none');
+                    self.enableButton(button);
+                    var error_msg = error_messages[response.cause[0].code];
+                    if (error_msg === undefined)
+                        error_msg = error_messages['0']
+                    self.do_warn(_t("Server Error"),_t(error_msg));
+                }
+            };
+=======
+            function setCardTokenAndPay(status, response) {
+                if (status == 200 || status == 201) {
+                    let form = document.getElementById(formID);
+                    let card = document.createElement('input');
+                    card.setAttribute('name', 'token');
+                    card.setAttribute('type', 'hidden');
+                    card.setAttribute('value', response.id);
+                    form.appendChild(card);
+                    doSubmit=true;
+                    var inputsForm = $('input', acquirerForm);
+                    var formInputs = self.getFormData(inputsForm);
+                    var selectForm = $('select', acquirerForm);
+                    var formSelects = self.getFormData(selectForm);
+                    var formData = {...formInputs,...formSelects}
+                    self._rpc({
+                        route: formData.data_set,
+                        params: formData
+                    }).then (function (data) {
+                        if (addPmEvent) {
+                            if (formData.return_url) {
+                                window.location = formData.return_url;
+                            } else {
+                                window.location.reload();
+                            }
+                        } else {
+                            $checkedRadio.val(data.id);
+                            self.el.submit();
+                        }
+                    }).guardedCatch(function (error) {
+                        // if the rpc fails, pretty obvious
+                        let error_text = _t("We are not able to add your payment method at the moment.\n")
+                        console.error(error)
+                        if (error.message?.data?.message){
+                            error_text = _t(error.message.data.message);
+                        }
+                        error.event.preventDefault();
+                        acquirerForm.removeClass('d-none');
+                        self.enableButton(button);
+                        self.displayError(
+                            _t('Error en su pago'), error_text
+                        );
+                    });
+                } else {
+                    acquirerForm.removeClass('d-none');
+                    self.enableButton(button);
+                    var error_msg = error_messages[response.cause[0].code];
+                    if (error_msg === undefined)
+                        error_msg = error_messages['0']
+                    self.do_warn(_t("Server Error"),_t(error_msg));
+                }
+            };
+>>>>>>> 0d2d3c6... temp
         },
 
         /**
