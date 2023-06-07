@@ -111,11 +111,13 @@ class MercadoPagoAPI():
         resp = self.check_response(resp)
 
         if resp.get('err_code'):
-            raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+            _logger.error(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+            return None
         else:
             try:
                 customer_id = resp['results'][0].get('id')
             except IndexError:
+                _logger.info("create_customer_profile %s" % email)
                 customer_id = self.create_customer_profile(email)
             return customer_id
 
@@ -125,7 +127,8 @@ class MercadoPagoAPI():
         resp = self.check_response(resp)
 
         if resp.get('err_code'):
-            raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+                _logger.info(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
+                return None
         else:
             return resp.get('id')
 
@@ -173,6 +176,15 @@ class MercadoPagoAPI():
 
         capture, validation_capture_method = self.validation_capture_method(tx, form_data, token) 
 
+<<<<<<< HEAD
+||||||| parent of aedad5c... temp
+        capture, validation_capture_method = self.validation_capture_method(tx)
+        partner_email = tx.partner_id.email or tx.payment_token_id.partner_id.email
+=======
+        capture, validation_capture_method = self.validation_capture_method(tx)
+        partner_email = tx.payment_token_id.email or tx.partner_id.email
+        customer_id =  self.get_customer_profile(partner_email) if partner_email else None
+>>>>>>> aedad5c... temp
         values = {
             "token": payment_token,
             "installments": 1 if token else form_data['installments'],
@@ -183,8 +195,16 @@ class MercadoPagoAPI():
             "external_reference": tx.reference,
             "payer": {
                 "type": "customer",
+<<<<<<< HEAD
                 "id": token.customer_id if token else None,
                 "email": token.email if token else form_data['email'],
+||||||| parent of aedad5c... temp
+                "id": tx.payment_token_id.customer_id if tx.payment_token_id and tx.payment_token_id.customer_id else None,
+                "email": partner_email,
+=======
+                "id": customer_id,
+                "email": partner_email,
+>>>>>>> aedad5c... temp
                 "first_name": tx.partner_name,
             },
             "additional_info": {

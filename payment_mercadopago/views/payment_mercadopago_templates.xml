@@ -5,8 +5,16 @@
         <div t-attf-id="o_mercadopago_form_{{acquirer_id}}" class="o_mercadopago_form">
 
             <!-- Email -->
+<<<<<<< HEAD
             <div class="form-group">
                 <t t-set="email" t-value="order.partner_id.email if order and request.env.user.id == request.env.ref('base.public_user').id else request.env.user.email"/>
+||||||| parent of aedad5c... temp
+            <div t-att-class="'form-group col-lg-5' if bootstrap_formatting else 'form-group'">
+                <t t-set="email" t-value="order.partner_id.email if order and request.website.is_public_user() else request.env.user.email"/>
+=======
+            <div t-att-class="'form-group col-lg-5' if bootstrap_formatting else 'form-group'">
+                <t t-set="email" t-value="order.partner_id.email if order and request.env.user.id == request.env.ref('base.public_user').id else request.env.user.email"/>
+>>>>>>> aedad5c... temp
                 <input id="email" placeholder="email" name="email" t-att-value="email" t-att-class="'o_hidden' if email else 'form-control'"></input>
             </div>
 
