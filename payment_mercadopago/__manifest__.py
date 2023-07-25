@@ -2,7 +2,7 @@
     'name': 'Mercado Pago Payment Acquirer',
     'category': 'Accounting/Payment Acquirers',
     'summary': 'Payment Acquirer: MercadoPago',
-    'version': "16.0.2.0.0",
+    'version': "16.0.3.0.0",
     'description': """
 Mercado pago Payment
 ===================
@@ -20,8 +20,10 @@ Supports automated payments without CVV for subscriptions and card authorization
         'python': ['mercadopago'],
     },
     'data': [
+        'security/ir.model.access.csv',
         'views/payment_views.xml',
         'views/payment_mercadopago_templates.xml',
+        'wizards/check_payments.xml',
         'data/payment_acquirer_data.xml',
     ],
     'demo': [

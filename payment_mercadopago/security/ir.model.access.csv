@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+payment_mercadopago.mercadopago_check_payment,mercadopago_check_payment,payment_mercadopago.model_payment_mercadopago_check_payment,base.group_system,1,1,1,1
+payment_mercadopago.mercadopago_check_payment_line,mercadopago_check_payment_line,payment_mercadopago.model_payment_mercadopago_check_payment_line,base.group_system,1,1,1,1
