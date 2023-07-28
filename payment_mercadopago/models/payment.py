@@ -310,7 +310,7 @@ class PaymentTransactionMercadoPago(models.Model):
         # hay casos la creacion del payer es mas lenta que la del pago y si lo pedimos nos dice que no existe
         # Pero hay casos donde payer o id no estan definidos en el result. para esos casos los busco en la funcion update
         customer_id = tree.get('payer', {}).get('id', False)
-        if status_code in ["approved", "authorized"]:
+        if status_code in ["approved"]:
             init_state = self.state
             self.write({
                 'acquirer_reference':  str(tree.get('id')),
@@ -325,7 +325,7 @@ class PaymentTransactionMercadoPago(models.Model):
         # elif status_code == "authorized" and status_detail == "pending_capture":
         #     self._set_transaction_authorized()
         #     return True
-        elif status_code in ["in_process", "pending"]:
+        elif status_code in ["in_process", "pending", "authorized"]:
             self.write({'acquirer_reference': tree.get('id')})
             self._set_transaction_pending()
             res = True
