@@ -322,9 +322,9 @@ class PaymentTransactionMercadoPago(models.Model):
             res = True
 
         # TODO: deberíamos separar este caso? sería cuando validamos tarjeta
-        # elif status_code == "authorized" and status_detail == "pending_capture":
-        #     self._set_transaction_authorized()
-        #     return True
+        elif status_code == "authorized" and status_detail == "pending_capture":
+            self._set_transaction_done()
+            res = True
         elif status_code in ["in_process", "pending", "authorized"]:
             self.write({'acquirer_reference': tree.get('id')})
             self._set_transaction_pending()
