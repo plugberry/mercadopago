@@ -77,7 +77,7 @@ class PaymentMercadopagoCheckPaymentLine(models.TransientModel):
 
     check_id = fields.Many2one('payment.mercadopago.check_payment')
     transaction_id = fields.Many2one('payment.transaction')
-    transaction_state = fields.Selection(string='State', related='transaction_id.state')
+    transaction_state = fields.Selection(string="State", related='transaction_id.state')
     mp_amount = fields.Float()
     mp_id = fields.Char()
     mp_state = fields.Char()

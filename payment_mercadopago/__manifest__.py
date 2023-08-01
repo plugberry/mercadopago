@@ -10,7 +10,6 @@ Mercadopago is the largest online payment platform in Latam.
 This module integrates a checkout form and allows you to make payments through this payment gateway.
 Supports automated payments without CVV for subscriptions and card authorizations.
 
-
     """,
     'author': 'Plugberry',
     'website': 'www.plugberry.com',
