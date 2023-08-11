@@ -43,7 +43,7 @@ class MercadoPagoController(http.Controller):
         else:
             provider_sudo = request.env['payment.provider'].sudo().browse(rec_id).exists()
         return {
-            'publishable_key': provider_sudo.mercadopago_publishable_key,
+            'publishable_key': provider_sudo._get_mercadopago_publishable_key(),
             'bin': bin,
             'provider_ref': provider_ref,
         }
