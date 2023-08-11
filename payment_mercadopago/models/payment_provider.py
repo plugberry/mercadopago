@@ -19,8 +19,11 @@ class PaymentProvider(models.Model):
 
     code = fields.Selection(
         selection_add=[('mercadopago', 'MercadoPago')], ondelete={'mercadopago': 'set default'})
-    mercadopago_publishable_key = fields.Char('MercadoPago Public Key', required_if_provider='mercadopago')
-    mercadopago_access_token = fields.Char('MercadoPago Access Token', required_if_provider='mercadopago')
+
+    mercadopago_publishable_key = fields.Char('MercadoPago Public Key')
+    mercadopago_access_token = fields.Char('MercadoPago Access Token')
+    mercadopago_test_publishable_key = fields.Char('MercadoPago test Public Key')
+    mercadopago_test_access_token = fields.Char('MercadoPago test Access Token')
     is_validation = fields.Boolean()
 
     # MercadoPago general item fields
@@ -68,6 +71,20 @@ class PaymentProvider(models.Model):
 
     def _get_mercadopago_request(self):
         return MercadoPagoAPI(self)
+
+    def _get_mercadopago_publishable_key(self):
+        self.ensure_one()
+        if self.state == 'test':
+            return self.mercadopago_test_publishable_key
+        elif self.state == 'enabled':
+            return self.mercadopago_publishable_key
+
+    def _get_mercadopago_access_token(self):
+        self.ensure_one()
+        if self.state == 'test':
+            return self.mercadopago_test_access_token
+        elif self.state == 'enabled':
+            return self.mercadopago_access_token
 
     @api.onchange('code')
     def _onchange_code(self):

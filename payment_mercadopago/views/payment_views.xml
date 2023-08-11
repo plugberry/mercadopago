@@ -7,32 +7,22 @@
         <field name="arch" type="xml">
             <xpath expr='//group[@name="provider_credentials"]' position='inside'>
                 <group attrs="{'invisible': [('code', '!=', 'mercadopago')]}">
-                    <field name="mercadopago_publishable_key" attrs="{'required': [('code', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
-                    <field name="mercadopago_access_token" password="True" attrs="{'required': [('code', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
-                    <field name="mercadopago_capture_method"/>
-                    <field name="mercadopago_binary"/>
+                    <field name="mercadopago_publishable_key" attrs="{'invisible': [('state', '!=', 'enabled')], 'required': [('code', '=', 'mercadopago'), ('state', '==', 'enabled')]}"/>
+                    <field name="mercadopago_access_token" password="True" attrs="{'invisible': [('state', '!=', 'enabled')], 'required': [('code', '=', 'mercadopago'), ('state', '=', 'enabled')]}"/>
+                    <field name="mercadopago_test_publishable_key" attrs="{'invisible': [('state', '!=', 'test')], 'required': [('code', '=', 'mercadopago'), ('state', '==', 'test')]}"/>
+                    <field name="mercadopago_test_access_token" password="True" attrs="{'invisible': [('state', '!=', 'test')], 'required': [('code', '=', 'mercadopago'), ('state', '=', 'test')]}"/>
                 </group>
             </xpath>
             <xpath expr='//group[@name="provider_credentials"]' position='after'>
                 <p class="alert alert-info" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('code', '!=', 'mercadopago')]}">
+                    Para más información ver documentación de MercadoPago: <a colspan="2" href="https://www.adhoc.com.ar/doc/2853/7082" target="_blank">Configuración</a>.<br/>
                     Podés obtener las credenciales de MercadoPago
-                    <a colspan="2" href="https://www.mercadopago.com/mla/account/credentials" target="_blank">Aquí</a>.
+                    <a colspan="2" href="https://www.mercadopago.com.ar/settings/account/credentials" target="_blank">Aquí</a>. (recordá que para realizar pruebas es necesario configurar tanto las credenciales productivas como de test, en cada entorno respectivo).
                     <br/>
-                    Para más información ver documentación de MercadoPago:
-                    <a colspan="2" href="https://www.mercadopago.com.ar/developers/es/support/20151" target="_blank">Aplicaciones y credenciales</a>.
-                    <br/>
-                    <br/>
-                    Algunas observaciones sobre las credenciales y los estados "Habilitado" (producción) y "Modo de prueba" (test):
-                    <ul>
-                        <li>Las credenciales de producción sirven para ambos estados.</li>
-                        <li>Las credenciales de test sirven solo para estado de test.</li>
-                        <li>Puede realizar pruebas en estado de test utilizando las tarjetas que figuran
-                            <a colspan="2" href="https://www.mercadopago.com.ar/developers/es/docs/checkout-api/integration-test/test-cards" target="_blank">
+                    Puede realizar pruebas en estado de test utilizando las tarjetas que figuran
+                            <a colspan="2" href="https://www.mercadopago.com.ar/developers/es/docs/checkout-api/additional-content/your-integrations/test/cards" target="_blank">
                                 aquí
                             </a>
-                            con cualquier código de seguridad y una fecha de vencimiento futura.
-                        </li>
-                    </ul>
                 </p>
 
                 <!--<div class="alert alert-warning" role="alert" style="margin-bottom:0px;" attrs="{'invisible': ['|',('code', '!=', 'mercadopago'), ('state','!=', 'test')]}">
