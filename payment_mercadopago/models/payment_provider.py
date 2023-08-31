@@ -63,6 +63,8 @@ class PaymentProvider(models.Model):
         string='Capture method',
         default='deferred_capture'
     )
+    
+    mercadopago_binary = fields.Boolean('Use binary mode', default=True)
 
     def _get_mercadopago_request(self):
         return MercadoPagoAPI(self)

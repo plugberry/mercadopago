@@ -182,7 +182,7 @@ class MercadoPagoAPI():
             "transaction_amount": tx.amount,
             "description": "Odoo ~ MercadoPago payment",
             "payment_method_id": token.provider_ref if token else form_data['mercadopago_payment_method'],
-            "binary_mode": True,
+            "binary_mode": tx.provider_id.mercadopago_binary if tx.operation != 'validation' else False,
             "external_reference": tx.reference,
             "payer": {
                 "type": "customer",

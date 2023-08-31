@@ -9,6 +9,8 @@
                 <group attrs="{'invisible': [('code', '!=', 'mercadopago')]}">
                     <field name="mercadopago_publishable_key" attrs="{'required': [('code', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
                     <field name="mercadopago_access_token" password="True" attrs="{'required': [('code', '=', 'mercadopago'), ('state', '!=', 'disabled')]}"/>
+                    <field name="mercadopago_capture_method"/>
+                    <field name="mercadopago_binary"/>
                 </group>
             </xpath>
             <xpath expr='//group[@name="provider_credentials"]' position='after'>
