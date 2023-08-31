@@ -2,7 +2,7 @@
     'name': 'Mercado Pago Payment Acquirer',
     'category': 'Accounting/Payment Acquirers',
     'summary': 'Payment Acquirer: MercadoPago',
-    'version': "16.0.3.0.0",
+    'version': "16.0.3.1.0",
     'description': """
 Mercado pago Payment
 ===================
