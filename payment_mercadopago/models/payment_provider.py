@@ -63,6 +63,13 @@ class PaymentProvider(models.Model):
         string='Capture method',
         default='deferred_capture'
     )
+    mercadopago_capture_method = fields.Selection([
+        ('deferred_capture', 'Deferred capture is posible'),
+        ('refund_payment', 'Always refund payment')
+        ],
+        string='Capture method',
+        default='deferred_capture'
+    )
 
     def _get_mercadopago_request(self):
         return MercadoPagoAPI(self)

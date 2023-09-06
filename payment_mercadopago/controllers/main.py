@@ -28,10 +28,18 @@ class MercadoPagoController(http.Controller):
                  public client key
         :rtype: dict
         """
+<<<<<<< HEAD
         provider_ref = False
         bin = False
 
+||||||| parent of 6ec746c (temp)
+=======
+        acquirer_ref = False
+        bin = False
+
+>>>>>>> 6ec746c (temp)
         if flow == "token":
+<<<<<<< HEAD
             token_sudo = request.env['payment.token'].browse(rec_id).sudo()
             provider_sudo = token_sudo.provider_id
             provider_ref = token_sudo.provider_ref
@@ -40,12 +48,32 @@ class MercadoPagoController(http.Controller):
             if not bin:
                 token_sudo.mercadopago_fix_token_bin()
                 bin = token_sudo.bin
+||||||| parent of 6ec746c (temp)
+            acquirer_sudo = request.env['payment.token'].browse(rec_id).acquirer_id.sudo()
+=======
+            token_sudo = request.env['payment.token'].browse(rec_id).sudo()
+            acquirer_sudo = token_sudo.acquirer_id.sudo()
+            acquirer_ref = token_sudo.acquirer_ref
+            bin = token_sudo.bin
+            # Esto lo agrego porque SDK V2 requiere el bin para calcular las coutas 
+            if not bin:
+                token_sudo.mercadopago_fix_token_bin()
+                bin = token_sudo.bin
+>>>>>>> 6ec746c (temp)
         else:
             provider_sudo = request.env['payment.provider'].sudo().browse(rec_id).exists()
         return {
+<<<<<<< HEAD
             'publishable_key': provider_sudo.mercadopago_publishable_key,
             'bin': bin,
             'provider_ref': provider_ref,
+||||||| parent of 6ec746c (temp)
+            'publishable_key': acquirer_sudo.mercadopago_publishable_key,
+=======
+            'publishable_key': acquirer_sudo.mercadopago_publishable_key,
+            'bin': bin,
+            'acquirer_ref': acquirer_ref,
+>>>>>>> 6ec746c (temp)
         }
 
     @http.route('/payment/mercadopago/payment', type='json', auth='public')
@@ -105,8 +133,16 @@ class MercadoPagoController(http.Controller):
                 payment_id = data['data']['id']
 
                 # Get payment data from MercadoPago
+<<<<<<< HEAD
                 leaf = [('code', '=', 'mercadopago')]
                 # For backward compatibility, add the aquirer_id separately.
+||||||| parent of 6ec746c (temp)
+                leaf=[('provider', '=', 'mercadopago')]
+                #For backward compatibility, add the aquirer_id separately.
+=======
+                leaf = [('provider', '=', 'mercadopago')]
+                # For backward compatibility, add the aquirer_id separately.
+>>>>>>> 6ec746c (temp)
                 if aquirer_id:
                     leaf += [('id', '=', int(aquirer_id))]
                 acquirer = request.env["payment.provider"].sudo().search(leaf, limit=1)

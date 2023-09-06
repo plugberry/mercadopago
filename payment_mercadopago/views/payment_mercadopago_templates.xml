@@ -12,8 +12,16 @@
 
             <!-- Card -->
             <div class="form-group">
+<<<<<<< HEAD
                 <label t-attf-for="o_mercadopago_card_number_{{provider_id}}" class="col-form-label">Card Number</label>
                 <input type="tel" t-attf-id="o_mercadopago_card_number_{{provider_id}}" required="" maxlength="19" class="form-control" data-checkout="cardNumber"/>
+||||||| parent of 6ec746c (temp)
+                <label t-attf-for="o_mercadopago_card_number_{{acquirer_id}}" class="col-form-label">Card Number</label>
+                <input type="text" t-attf-id="o_mercadopago_card_number_{{acquirer_id}}" required="" maxlength="19" class="form-control" data-checkout="cardNumber"/>
+=======
+                <label t-attf-for="o_mercadopago_card_number_{{acquirer_id}}" class="col-form-label">Card Number</label>
+                <input type="tel" t-attf-id="o_mercadopago_card_number_{{acquirer_id}}" required="" maxlength="19" class="form-control" data-checkout="cardNumber"/>
+>>>>>>> 6ec746c (temp)
             </div>
 
             <div class="row">
@@ -27,8 +35,16 @@
                 </div>
                 <!-- Card Code -->
                 <div class="col-sm-4 form-group">
+<<<<<<< HEAD
                     <label t-attf-for="o_mercadopago_code_{{provider_id}}">Card Code</label>
                     <input type="password" t-attf-id="o_mercadopago_code_{{provider_id}}" maxlength="4" class="form-control" data-checkout="securityCode"/>
+||||||| parent of 6ec746c (temp)
+                    <label t-attf-for="o_mercadopago_code_{{acquirer_id}}">Card Code</label>
+                    <input type="text" t-attf-id="o_mercadopago_code_{{acquirer_id}}" maxlength="4" class="form-control" data-checkout="securityCode"/>
+=======
+                    <label t-attf-for="o_mercadopago_code_{{acquirer_id}}">Card Code</label>
+                    <input type="password" t-attf-id="o_mercadopago_code_{{acquirer_id}}" maxlength="4" class="form-control" data-checkout="securityCode"/>
+>>>>>>> 6ec746c (temp)
                 </div>
             </div>
 
@@ -76,9 +92,18 @@
 
 
     <template id="mercadopago_checkout" name="MercadoPago Payment Checkout" inherit_id="payment.checkout">
+<<<<<<< HEAD
         <xpath expr="//div[@t-attf-id='o_payment_token_inline_form_{{token.id}}']" position="inside">
                 <t t-if="token.provider_id.code == 'mercadopago'">
+||||||| parent of 6ec746c (temp)
+        <xpath expr="//t[@t-call='payment.verified_token_checkmark']" position="after">
+            <t t-if="token.provider == 'mercadopago'">
+=======
+        <xpath expr="//div[@t-attf-id='o_payment_token_inline_form_{{token.id}}']" position="inside">
+                <t t-if="token.provider == 'mercadopago'">
+>>>>>>> 6ec746c (temp)
                 <!-- === CVV Number === -->
+<<<<<<< HEAD
                 <div class="row">
                     <div class="col-sm-6 form-group">
                         <label t-attf-id="o_mercadopago_token_installments_label_{{token.id}}" t-attf-for="o_mercadopago_token_installments_{{provider_id}}" class="o_hidden col-form-label">Installments</label>
@@ -95,6 +120,33 @@
                             placeholder="cvv"
                             class="form-control"/>
                     </div>
+||||||| parent of 6ec746c (temp)
+                <div class="col-6 pull-right">
+                    <input name="o_payment_cvv"
+                        type="text"
+                        t-attf-id="o_token_code_{{token.id}}"
+                        maxlength="4"
+                        required=""
+                        placeholder="cvv"
+                        class="form-control"/>
+=======
+                <div class="row">
+                    <div class="col-sm-6 form-group">
+                        <label t-attf-id="o_mercadopago_token_installments_label_{{token.id}}" t-attf-for="o_mercadopago_token_installments_{{acquirer_id}}" class="o_hidden col-form-label">Installments</label>
+                        <select type="text" t-attf-id="o_mercadopago_token_installments_{{token.id}}" class="o_hidden form-control" t-att-data-show="'false' if acquirer.is_validation else 'true'"/>
+                    </div>
+                    <div class="col-6 pull-right">
+                        <label t-attf-for="o_token_code_{{token.id}}" class="col-form-label">CVV</label>
+
+                        <input name="o_payment_cvv"
+                            type="password"
+                            t-attf-id="o_token_code_{{token.id}}"
+                            maxlength="4"
+                            required=""
+                            placeholder="cvv"
+                            class="form-control"/>
+                    </div>
+>>>>>>> 6ec746c (temp)
                 </div>
             </t>
         </xpath>

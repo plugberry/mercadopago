@@ -87,14 +87,37 @@ odoo.define('payment_mercadopago.payment_form', require => {
                     'rec_id': paymentOptionId,
                     'flow': flow,
                 },
+<<<<<<< HEAD
             }).then((providerInfo) => {
+||||||| parent of 6ec746c (temp)
+            }).then(acquirerInfo => {
+=======
+            }).then((acquirerInfo) => {
+>>>>>>> 6ec746c (temp)
                 var self = this;
+<<<<<<< HEAD
                     loadJS("https://sdk.mercadopago.com/js/v2").then((mp) => {
                         self.mercadopagoInfo = providerInfo;
+||||||| parent of 6ec746c (temp)
+                ajax.loadJS("https://secure.mlstatic.com/sdk/javascript/v1/mercadopago.js").then((mp) => {
+                    ajax.loadJS("https://sdk.mercadopago.com/js/v2").then((mp) => {
+                        self.mercadopagoInfo = acquirerInfo;
+                        // Initialize MercadoPago v1
+                        window.Mercadopago.setPublishableKey(acquirerInfo.publishable_key);
+                        window.Mercadopago.getIdentificationTypes();
+=======
+                    ajax.loadJS("https://sdk.mercadopago.com/js/v2").then((mp) => {
+                        self.mercadopagoInfo = acquirerInfo;
+>>>>>>> 6ec746c (temp)
                         // Initialize MercadoPago v2
                         self.mp = new MercadoPago(providerInfo.publishable_key);
                         if (flow === 'token') {
+<<<<<<< HEAD
                             self._MercadoPagoTokenForm(paymentOptionId,providerInfo.provider_ref, self.txContext.amount, providerInfo.bin)
+||||||| parent of 6ec746c (temp)
+=======
+                            self._MercadoPagoTokenForm(paymentOptionId,acquirerInfo.acquirer_ref, self.txContext.amount, acquirerInfo.bin)
+>>>>>>> 6ec746c (temp)
                             return Promise.resolve(); // Don't show the form for tokens
                         }
                         else {
@@ -164,6 +187,14 @@ odoo.define('payment_mercadopago.payment_form', require => {
                 if (response['results']) {
                     let paymentMethod = response['results'][0];
                     document.getElementById('o_mercadopago_payment_method_' + paymentOptionId).value = paymentMethod.id;
+<<<<<<< HEAD
+||||||| parent of 6ec746c (temp)
+
+=======
+                    let issuerSelect = document.getElementById('o_mercadopago_issuer_' + paymentOptionId);
+                    issuerSelect.options.length = 0;
+
+>>>>>>> 6ec746c (temp)
                     if(paymentMethod.additional_info_needed.includes("issuer_id")){
                         getIssuers(paymentMethod.id, bin);
                     } else {
@@ -176,6 +207,7 @@ odoo.define('payment_mercadopago.payment_form', require => {
                 }
             };
 
+<<<<<<< HEAD
             function getIssuers(paymentMethodId, bin) {
                 self.mp.getIssuers({ paymentMethodId: paymentMethodId, bin: bin }).then((response)=>{
                     console.log(response);
@@ -183,6 +215,22 @@ odoo.define('payment_mercadopago.payment_form', require => {
                 });
 
 
+||||||| parent of 6ec746c (temp)
+            function getIssuers(paymentMethodId) {
+                window.Mercadopago.getIssuers(
+                    paymentMethodId,
+                    setIssuers
+                );
+=======
+            function getIssuers(paymentMethodId, bin) {
+                console.log(bin);
+
+                self.mp.getIssuers({ paymentMethodId: paymentMethodId, bin: bin }).then((response)=>{
+                    setIssuers(response, paymentOptionId, bin);
+                });
+
+
+>>>>>>> 6ec746c (temp)
             };
 
             function setIssuers(response, paymentOptionId,  bin) {
@@ -227,6 +275,54 @@ odoo.define('payment_mercadopago.payment_form', require => {
                 if (response) {
                     let installmentsLabel = document.getElementById('o_mercadopago_installments_label_' + paymentOptionId);
                     let installments = document.getElementById('o_mercadopago_installments_' + paymentOptionId);
+                    let show_installments = $(installments).data('show');
+                    if (show_installments)
+                        installmentsLabel.classList.remove("o_hidden");
+                        installments.classList.remove("o_hidden");
+                    while (installments.firstChild) {
+                        installments.removeChild(installments.lastChild);
+                    }
+
+                    response.forEach( resp => {
+                        if (resp['issuer']){
+                            let issuer = resp['issuer'];
+                            let optG = document.createElement('optgroup');
+                            optG.label = issuer['name']
+                            installments.appendChild(optG);
+                            resp.payer_costs.forEach( payerCost => {
+                                let opt = document.createElement('option');
+                                opt.text = payerCost.recommended_message;
+                                opt.dataset.issuerId = issuer['id'];
+                                opt.dataset.issuerName = issuer['name']
+                                opt.value = payerCost.installments;
+                                optG.appendChild(opt);
+                            });
+                        }
+                    });
+                } else {
+                    alert('installments method info error: ${response}');
+                }
+            };
+        },
+        _MercadoPagoTokenForm: function (paymentOptionId, paymentMethodId, transactionAmount, bin) {
+            self = this;
+            getTokenInstallments(transactionAmount, paymentOptionId, bin);
+            function getTokenInstallments(transactionAmount, paymentOptionId, bin){
+                if (transactionAmount){
+                    self.mp.getInstallments({
+                        bin: bin,
+                        amount: transactionAmount.toString(),
+                    }).then((response) => {
+                        setTokenInstallments(response, paymentOptionId);
+                    }).catch(error => {
+                        console.error( error );
+                    });
+                }
+            };
+            function setTokenInstallments(response, paymentOptionId){
+                if (response) {
+                    let installmentsLabel = document.getElementById('o_mercadopago_token_installments_label_' + paymentOptionId);
+                    let installments = document.getElementById('o_mercadopago_token_installments_' + paymentOptionId);
                     let show_installments = $(installments).data('show');
                     if (show_installments)
                         installmentsLabel.classList.remove("o_hidden");
@@ -316,6 +412,7 @@ odoo.define('payment_mercadopago.payment_form', require => {
                 $('body').unblock(); // The page is blocked at this point, unblock it
                 return Promise.resolve();
             }
+<<<<<<< HEAD
             self = this;
             return this._createMercadoPagoToken(paymentOptionId).then((response) => {
                 self._MercadoPagoResponseHandler(processingValues, response)
@@ -338,6 +435,23 @@ odoo.define('payment_mercadopago.payment_form', require => {
                 return Promise.resolve();
             }
             );
+||||||| parent of 6ec746c (temp)
+
+            return this._createMercadoPagoToken(paymentOptionId).then((response) => this._MercadoPagoResponseHandler(processingValues, response));
+=======
+            self = this;
+            return this._createMercadoPagoToken(paymentOptionId).then((response) => {
+                self._MercadoPagoResponseHandler(processingValues, response)
+            }).catch((error)=> {
+                console.error(error);
+                self._displayError(
+                    _t("Server Error"),
+                    error_messages[error[0]['code']]
+                );
+                return Promise.resolve();
+            }
+            );
+>>>>>>> 6ec746c (temp)
         },
 
         /**
@@ -347,6 +461,7 @@ odoo.define('payment_mercadopago.payment_form', require => {
          * @param {number} providerId - The id of the provider handling the transaction
          * @return {Promise}
          */
+<<<<<<< HEAD
         _createMercadoPagoToken: async function(providerId) {
             let cardNumber = document.getElementById('o_mercadopago_card_number_' + providerId).value.split(" ").join("");
             let cardHolder = document.getElementById('o_mercadopago_holder_' + providerId).value;
@@ -355,6 +470,19 @@ odoo.define('payment_mercadopago.payment_form', require => {
             let vat = document.getElementById('o_mercadopago_vat_' + providerId).value;
             let vatNumber = document.getElementById('o_mercadopago_vat_number_' + providerId).value.toUpperCase().replace(/[^0-9A-Z]/gi, '');
             let securityCode = document.getElementById('o_mercadopago_code_' + providerId).value;
+||||||| parent of 6ec746c (temp)
+        _createMercadoPagoToken: function(acquirerId) {
+            let form = document.getElementById('o_mercadopago_form_' + acquirerId);
+=======
+        _createMercadoPagoToken: async function(acquirerId) {
+            let cardNumber = document.getElementById('o_mercadopago_card_number_' + acquirerId).value.split(" ").join("");
+            let cardHolder = document.getElementById('o_mercadopago_holder_' + acquirerId).value;
+            let expirationMonth = document.getElementById('o_mercadopago_month_' + acquirerId).value;
+            let expirationYear = document.getElementById('o_mercadopago_year_' + acquirerId).value;
+            let vat = document.getElementById('o_mercadopago_vat_' + acquirerId).value;
+            let vatNumber = document.getElementById('o_mercadopago_vat_number_' + acquirerId).value.toUpperCase().replace(/[^0-9A-Z]/gi, '');
+            let securityCode = document.getElementById('o_mercadopago_code_' + acquirerId).value;
+>>>>>>> 6ec746c (temp)
             self = this;
             console.log({
                 cardNumber: cardNumber,
@@ -393,6 +521,12 @@ odoo.define('payment_mercadopago.payment_form', require => {
             }
             self = this;
             // Initiate the payment
+            let installments_select = document.getElementById('o_mercadopago_installments_' + processingValues.acquirer_id)
+            let selected_option = installments_select.options[installments_select.selectedIndex]
+            let issuer = parseInt(document.getElementById('o_mercadopago_issuer_' + processingValues.acquirer_id).value)
+            if (selected_option.dataset.issuerId)
+                issuer = parseInt(selected_option.dataset.issuerId);
+
             return this._rpc({
                 route: '/payment/mercadopago/payment',
                 params: {
@@ -401,9 +535,19 @@ odoo.define('payment_mercadopago.payment_form', require => {
                     'access_token': processingValues.access_token,
                     //'provider_id': processingValues.provider_id,
                     'mercadopago_token': response.id,
+<<<<<<< HEAD
                     'mercadopago_payment_method': document.getElementById('o_mercadopago_payment_method_' + processingValues.provider_id).value,
                     'installments': parseInt(document.getElementById('o_mercadopago_installments_' + processingValues.provider_id).value),
                     'issuer': parseInt(document.getElementById('o_mercadopago_issuer_' + processingValues.provider_id).value),
+||||||| parent of 6ec746c (temp)
+                    'mercadopago_payment_method': document.getElementById('o_mercadopago_payment_method_' + processingValues.acquirer_id).value,
+                    'installments': parseInt(document.getElementById('o_mercadopago_installments_' + processingValues.acquirer_id).value),
+                    'issuer': parseInt(document.getElementById('o_mercadopago_issuer_' + processingValues.acquirer_id).value),
+=======
+                    'mercadopago_payment_method': document.getElementById('o_mercadopago_payment_method_' + processingValues.acquirer_id).value,
+                    'installments': parseInt(installments_select.value),
+                    'issuer': issuer,
+>>>>>>> 6ec746c (temp)
                     'email': document.getElementById('email').value,
                 }
             }).then(() => window.location = '/payment/status').catch((error) =>{
