@@ -171,19 +171,43 @@ class PaymentTransaction(models.Model):
         :param dict notification_data: The feedback data sent by the provider
         :return: None
         """
+<<<<<<< HEAD
         self.ensure_one()
         if self.provider_code != 'mercadopago':
             return super()._process_notification_data(notification_data)
         response_content = notification_data.get('response')
         _logger.info(response_content)
         self.provider_reference = response_content.get('x_trans_id')
+||||||| parent of 6ec746c (temp)
+        super()._process_feedback_data(data)
+        if self.provider != 'mercadopago':
+            return
+        response_content = data.get('response')
+
+        self.acquirer_reference = response_content.get('x_trans_id')
+=======
+        if self.provider != 'mercadopago':
+            return super()._process_feedback_data(data)
+        response_content = data.get('response')
+
+        self.acquirer_reference = response_content.get('x_trans_id')
+>>>>>>> 6ec746c (temp)
         status = response_content.get('status')
         message = self._get_mercadopago_response_msg(response_content)
         if status in ['approved', 'processed']:  # Approved
+<<<<<<< HEAD
             if self.state != 'done':
                 self._set_done()
             else:
                 _logger.info('The TX %s is already done. Cant set done twise' % self.reference)
+||||||| parent of 6ec746c (temp)
+            self._set_done(state_message=message)
+=======
+            if self.state != 'done':
+                self._set_done(state_message=message)
+            else:
+                _logger.info('The TX %s is already done. Cant set done twise' % self.reference)
+>>>>>>> 6ec746c (temp)
             if self.tokenize and not self.token_id:
                 self._mercadopago_tokenize_from_feedback_data(response_content)
         elif status in ['authorized']:  # Authorized: the card validation is ok
@@ -227,10 +251,21 @@ class PaymentTransaction(models.Model):
             #  si un cliente tokeniza dos veces la misma tarjeta, debemos buscarla en MercadoPago o crearla nuevamente?
             card = mercadopago_API.create_customer_card(customer_id, self.mercadopago_tmp_token)
             token = self.env['payment.token'].create({
+<<<<<<< HEAD
                 'provider_id': self.provider_id.id,
                 'payment_details': card['last_four_digits'],
                 'provider_ref': data['payment_method_id'],
                 'bin': card['first_six_digits'],
+||||||| parent of 6ec746c (temp)
+                'acquirer_id': self.acquirer_id.id,
+                'name': payment_utils.build_token_name(card['last_four_digits']),
+                'acquirer_ref': data['payment_method_id'],
+=======
+                'acquirer_id': self.acquirer_id.id,
+                'name': payment_utils.build_token_name(card['last_four_digits']),
+                'acquirer_ref': data['payment_method_id'],
+                'bin': card['first_six_digits'],
+>>>>>>> 6ec746c (temp)
                 'partner_id': self.partner_id.id,
                 'card_token': card['id'],
                 # TODO: chequear que el mail sea el correcto, parece que en modo test MercadoPago pone otro mail

@@ -23,11 +23,26 @@ class MercadoPagoAPI():
     """ MercadoPago API integration.
     """
 
+<<<<<<< HEAD
     def __init__(self, provider):
         request_options = RequestOptions(provider.mercadopago_access_token, platform_id="BVH38T5N7QOK0PPDGC2G")
         self.mp = mercadopago.SDK(provider.mercadopago_access_token, request_options=request_options)
         self.sandbox = not provider.state == "enabled"
         self.mercadopago_access_token = provider.mercadopago_access_token
+||||||| parent of 6ec746c (temp)
+    def __init__(self, acquirer):
+        request_options = RequestOptions(acquirer.mercadopago_access_token, platform_id="BVH38T5N7QOK0PPDGC2G")
+        self.mp = mercadopago.SDK(acquirer.mercadopago_access_token, request_options=request_options)
+        self.sandbox = not acquirer.state == "enabled"
+        self.mercadopago_access_token = acquirer.mercadopago_access_token
+        
+=======
+    def __init__(self, acquirer):
+        request_options = RequestOptions(acquirer.mercadopago_access_token, platform_id="BVH38T5N7QOK0PPDGC2G")
+        self.mp = mercadopago.SDK(acquirer.mercadopago_access_token, request_options=request_options)
+        self.sandbox = not acquirer.state == "enabled"
+        self.mercadopago_access_token = acquirer.mercadopago_access_token
+>>>>>>> 6ec746c (temp)
 
     def check_response(self, resp):
         if resp['status'] in [200, 201]:
@@ -192,10 +207,22 @@ class MercadoPagoAPI():
             },
             "additional_info": {
                 "items": [{
+<<<<<<< HEAD
                     "id": tx.provider_id.mercadopago_item_id,
                     "title": tx.provider_id.mercadopago_item_title,
                     "description": tx.provider_id.mercadopago_item_description,
                     "category_id": tx.provider_id.mercadopago_item_category or None,
+||||||| parent of 6ec746c (temp)
+                    "id": tx.acquirer_id.mercadopago_item_id,
+                    "title": tx.acquirer_id.mercadopago_item_title,
+                    "description": tx.acquirer_id.mercadopago_item_description,
+                    "category_id": tx.acquirer_id.mercadopago_item_category or None,    
+=======
+                    "id": tx.acquirer_id.mercadopago_item_id,
+                    "title": tx.acquirer_id.mercadopago_item_title,
+                    "description": tx.acquirer_id.mercadopago_item_description,
+                    "category_id": tx.acquirer_id.mercadopago_item_category or None,
+>>>>>>> 6ec746c (temp)
                     "quantity": 1,
                     "unit_price": tx.amount,
                 }],
@@ -300,11 +327,23 @@ class MercadoPagoAPI():
              - Method: If a refund should be made.
         """
         if tx.operation != 'validation':
+<<<<<<< HEAD
             return True, None
         elif tx.provider_id.mercadopago_capture_method == 'refund_payment':
             return True, 'refund_payment'
 
         payment_method_id = token.provider_ref if token else form_data['mercadopago_payment_method']
+||||||| parent of 6ec746c (temp)
+            return True , None
+        
+        payment_method_id = token.acquirer_ref if token else form_data['mercadopago_payment_method']
+=======
+            return True, None
+        elif tx.acquirer_id.mercadopago_capture_method == 'refund_payment':
+            return True, 'refund_payment'
+
+        payment_method_id = token.acquirer_ref if token else form_data['mercadopago_payment_method']
+>>>>>>> 6ec746c (temp)
         if self.payment_can_deferred_capture(payment_method_id):
             return False, 'deferred_capture'
         else:

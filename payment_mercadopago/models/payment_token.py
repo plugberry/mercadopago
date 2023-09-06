@@ -49,6 +49,7 @@ class PaymentToken(models.Model):
 
         return super()._handle_reactivation_request()
 
+<<<<<<< HEAD
     def mercadopago_fix_token_bin(self):
         for token in self:
 
@@ -58,3 +59,15 @@ class PaymentToken(models.Model):
             else:
                 customer_id = mercadopago_API.get_customer_profile(token.partner_id.email)
             token.bin = mercadopago_API.token_get_info(customer_id, token.card_token)['first_six_digits']
+||||||| parent of 6ec746c (temp)
+=======
+    def mercadopago_fix_token_bin(self):
+        for token in self:
+
+            mercadopago_API = MercadoPagoAPI(token.acquirer_id)
+            if token.customer_id:
+                customer_id = token.customer_id
+            else:
+                customer_id = mercadopago_API.get_customer_profile(token.partner_id.email)
+            token.bin = mercadopago_API.token_get_info(customer_id, token.card_token)['first_six_digits']
+>>>>>>> 6ec746c (temp)
