@@ -34,6 +34,23 @@ ERROR_MESSAGES = {
 }
 
 
+class PaymentTransaction(models.Model):
+    _inherit = 'payment.transaction'
+
+    def _set_transaction_pending(self):
+        tx_mercadopago = self.filtered(lambda t: t.aquirer_id.provider == 'mercadopago')
+        if tx_mercadopago:
+            super(PaymentTransaction, tx_mercadopago.with_context(ingnore_confirmation_mail=True))._set_transaction_pending()
+
+        super(PaymentTransaction, (self - tx_mercadopago))._set_transaction_pending()
+
+class SaleOrder(models.Model):
+    _name = "sale.order"
+
+    def _send_order_confirmation_mail(self):
+        if not self._context.get('ingnore_confirmation_mail'):
+            super()._send_order_confirmation_mail()
+
 class PaymentAcquirerMercadoPago(models.Model):
     _inherit = 'payment.acquirer'
 
