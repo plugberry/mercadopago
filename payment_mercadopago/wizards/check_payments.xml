@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="check_payments_view_form" model="ir.ui.view">
+        <field name="name">check_payments.view.form</field>
+        <field name="model">payment.mercadopago.check_payment</field>
+        <field name="arch" type="xml">
+            <form string="">
+                <sheet>
+                    <h1><field name="acquirer_id"/></h1>
+                    <group col="4">
+                        <field name="confirmed"/>
+                        <field name="no_match"/>
+                        <field name="date_form"/>
+                        <field name="date_to"/>
+                    </group>
+                    <group>
+                        <span>
+                            <field name="line_ids">
+                                <tree>
+                                    <field name="transaction_id"/>
+                                    <field name="mp_external_reference"/>
+                                    <field name="mp_amount"/>
+                                    <field name="mp_id"/>
+                                    <field name="mp_state"/>
+                                    <field name="transaction_state"/>
+                                    <button string="Info" type="object" name="get_tx_info_from_mercadopago" />
+                                </tree>
+                            </field>
+                        </span>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Search" type="object" name="action_search_payments" class="oe_highlight"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="check_payments_action" model="ir.actions.act_window">
+        <field name="name">Check payments</field>
+        <field name="res_model">payment.mercadopago.check_payment</field>
+        <field name="view_mode">form</field>
+        <field name="context">{}</field>
+        <field name="target">new</field>
+    </record>
+    <record id="action_info_check_payments_mercadopago" model="ir.actions.server">
+        <field name="name">Check payments</field>
+        <field name="model_id" ref="payment.model_payment_acquirer"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = {
+                'type': 'ir.actions.act_window',
+                'res_model': 'payment.mercadopago.check_payment',
+                'target': 'new',
+                'views': [(env.ref('payment_mercadopago.check_payments_view_form').id, 'form')],
+            }
+        </field>
+        <field name="binding_model_id" ref="payment.model_payment_acquirer"/>
+        <field name="binding_type">action</field>
+    </record>
+
+</odoo>

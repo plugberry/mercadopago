@@ -20,9 +20,11 @@ Supports automated payments without CVV for subscriptions and card authorization
         'python': ['mercadopago'],
     },
     'data': [
+        'security/ir.model.access.csv',
         'views/payment_views.xml',
         'views/payment_mercadopago_templates.xml',
         'data/payment_acquirer_data.xml',
+        'wizards/check_payments.xml',
     ],
     'demo': [
         'demo/payment_acquirer_demo.xml',
