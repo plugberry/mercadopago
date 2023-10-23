@@ -48,7 +48,7 @@ class PaymentMercadopagoCheckPayment(models.TransientModel):
             if 'results' in payments['response']:
                 for payment in payments['response']['results']:
                     if not self.confirmed or payment.get('status') in ['refunded','approved','authorized','charged_back']:
-                        transaction_id = tx_ids.filtered(lambda t: t.reference == payment['external_reference'])                    
+                        transaction_id = tx_ids.filtered(lambda t: t.reference == payment['external_reference'])
                         if transaction_id and self.no_match and self.check_status(payment.get('status'), transaction_id.state):
                             continue
                         lines.append((0, 0, {
@@ -75,7 +75,7 @@ class PaymentMercadopagoCheckPaymentLine(models.TransientModel):
 
     check_id = fields.Many2one('payment.mercadopago.check_payment')
     transaction_id = fields.Many2one('payment.transaction')
-    transaction_state = fields.Selection('State', related='transaction_id.state')
+    transaction_state = fields.Selection(string='State', related='transaction_id.state')
     mp_amount = fields.Float()
     mp_id = fields.Char()
     mp_state = fields.Char()
