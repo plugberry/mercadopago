@@ -103,5 +103,5 @@ class PaymentMercadopagoCheckPaymentLine(models.TransientModel):
                     rec.transaction_id._mercadopago_s2s_validate_tree(payment)
                 except Exception as e:
                     _logger.error('cant validate_tree %s' % e)
-        if not fix_transaction:
-            raise UserError("%s" % ' \n'.join(txt))
+        self.env.cr.commit()
+        raise UserError("%s" % ' \n'.join(txt))
