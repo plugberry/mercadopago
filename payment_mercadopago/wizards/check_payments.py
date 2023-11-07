@@ -84,7 +84,6 @@ class PaymentMercadopagoCheckPaymentLine(models.TransientModel):
 
     def get_tx_info_from_mercadopago(self):
         txt = []
-        fix_transaction = self.env.context.get('fix_transaction')
         for rec in self:
             if rec.check_id.acquirer_id.provider != 'mercadopago':
                 continue
