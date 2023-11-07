@@ -25,6 +25,7 @@
                                     <field name="mp_state"/>
                                     <field name="transaction_state"/>
                                     <button string="Info" type="object" name="get_tx_info_from_mercadopago" />
+                                    <button string="Fix" context="{'fix_transaction': True}" type="object" name="get_tx_info_from_mercadopago" />
                                 </tree>
                             </field>
                         </span>

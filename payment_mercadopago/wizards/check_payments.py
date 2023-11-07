@@ -84,6 +84,7 @@ class PaymentMercadopagoCheckPaymentLine(models.TransientModel):
 
     def get_tx_info_from_mercadopago(self):
         txt = []
+        fix_transaction = self.env.context.get('fix_transaction')
         for rec in self:
             if rec.check_id.acquirer_id.provider != 'mercadopago':
                 continue
@@ -102,5 +103,5 @@ class PaymentMercadopagoCheckPaymentLine(models.TransientModel):
                     rec.transaction_id._mercadopago_s2s_validate_tree(payment)
                 except Exception as e:
                     _logger.error('cant validate_tree %s' % e)
-
-        raise UserError("%s" % ' \n'.join(txt))
+        if not fix_transaction:
+            raise UserError("%s" % ' \n'.join(txt))
