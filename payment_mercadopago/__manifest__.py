@@ -38,6 +38,6 @@ Supports automated payments without CVV for subscriptions and card authorization
     },
     'uninstall_hook': 'uninstall_hook',
     'application': False,
-    'installable': True,
+    'installable': False,
     'license': 'LGPL-3',
 }
