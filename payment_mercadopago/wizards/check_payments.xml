@@ -40,7 +40,7 @@
         <field name="name">Check payments</field>
         <field name="res_model">payment.mercadopago.check_payment</field>
         <field name="view_mode">form</field>
-        <field name="context">{'default_provider_id':active_id}</field>
+        <field name="context">{'default_provider_id':id}</field>
         <field name="target">new</field>
     </record>
     <record id="action_info_check_payments_mercadopago" model="ir.actions.server">
