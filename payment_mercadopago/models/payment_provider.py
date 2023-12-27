@@ -66,7 +66,7 @@ class PaymentProvider(models.Model):
         string='Capture method',
         default='deferred_capture'
     )
-    
+
     mercadopago_binary = fields.Boolean('Use binary mode', default=True)
 
     def _get_mercadopago_request(self):
@@ -137,9 +137,12 @@ class PaymentProvider(models.Model):
         res = super()._get_validation_amount()
         if self.code != 'mercadopago':
             return res
-
-        usd_currency_id = self.env.ref('base.USD')
+        # Checkeamos que si la moneda es ARS entonces devuelva montos superiores al minimo
+        # TODO: encontrar manera de tomar de manera dinamica el valor minimo para validacion
         currency_id = self.journal_id.currency_id or self.journal_id.company_id.currency_id
+        if currency_id and currency_id.name == 'ARS':
+            return 100
+        usd_currency_id = self.env.ref('base.USD')
         amount = usd_currency_id._convert(1, currency_id, self.journal_id.company_id, fields.Date.today())
         return amount
 
