@@ -160,3 +160,13 @@ class PaymentProvider(models.Model):
         # TODO: Deberíamos forzar la moneda a ARS ??
         return res
 
+    #=== COMPUTE METHODS ===#
+
+    def _compute_feature_support_fields(self):
+        """ Override of `payment` to enable additional features. """
+        super()._compute_feature_support_fields()
+        self.filtered(lambda p: p.code == 'mercadopago').update({
+            'support_manual_capture': False,
+            'support_refund': 'partial',
+            'support_tokenization': True,
+        })
