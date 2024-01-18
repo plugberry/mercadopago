@@ -6,15 +6,15 @@
         <field name="inherit_id" ref="payment.payment_provider_form"/>
         <field name="arch" type="xml">
             <xpath expr='//group[@name="provider_credentials"]' position='inside'>
-                <group attrs="{'invisible': [('code', '!=', 'mercadopago')]}">
-                    <field name="mercadopago_publishable_key" attrs="{'invisible': [('state', '!=', 'enabled')], 'required': [('code', '=', 'mercadopago'), ('state', '==', 'enabled')]}"/>
-                    <field name="mercadopago_access_token" password="True" attrs="{'invisible': [('state', '!=', 'enabled')], 'required': [('code', '=', 'mercadopago'), ('state', '=', 'enabled')]}"/>
-                    <field name="mercadopago_test_publishable_key" attrs="{'invisible': [('state', '!=', 'test')], 'required': [('code', '=', 'mercadopago'), ('state', '==', 'test')]}"/>
-                    <field name="mercadopago_test_access_token" password="True" attrs="{'invisible': [('state', '!=', 'test')], 'required': [('code', '=', 'mercadopago'), ('state', '=', 'test')]}"/>
+                <group invisible="code != 'mercadopago'">
+                    <field name="mercadopago_publishable_key" invisible="state != 'enabled'" required="code == 'mercadopago' and state == 'enabled'"/>
+                    <field name="mercadopago_access_token" password="True" invisible="state != 'enabled'" required="code == 'mercadopago' and state == 'enabled'"/>
+                    <field name="mercadopago_test_publishable_key" invisible="state != 'test'" required="code == 'mercadopago' and state == 'test'"/>
+                    <field name="mercadopago_test_access_token" password="True" invisible="state != 'test'" required="code == 'mercadopago' and state == 'test'"/>
                 </group>
             </xpath>
             <xpath expr='//group[@name="provider_credentials"]' position='after'>
-                <p class="alert alert-info" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('code', '!=', 'mercadopago')]}">
+                <p class="alert alert-info" role="alert" style="margin-bottom:0px;" invisible="code != 'mercadopago'">
                     Para más información ver documentación de MercadoPago: <a colspan="2" href="https://www.adhoc.com.ar/doc/2853/7082" target="_blank">Configuración</a>.<br/>
                     Podés obtener las credenciales de MercadoPago
                     <a colspan="2" href="https://www.mercadopago.com.ar/settings/account/credentials" target="_blank">Aquí</a>. (recordá que para realizar pruebas es necesario configurar tanto las credenciales productivas como de test, en cada entorno respectivo).
@@ -55,7 +55,7 @@
                 </t> -->
             </xpath>
             <group name="payment_followup" position="after">
-                <group string="MercadoPago item configuration" attrs="{'invisible': [('code', '!=', 'mercadopago')]}">
+                <group string="MercadoPago item configuration" invisible="code != 'mercadopago'">
                     <field name="mercadopago_item_id"/>
                     <field name="mercadopago_item_title"/>
                     <field name="mercadopago_item_description"/>
