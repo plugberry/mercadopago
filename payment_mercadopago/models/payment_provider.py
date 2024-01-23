@@ -10,6 +10,7 @@ from odoo.addons.payment.models.payment_provider import ValidationError
 from odoo.http import request
 from ..controllers.main import MercadoPagoController
 import pprint
+from payment_mercadopago import const
 
 _logger = logging.getLogger(__name__)
 
@@ -109,16 +110,21 @@ class PaymentProvider(models.Model):
 
 
     @api.model
-    def _get_compatible_providers(self, *args, currency_id=None, **kwargs):
-        """ Override of payment to unlist MercadoPago acquirers when the currency is not ARS. """
-        providers = super()._get_compatible_providers(*args, currency_id=currency_id, **kwargs)
+    def _get_supported_currencies(self):
+        """ Override of payment to unlist MercadoPago providers when the currency is not ARS. """
+        supported_currencies = super()._get_supported_currencies()
+        if self.code == 'mercadopago':
+            supported_currencies = supported_currencies.filtered(
+                lambda c: c.name in const.SUPPORTED_CURRENCIES
+            )
+        return supported_currencies
 
-        # TODO: Deberíamos forzar la moneda a ARS ??
-        # currency = self.env['res.currency'].browse(currency_id).exists()
-        # if currency and currency.name != 'ARS':
-        #     providers = providers.filtered(lambda a: a.provider != 'mercadopago')
-
-        return providers
+    def _get_default_payment_method_codes(self):
+        """ Override of `payment` to return the default payment method codes. """
+        default_codes = super()._get_default_payment_method_codes()
+        if self.code != 'mercadopago':
+            return default_codes
+        return const.DEFAULT_PAYMENT_METHODS_CODES
 
     def _should_build_inline_form(self, is_validation=False):
         # if self.code != 'mercadopago':
