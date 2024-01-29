@@ -16,9 +16,29 @@ class PaymentTransaction(models.Model):
     # TODO: remove
     mercadopago_txn_id = fields.Char('Transaction ID')
     mercadopago_txn_type = fields.Char('Transaction type', help='Informative field computed after payment')
+    mercadopago_delay_refund = fields.Boolean(compute='_compute_mercadopago_delay_refund', store=True)
+
     # ----------------------------------
 
     mercadopago_tmp_token = fields.Char('MercadoPago temporal token')
+
+    @api.depends('operation', 'provider_id')
+    def _compute_mercadopago_delay_refund(self):
+        to_delay_refund =  self.filtered(lambda x: x.provider_id.mercadopago_capture_method == 'delay_refund_payment' and x.operation == 'validation')
+        to_delay_refund.mercadopago_delay_refund = True
+        (self - to_delay_refund).mercadopago_delay_refund = False
+
+    @api.model
+    def _cron_mercadopago_delay_refund(self):
+        tx_ids = self.search([('mercadopago_delay_refund', '=', 'True'), ('provider_reference', '!=', False)])
+        for tx in tx_ids:
+            try:
+                mercadopago_API = tx.provider_id._get_mercadopago_request()
+                mercadopago_API.payment_refund(tx.external_id, amount= tx.amount)
+            except:
+                _logger.error(_('No pudimos devolver la transaccion id %s' % tx.id))
+            tx.mercadopago_delay_refund = False
+
 
     def _get_specific_processing_values(self, processing_values):
         """ Override of payment to return an access token as acquirer-specific processing values.
@@ -73,14 +93,16 @@ class PaymentTransaction(models.Model):
         mercadopago_API = self.provider_id._get_mercadopago_request()
 
         # If the payment comes from subscription we do not have the cvv: w/o cvv payment flow
-        cvv = self.callback_model_id.model != "sale.subscription"
+        cvv = self.callback_method != "_assign_token"
 
         res_content = mercadopago_API.payment(self, token=self.token_id, cvv=cvv)
+        self.env.cr.commit()
         _logger.info("MercadoPago request response:\n%s", pprint.pformat(res_content))
 
         # Handle the payment request response
         feedback_data = {'reference': self.reference, 'response': res_content}
         self._handle_notification_data('mercadopago', feedback_data)
+        self.env.cr.commit()
 
     def _send_refund_request(self, amount_to_refund=None, create_refund_transaction=True):
         """ Override of payment to send a refund request to MercadoPago.
@@ -176,7 +198,9 @@ class PaymentTransaction(models.Model):
             return super()._process_notification_data(notification_data)
         response_content = notification_data.get('response')
         _logger.info(response_content)
-        self.provider_reference = response_content.get('x_trans_id')
+
+        provider_reference = response_content.get('x_trans_id') or response_content.get('id')
+        self.provider_reference = provider_reference
         status = response_content.get('status')
         message = self._get_mercadopago_response_msg(response_content)
         if status in ['approved', 'processed']:  # Approved
@@ -186,12 +210,14 @@ class PaymentTransaction(models.Model):
                 _logger.info('The TX %s is already done. Cant set done twise' % self.reference)
             if self.tokenize and not self.token_id:
                 self._mercadopago_tokenize_from_feedback_data(response_content)
+                #TODO devolver aca?
         elif status in ['authorized']:  # Authorized: the card validation is ok
             if self.operation == 'validation':
                 # TODO: revisar si tenemos que hacer algo más
                 self._set_done()
                 if self.tokenize and not self.token_id:
                     self._mercadopago_tokenize_from_feedback_data(response_content)
+                #TODO devolver aca?
         elif status in ['cancelled', 'refunded', 'charged_back', 'rejected']:  # Declined
             _logger.info('Received notification for MercadoPago payment %s: set as cancelled' % (self.reference))
             # Llamamos a set_error y no set_cancel porque si no Odoo no muestra el mensaje en el portal
@@ -254,6 +280,7 @@ class PaymentTransaction(models.Model):
         """
         mercadopago_messages = {
             'accredited': _("¡Listo! Se acreditó tu pago. En tu resumen verás el cargo de {amount} como {statement_descriptor}."),
+            'refunded': _("¡Listo! Se devolvio tu pago. En tu resumen verás el cargo de {amount} como {statement_descriptor}."),
             'pending_contingency': _("Estamos procesando tu pago. No te preocupes, menos de 2 días hábiles te avisaremos por e-mail si se acreditó."),
             'pending_review_manual': _("Estamos procesando tu pago. No te preocupes, menos de 2 días hábiles te avisaremos por e-mail si se acreditó o si necesitamos más información."),
             'cc_rejected_bad_filled_card_number': _("Revisa el número de tarjeta."),
