@@ -61,10 +61,11 @@ class PaymentProvider(models.Model):
     )
     mercadopago_capture_method = fields.Selection([
         ('deferred_capture', 'Deferred capture is posible'),
-        ('refund_payment', 'Always refund payment')
+        ('refund_payment', 'Always refund payment'),
+        ('delay_refund_payment', 'Delay refund payment')
         ],
         string='Capture method',
-        default='deferred_capture'
+        default='delay_refund_payment'
     )
 
     mercadopago_binary = fields.Boolean('Use binary mode', default=True)

@@ -145,10 +145,12 @@ class MercadoPagoAPI():
         values = {
             "token": token
         }
-        resp = self.mp.card().create(customer_id, values)
-        resp = self.check_response(resp)
+        orig_resp = self.mp.card().create(customer_id, values)
+        resp = self.check_response(orig_resp)
 
         if resp.get('err_code'):
+            _logger.error("response info %s %s " % (customer_id, values))
+            _logger.error(orig_resp)
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
         else:
             return resp
@@ -301,11 +303,11 @@ class MercadoPagoAPI():
         """
         if tx.operation != 'validation':
             return True, None
-        elif tx.provider_id.mercadopago_capture_method == 'refund_payment':
-            return True, 'refund_payment'
+        elif tx.provider_id.mercadopago_capture_method in ('refund_payment', 'delay_refund_payment'):
+            return True, tx.provider_id.mercadopago_capture_method
 
         payment_method_id = token.provider_ref if token else form_data['mercadopago_payment_method']
         if self.payment_can_deferred_capture(payment_method_id):
             return False, 'deferred_capture'
         else:
-            return True, 'refund_payment'
+            return True, tx.provider_id.mercadopago_capture_method
