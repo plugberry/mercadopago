@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-04-03 14:45+0000\n"
+"POT-Creation-Date: 2024-01-12 12:19+0000\n"
 "PO-Revision-Date: 2023-04-03 14:45+0000\n"
 "Last-Translator: Juan José Scarafía <scarafia.juanjose@gmail.com>, 2023\n"
 "Language-Team: Spanish (https://app.transifex.com/adhoc/teams/46451/es/)\n"
@@ -22,18 +22,16 @@ msgstr ""
 #. module: payment_mercadopago
 #: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_provider_form
 msgid ""
-".\n"
+". (recordá que para realizar pruebas es necesario configurar tanto las credenciales productivas como de test, en cada entorno respectivo).\n"
 "                    <br/>\n"
-"                    <br/>\n"
-"                    Algunas observaciones sobre las credenciales y los estados \"Habilitado\" (producción) y \"Modo de prueba\" (test):"
+"                    Puede realizar pruebas en estado de test utilizando las tarjetas que figuran"
 msgstr ""
 
 #. module: payment_mercadopago
 #: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_provider_form
 msgid ""
-".\n"
-"                    <br/>\n"
-"                    Para más información ver documentación de MercadoPago:"
+".<br/>\n"
+"                    Podés obtener las credenciales de MercadoPago"
 msgstr ""
 
 #. module: payment_mercadopago
@@ -56,11 +54,6 @@ msgstr ""
 #: code:addons/payment_mercadopago/static/src/js/payment_form.js:0
 #, python-format
 msgid "An error occurred when displayed this payment form."
-msgstr ""
-
-#. module: payment_mercadopago
-#: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_provider_form
-msgid "Aplicaciones y credenciales"
 msgstr ""
 
 #. module: payment_mercadopago
@@ -120,14 +113,25 @@ msgid "Cell Phones & Accessories"
 msgstr ""
 
 #. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment_line__check_id
+msgid "Check"
+msgstr ""
+
+#. module: payment_mercadopago
 #: model:ir.actions.server,name:payment_mercadopago.action_info_from_mercadopago
 msgid "Check in Mercadopago"
 msgstr ""
 
 #. module: payment_mercadopago
+#: model:ir.actions.act_window,name:payment_mercadopago.check_payments_action
+#: model:ir.actions.server,name:payment_mercadopago.action_info_check_payments_mercadopago
+msgid "Check payments"
+msgstr ""
+
+#. module: payment_mercadopago
 #: model:ir.model.fields,field_description:payment_mercadopago.field_payment_provider__code
 msgid "Code"
-msgstr ""
+msgstr "Código"
 
 #. module: payment_mercadopago
 #: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_provider__mercadopago_item_category__art
@@ -140,13 +144,45 @@ msgid "Computers & Tablets"
 msgstr ""
 
 #. module: payment_mercadopago
+#: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_provider_form
+msgid "Configuración"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment__confirmed
+msgid "Confirmed"
+msgstr "Confirmado"
+
+#. module: payment_mercadopago
 #: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_provider__mercadopago_item_category__coupons
 msgid "Coupons"
 msgstr ""
 
 #. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment__create_uid
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment_line__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment__create_date
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment_line__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: payment_mercadopago
 #: model:payment.provider,display_as:payment_mercadopago.payment_provider_mercadopago
 msgid "Credit Card (powered by MercadoPago)"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment__date_form
+msgid "Date Form"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment__date_to
+msgid "Date To"
 msgstr ""
 
 #. module: payment_mercadopago
@@ -160,6 +196,12 @@ msgstr ""
 #: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_provider__mercadopago_capture_method__deferred_capture
 msgid "Deferred capture is posible"
 msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment__display_name
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment_line__display_name
+msgid "Display Name"
+msgstr "Nombre mostrado"
 
 #. module: payment_mercadopago
 #: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_provider__mercadopago_item_category__donations
@@ -213,9 +255,20 @@ msgid "Home appliances. Home & Garden"
 msgstr ""
 
 #. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment__id
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment_line__id
+msgid "ID"
+msgstr "ID (identificación)"
+
+#. module: payment_mercadopago
 #: model_terms:ir.ui.view,arch_db:payment_mercadopago.inline_form
 msgid "Identification"
 msgstr "Identificación"
+
+#. module: payment_mercadopago
+#: model_terms:ir.ui.view,arch_db:payment_mercadopago.check_payments_view_form
+msgid "Info"
+msgstr ""
 
 #. module: payment_mercadopago
 #: model:ir.model.fields,help:payment_mercadopago.field_payment_transaction__mercadopago_txn_type
@@ -265,14 +318,22 @@ msgid "LCD, LED, Smart TV, Plasmas, TVs"
 msgstr ""
 
 #. module: payment_mercadopago
-#: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_provider_form
-msgid "Las credenciales de producción sirven para ambos estados."
-msgstr ""
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment____last_update
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment_line____last_update
+msgid "Last Modified on"
+msgstr "Última Modificación el"
 
 #. module: payment_mercadopago
-#: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_provider_form
-msgid "Las credenciales de test sirven solo para estado de test."
-msgstr ""
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment__write_uid
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment_line__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment__write_date
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment_line__write_date
+msgid "Last Updated on"
+msgstr "Última Actualización el"
 
 #. module: payment_mercadopago
 #. odoo-python
@@ -362,6 +423,22 @@ msgid "MercadoPago temporal token"
 msgstr ""
 
 #. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_provider__mercadopago_test_access_token
+msgid "MercadoPago test Access Token"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_provider__mercadopago_test_publishable_key
+msgid "MercadoPago test Public Key"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model,name:payment_mercadopago.model_payment_mercadopago_check_payment
+#: model:ir.model,name:payment_mercadopago.model_payment_mercadopago_check_payment_line
+msgid "Mercadopago check payments"
+msgstr ""
+
+#. module: payment_mercadopago
 #. odoo-python
 #: code:addons/payment_mercadopago/models/payment_provider.py:0
 #, python-format
@@ -371,8 +448,38 @@ msgid ""
 msgstr ""
 
 #. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment_line__mp_id
+msgid "Mp"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment_line__mp_amount
+msgid "Mp Amount"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment_line__mp_external_reference
+msgid "Mp External Reference"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment_line__mp_partner
+msgid "Mp Partner"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment_line__mp_state
+msgid "Mp State"
+msgstr ""
+
+#. module: payment_mercadopago
 #: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_provider__mercadopago_item_category__entertainment
 msgid "Music, Movies & Series, Books, Magazines & Comics, Board Games & Toys"
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment__no_match
+msgid "No Match"
 msgstr ""
 
 #. module: payment_mercadopago
@@ -413,6 +520,11 @@ msgid "Other categories"
 msgstr ""
 
 #. module: payment_mercadopago
+#: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_provider_form
+msgid "Para más información ver documentación de MercadoPago:"
+msgstr ""
+
+#. module: payment_mercadopago
 #: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_provider__mercadopago_item_category__automotive
 msgid "Parts & Accessories"
 msgstr ""
@@ -425,17 +537,17 @@ msgstr "Métodos de pago"
 #. module: payment_mercadopago
 #: model:ir.model,name:payment_mercadopago.model_payment_provider
 msgid "Payment Provider"
-msgstr "Proveedor de Pago"
+msgstr "Proveedor de pago"
 
 #. module: payment_mercadopago
 #: model:ir.model,name:payment_mercadopago.model_payment_token
 msgid "Payment Token"
-msgstr "Token de Pago"
+msgstr "Token de pago"
 
 #. module: payment_mercadopago
 #: model:ir.model,name:payment_mercadopago.model_payment_transaction
 msgid "Payment Transaction"
-msgstr "Transacción de Pago"
+msgstr "Transacción de pago"
 
 #. module: payment_mercadopago
 #: model:ir.model.fields.selection,name:payment_mercadopago.selection__payment_provider__mercadopago_item_category__travels
@@ -443,15 +555,9 @@ msgid "Plane tickets, Hotel vouchers, Travel vouchers"
 msgstr ""
 
 #. module: payment_mercadopago
-#: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_provider_form
-msgid "Podés obtener las credenciales de MercadoPago"
-msgstr ""
-
-#. module: payment_mercadopago
-#: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_provider_form
-msgid ""
-"Puede realizar pruebas en estado de test utilizando las tarjetas que figuran"
-msgstr ""
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment__provider_id
+msgid "Provider"
+msgstr "Proveedor"
 
 #. module: payment_mercadopago
 #. odoo-python
@@ -503,6 +609,11 @@ msgid "Revisa los datos."
 msgstr ""
 
 #. module: payment_mercadopago
+#: model_terms:ir.ui.view,arch_db:payment_mercadopago.check_payments_view_form
+msgid "Search"
+msgstr ""
+
+#. module: payment_mercadopago
 #. odoo-javascript
 #: code:addons/payment_mercadopago/static/src/js/payment_form.js:0
 #: code:addons/payment_mercadopago/static/src/js/payment_form.js:0
@@ -514,6 +625,11 @@ msgid "Server Error"
 msgstr "Error de Servidor"
 
 #. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment_line__transaction_state
+msgid "State"
+msgstr "Estado"
+
+#. module: payment_mercadopago
 #: model:ir.model.fields,help:payment_mercadopago.field_payment_provider__mercadopago_item_category
 msgid "The category"
 msgstr ""
@@ -521,7 +637,7 @@ msgstr ""
 #. module: payment_mercadopago
 #: model:ir.model.fields,help:payment_mercadopago.field_payment_provider__code
 msgid "The technical code of this payment provider."
-msgstr ""
+msgstr "El código técnico de este proveedor de pagos."
 
 #. module: payment_mercadopago
 #. odoo-python
@@ -548,6 +664,11 @@ msgid "Trainings, Conferences, Workshops"
 msgstr ""
 
 #. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment_line__transaction_id
+msgid "Transaction"
+msgstr ""
+
+#. module: payment_mercadopago
 #: model:ir.model.fields,field_description:payment_mercadopago.field_payment_transaction__mercadopago_txn_id
 msgid "Transaction ID"
 msgstr ""
@@ -562,6 +683,11 @@ msgstr ""
 #: code:addons/payment_mercadopago/models/payment_transaction.py:0
 #, python-format
 msgid "Tu {payment_method_id} no tiene fondos suficientes."
+msgstr ""
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_provider__mercadopago_binary
+msgid "Use binary mode"
 msgstr ""
 
 #. module: payment_mercadopago
@@ -618,9 +744,7 @@ msgstr "Tu pago se ha procesado con éxito pero está esperando aprobación."
 #. module: payment_mercadopago
 #: model_terms:payment.provider,done_msg:payment_mercadopago.payment_provider_mercadopago
 msgid "Your payment has been successfully processed. Thank you!"
-msgstr ""
-"Tu pago se ha procesado con éxito. ¡Gracias!\n"
-" "
+msgstr "Tu pago se ha procesado con éxito. ¡Gracias!"
 
 #. module: payment_mercadopago
 #: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_provider_form
@@ -633,11 +757,6 @@ msgid "bin"
 msgstr ""
 
 #. module: payment_mercadopago
-#: model_terms:ir.ui.view,arch_db:payment_mercadopago.payment_provider_form
-msgid "con cualquier código de seguridad y una fecha de vencimiento futura."
-msgstr ""
-
-#. module: payment_mercadopago
 #: model_terms:ir.ui.view,arch_db:payment_mercadopago.mercadopago_checkout
 msgid "cvv"
 msgstr "CVV"
@@ -646,6 +765,11 @@ msgstr "CVV"
 #: model_terms:ir.ui.view,arch_db:payment_mercadopago.inline_form
 msgid "email"
 msgstr "Correo Electrónico"
+
+#. module: payment_mercadopago
+#: model:ir.model.fields,field_description:payment_mercadopago.field_payment_mercadopago_check_payment__line_ids
+msgid "lines"
+msgstr ""
 
 #. module: payment_mercadopago
 #. odoo-python
