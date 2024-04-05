@@ -82,7 +82,7 @@ class PaymentTransaction(models.Model):
         feedback_data = {'reference': self.reference, 'response': res_content}
         self._handle_notification_data('mercadopago', feedback_data)
 
-    def _send_refund_request(self, amount_to_refund=None, create_refund_transaction=True):
+    def _send_refund_request(self, amount_to_refund=None):
         """ Override of payment to send a refund request to MercadoPago.
 
         Note: self.ensure_one()
@@ -92,14 +92,13 @@ class PaymentTransaction(models.Model):
         :return: The refund transaction if any
         :rtype: recordset of `payment.transaction`
         """
-        if self.provider_code != 'mercadopago':
-            return super()._send_refund_request(
-                amount_to_refund=amount_to_refund,
-                create_refund_transaction=create_refund_transaction,
-            )
-
-        # TODO: implement
-        raise UserError("MercadoPago: _send_refund_request not implemented")
+        res = super()._send_refund_request(
+            amount_to_refund=amount_to_refund,
+        )
+        if self.provider_code == 'mercadopago':
+            # TODO: implement
+            raise UserError("MercadoPago: _send_refund_request not implemented")
+        return res
 
     def _send_void_request(self):
         """ Override of payment to send a void request to Authorize.
