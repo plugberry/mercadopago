@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_mp_credential,access_mp_credential,model_mp_credential,point_of_sale.group_pos_manager,1,1,1,1
+access_mp_store,access_mp_store,model_mp_store,point_of_sale.group_pos_manager,1,1,1,1
+access_mp_store_box,access_mp_store_box,model_mp_store_box,point_of_sale.group_pos_manager,1,1,1,1
+access_mp_store_box_line,access_mp_store_box_line,model_mp_store_box_line,point_of_sale.group_pos_manager,1,1,1,1
+access_mp_log,access_mp_log,model_mp_log,point_of_sale.group_pos_manager,1,1,1,1

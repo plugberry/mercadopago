@@ -1,0 +1,273 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pos_payway
+# 
+# Translators:
+# Juan José Scarafía <scarafia.juanjose@gmail.com>, 2023
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-07-25 18:10+0000\n"
+"PO-Revision-Date: 2023-07-25 18:10+0000\n"
+"Last-Translator: Juan José Scarafía <scarafia.juanjose@gmail.com>, 2023\n"
+"Language-Team: Spanish (https://app.transifex.com/adhoc/teams/46451/es/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Language: es\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
+
+#. module: pos_payway
+#: model_terms:ir.ui.view,arch_db:pos_payway.res_config_settings_view_form_inherit_pos_mercury
+msgid "Accept payments with a Payway payment terminal"
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.model.fields,field_description:pos_payway.field_pos_config__access_token
+msgid "Access token"
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.model.fields,field_description:pos_payway.field_pos_config__api_key
+msgid "Api Key"
+msgstr ""
+
+#. module: pos_payway
+#. odoo-javascript
+#: code:addons/pos_payway/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "Aviso"
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.model.fields,field_description:pos_payway.field_pos_payway_configuration__payway_secret_basic
+msgid "Basic key"
+msgstr ""
+
+#. module: pos_payway
+#: model_terms:ir.ui.view,arch_db:pos_payway.view_pos_payway_configuration_form
+#: model_terms:ir.ui.view,arch_db:pos_payway.view_pos_payway_configuration_tree
+msgid "Card Reader"
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.model.fields,field_description:pos_payway.field_pos_payway_configuration__company_id
+msgid "Compañía"
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.model,name:pos_payway.model_res_config_settings
+msgid "Config Settings"
+msgstr "Opciones de configuración"
+
+#. module: pos_payway
+#: model:ir.model.fields,field_description:pos_payway.field_pos_payway_configuration__create_uid
+#: model:ir.model.fields,field_description:pos_payway.field_pos_terminal__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: pos_payway
+#: model:ir.model.fields,field_description:pos_payway.field_pos_payway_configuration__create_date
+#: model:ir.model.fields,field_description:pos_payway.field_pos_terminal__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: pos_payway
+#. odoo-javascript
+#: code:addons/pos_payway/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "Debe ser realizada la transacción antes de ser validada!"
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.model.fields,field_description:pos_payway.field_pos_payway_configuration__display_name
+#: model:ir.model.fields,field_description:pos_payway.field_pos_terminal__display_name
+msgid "Display Name"
+msgstr "Nombre mostrado"
+
+#. module: pos_payway
+#. odoo-javascript
+#: code:addons/pos_payway/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_payway/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_payway/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "Error"
+msgstr ""
+
+#. module: pos_payway
+#. odoo-javascript
+#: code:addons/pos_payway/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "Error trying to connect to terminal. Check your internet connection"
+msgstr ""
+
+#. module: pos_payway
+#. odoo-javascript
+#: code:addons/pos_payway/static/src/js/PaymentScreenPaymentLines.js:0
+#: code:addons/pos_payway/static/src/js/PaymentScreenPaymentLines.js:0
+#, python-format
+msgid "Error trying to connect to terminal. Check your internet connection."
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.model.fields,field_description:pos_payway.field_pos_payway_configuration__id
+#: model:ir.model.fields,field_description:pos_payway.field_pos_terminal__id
+msgid "ID"
+msgstr "ID (identificación)"
+
+#. module: pos_payway
+#: model:ir.model.fields,field_description:pos_payway.field_pos_payway_configuration__payway_acquier_id
+msgid "Identificador de comercio"
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.model.fields,field_description:pos_payway.field_pos_config__module_pos_payway
+msgid "Integrated Card Payments"
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.model.fields,field_description:pos_payway.field_pos_payway_configuration____last_update
+#: model:ir.model.fields,field_description:pos_payway.field_pos_terminal____last_update
+msgid "Last Modified on"
+msgstr "Última Modificación el"
+
+#. module: pos_payway
+#: model:ir.model.fields,field_description:pos_payway.field_pos_payway_configuration__write_uid
+#: model:ir.model.fields,field_description:pos_payway.field_pos_terminal__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: pos_payway
+#: model:ir.model.fields,field_description:pos_payway.field_pos_payway_configuration__write_date
+#: model:ir.model.fields,field_description:pos_payway.field_pos_terminal__write_date
+msgid "Last Updated on"
+msgstr "Última Actualización el"
+
+#. module: pos_payway
+#: model:ir.model.fields,field_description:pos_payway.field_pos_payway_configuration__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: pos_payway
+#: model:ir.model.fields,field_description:pos_payway.field_pos_terminal__name
+msgid "Nombre/ubicación"
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.model.fields,field_description:pos_payway.field_pos_terminal__payway_terminal_number
+msgid "Número de terminal"
+msgstr ""
+
+#. module: pos_payway
+#: model_terms:ir.ui.view,arch_db:pos_payway.res_config_settings_view_form_inherit_pos_mercury
+msgid "Payway"
+msgstr ""
+
+#. module: pos_payway
+#: model_terms:ir.ui.view,arch_db:pos_payway.res_config_settings_view_form_inherit_pos_mercury
+msgid "Payway Accounts"
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.actions.act_window,name:pos_payway.action_configuration_form
+#: model:ir.ui.menu,name:pos_payway.menu_pos_pos_payway_config
+msgid "Payway Configurations"
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.model.fields,field_description:pos_payway.field_pos_payment_method__pos_payway_config_id
+msgid "Payway Credentials"
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.model.fields,field_description:pos_payway.field_res_config_settings__module_pos_payway
+msgid "Payway Payment Terminal"
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.model.fields,field_description:pos_payway.field_pos_payment_method__payway_test_mode
+msgid "Payway Test Mode"
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.actions.act_window,name:pos_payway.action_terminal_configuration
+#: model:ir.ui.menu,name:pos_payway.menu_action_terminal_configuration
+msgid "Payway terminal"
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.model,name:pos_payway.model_pos_config
+msgid "Point of Sale Configuration"
+msgstr "Configuración del TPV"
+
+#. module: pos_payway
+#: model:ir.model,name:pos_payway.model_pos_order
+msgid "Point of Sale Orders"
+msgstr "Pedidos del TPV"
+
+#. module: pos_payway
+#: model:ir.model,name:pos_payway.model_pos_payment_method
+msgid "Point of Sale Payment Methods"
+msgstr "Métodos de pago en el punto de venta "
+
+#. module: pos_payway
+#: model:ir.model,name:pos_payway.model_pos_payway_configuration
+msgid "Point of Sale Payway Configuration"
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.model,name:pos_payway.model_pos_session
+msgid "Point of Sale Session"
+msgstr "Sesión TPV"
+
+#. module: pos_payway
+#: model:ir.model.fields,help:pos_payway.field_pos_payment_method__payway_test_mode
+msgid "Run transactions in the test environment."
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.model.fields,field_description:pos_payway.field_pos_config__settlement
+msgid "Settlement"
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.model.fields,field_description:pos_payway.field_pos_config__payway_terminal_id
+#: model_terms:ir.ui.view,arch_db:pos_payway.view_pos_payway_terminal_form
+#: model_terms:ir.ui.view,arch_db:pos_payway.view_pos_payway_terminal_tree
+msgid "Terminal"
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.model.fields,help:pos_payway.field_pos_payment_method__pos_payway_config_id
+msgid "The configuration of Payway used for this journal"
+msgstr ""
+
+#. module: pos_payway
+#: model_terms:ir.ui.view,arch_db:pos_payway.res_config_settings_view_form_inherit_pos_mercury
+msgid ""
+"The transactions are processed by Payway. Set your Payway credentials on the"
+" related payment method."
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.model.fields,help:pos_payway.field_res_config_settings__module_pos_payway
+msgid ""
+"The transactions are processed by Vantiv. Set your Payway credentials on the"
+" related payment method."
+msgstr ""
+
+#. module: pos_payway
+#. odoo-javascript
+#: code:addons/pos_payway/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_payway/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_payway/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "error"
+msgstr ""
+
+#. module: pos_payway
+#: model:ir.model,name:pos_payway.model_pos_terminal
+msgid "pos.terminal"
+msgstr ""

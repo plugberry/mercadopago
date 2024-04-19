@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record id="view_mp_store_form" model="ir.ui.view" >
+            <field name="name">MP store</field>
+            <field name="model">mp.store</field>
+            <field name="arch" type="xml">
+                <form string="Store">
+                    <header>
+                        <button name="publish_branch" type="object" string="Publicar" class="btn-primary" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                        <button name="update_branch" type="object" string="Actualizar" attrs="{'invisible': [('state', '!=', 'publish')]}"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,publish"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                           <label for="name"/>
+                           <h1><field name="name" required="1"/></h1>
+                        </div>
+                        <group col="4">
+                            <field name="street_name" required="1"/>
+                            <field name="street_number" required="1"/>
+                            <field name="city_name" required="1"/>
+                            <field name="state_id" required="1"/>
+                            <field name="ref" required="1"/>
+                            <field name="external_store_id" invisible="1"/>
+                            <field name="external_id"/>
+                            <field name="address_id" invisible="1"/>
+                        </group>
+                        <notebook>
+                            <page string="Horario">
+                                <group>
+                                    <label for="interval"/>
+                                    <div class="o_col">
+                                        <div class="o_row" invisible="1">
+                                            <field name="interval" class="oe_inline"/>
+                                            <field name="rrule_type"/>
+                                        </div>
+                                        <widget name="week_days"/>
+                                    </div>
+                                </group>
+                                <group>
+                                    <field name="mon" invisible="1"/>
+                                    <field name="tue" invisible="1"/>
+                                    <field name="wed" invisible="1"/>
+                                    <field name="thu" invisible="1"/>
+                                    <field name="fri" invisible="1"/>
+                                    <field name="sat" invisible="1"/>
+                                    <field name="sun" invisible="1"/>
+                                </group>
+                                <group colspan="6" col="6">
+                                    <separator string="Lunes" attrs="{'invisible': [('mon', '=', False)]}"/>
+                                    <group colspan="2" col="2">
+                                        <field name="open_time_mon" string="Abre" attrs="{'invisible': [('mon', '=', False)], 'required': [('mon', '=', True)]}"/>
+                                    </group>
+                                    <group colspan="2" col="2">
+                                        <field name="close_time_mon" string="Cierra" attrs="{'invisible': [('mon', '=', False)], 'required': [('mon', '=', True)]}"/>
+                                    </group>
+                                </group>
+                                <group colspan="6" col="6">
+                                    <separator string="Martes" attrs="{'invisible': [('tue', '=', False)]}"/>
+                                    <group colspan="2" col="2">
+                                        <field name="open_time_tue" string="Abre" attrs="{'invisible': [('tue', '=', False)], 'required': [('tue', '=', True)]}"/>
+                                    </group>
+                                    <group colspan="2" col="2">
+                                        <field name="close_time_tue" string="Cierra" attrs="{'invisible': [('tue', '=', False)], 'required': [('tue', '=', True)]}"/>
+                                    </group>
+                                </group>
+                                <group colspan="6" col="6">
+                                    <separator string="Miercoles" attrs="{'invisible': [('wed', '=', False)]}"/>
+                                    <group colspan="2" col="2">
+                                        <field name="open_time_wed" string="Abre" attrs="{'invisible': [('wed', '=', False)], 'required': [('wed', '=', True)]}"/>
+                                    </group>
+                                    <group colspan="2" col="2">
+                                        <field name="close_time_wed" string="Cierra" attrs="{'invisible': [('wed', '=', False)], 'required': [('wed', '=', True)]}"/>
+                                    </group>
+                                </group>
+                                <group colspan="6" col="6">
+                                    <separator string="Jueves" attrs="{'invisible': [('thu', '=', False)]}"/>
+                                    <group colspan="2" col="2">
+                                        <field name="open_time_thu" string="Abre" attrs="{'invisible': [('thu', '=', False)], 'required': [('thu', '=', True)]}"/>
+                                    </group>
+                                    <group colspan="2" col="2">
+                                        <field name="close_time_thu" string="Cierra" attrs="{'invisible': [('thu', '=', False)], 'required': [('thu', '=', True)]}"/>
+                                    </group>
+                                </group>
+                                <group colspan="6" col="6">
+                                    <separator string="Viernes" attrs="{'invisible': [('fri', '=', False)]}"/>
+                                    <group colspan="2" col="2">
+                                        <field name="open_time_fir" string="Abre" attrs="{'invisible': [('fri', '=', False)], 'required': [('fri', '=', True)]}"/>
+                                    </group>
+                                    <group colspan="2" col="2">
+                                        <field name="close_time_fir" string="Cierra" attrs="{'invisible': [('fri', '=', False)], 'required': [('fri', '=', True)]}"/>
+                                    </group>
+                                </group>
+                                <group colspan="6" col="6">
+                                    <separator string="Sabado" attrs="{'invisible': [('sat', '=', False)]}"/>
+                                    <group colspan="2" col="2">
+                                        <field name="open_time_sat" string="Abre" attrs="{'invisible': [('sat', '=', False)], 'required': [('sat', '=', True)]}"/>
+                                    </group>
+                                    <group colspan="2" col="2">
+                                        <field name="close_time_sat" string="Cierra" attrs="{'invisible': [('sat', '=', False)], 'required': [('sat', '=', True)]}"/>
+                                    </group>
+                                </group>
+                                <group colspan="6" col="6">
+                                    <separator string="Domingo" attrs="{'invisible': [('sun', '=', False)]}"/>
+                                    <group colspan="2" col="2">
+                                        <field name="open_time_sun" string="Abre" attrs="{'invisible': [('sun', '=', False)], 'required': [('sun', '=', True)]}"/>
+                                    </group>
+                                    <group colspan="2" col="2">
+                                        <field name="close_time_sun" string="Cierra" attrs="{'invisible': [('sun', '=', False)], 'required': [('sun', '=', True)]}"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Geolocalización">
+                                <group col="2">
+                                    <label for="latitude" string="Geolocation"/>
+                                    <div>
+                                        <span class="oe_grey">( </span>
+                                        <field name="latitude" class="oe_inline o_input_12ch px-1"/>
+                                        <span class="oe_grey" attrs="{'invisible':[('latitude','&lt;=',0)]}">N </span>
+                                        <span class="oe_grey" attrs="{'invisible':[('latitude','&gt;=',0)]}">S </span>
+                                        <field name="longitude" class="oe_inline o_input_12ch ps-2 pe-1"/>
+                                        <span class="oe_grey" attrs="{'invisible':[('longitude','&lt;=',0)]}">E </span>
+                                        <span class="oe_grey" attrs="{'invisible':[('longitude','&gt;=',0)]}">W </span>
+                                        <span class="oe_grey ps-1">) </span>
+                                    </div>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_pos_mp_store_tree" model="ir.ui.view">
+            <field name="name">Store</field>
+            <field name="model">mp.store</field>
+            <field name="arch" type="xml">
+                <tree string="Store">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_store_mp" model="ir.actions.act_window">
+            <field name="name">Store</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mp.store</field>
+            <field name="view_mode">tree,kanban,form</field>
+        </record>
+
+        <menuitem parent="pos_mercadopago.menu_mp_credential_config" action="pos_mercadopago.action_store_mp" id="menu_pos_store_mp_config" groups="base.group_no_one" sequence="36"/>
+    </data>
+</odoo>

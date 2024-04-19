@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record id="view_mp_box_form" model="ir.ui.view" >
+            <field name="name">Caja</field>
+            <field name="model">mp.store.box</field>
+            <field name="arch" type="xml">
+                <form string="Caja">
+                    <header>
+                        <button name="publish_box" type="object" string="Publicar" class="btn-primary" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                        <button name="to_draft" type="object" string="Volver a borrador" attrs="{'invisible': [('state', '!=', 'publish')]}"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,publish"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                           <label for="name"/>
+                           <h1><field name="name" required="1"/></h1>
+                        </div>
+                        <group col="4">
+                            <field name="store_id" required="1"/>
+                            <field name="external_store_id" readonly="1"/>
+                        </group>
+                        <notebook>
+                            <page string="Puntos de ventas" name="pos_store">
+                                <group>
+                                    <group>
+                                        <field name="box_line_ids" widget="one2many" colspan="4" nolabel="1" mode="tree" editable="bottom">
+                                            <tree editable="bottom" delete="0">
+                                                <field name="config_id"/>
+                                                <field name="name" readonly="0"/>
+                                                <field name="external_id" invisible="1"/>
+                                                <field name="category"/>
+                                                <field name="fixed_amount"/>
+                                                <field name="store_box_id" invisible="1"/>
+                                                <field name="image_qr" invisible="1"/>
+                                                <field name="template_document_qr" invisible="1"/>
+                                                <field name="template_image_qr" invisible="1"/>
+                                                <field name="qr_code" invisible="1"/>
+                                                <field name="box_id" invisible="1"/>
+                                                <field name="active_box" widget="boolean_toggle" readonly="1"/>
+                                                <button name="edit_point_box"
+                                                    class="o_stat_button"
+                                                    icon="fa-edit"
+                                                    type="object"/>
+                                                <button name="remove_point_box"
+                                                    class="o_stat_button"
+                                                    icon="fa-trash-o"
+                                                    type="object"/>
+                                            </tree>
+                                        </field>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_pos_mp_box_tree" model="ir.ui.view">
+            <field name="name">Caja</field>
+            <field name="model">mp.store.box</field>
+            <field name="arch" type="xml">
+                <tree string="Caja">
+                    <field name="name"/>
+                    <field name="store_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_box_mp" model="ir.actions.act_window">
+            <field name="name">Caja</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mp.store.box</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem parent="pos_mercadopago.menu_mp_credential_config" action="pos_mercadopago.action_box_mp" id="menu_pos_box_mp_config" groups="base.group_no_one" sequence="36"/>
+    </data>
+</odoo>
