@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="pos_payment_method_mp_point_view_form" model="ir.ui.view">
+        <field name="name">Caja</field>
+        <field name="model">mp.store.box</field>
+        <field name="inherit_id" ref="pos_mercadopago.view_mp_box_form"></field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='box_line_ids']/tree/field[@name='active_box']" position="after">
+                <field name="terminal_id" readonly="1"/>
+                <field name="operating_mode" readonly="1"/>
+            </xpath>
+            <xpath expr="//page[@name='pos_store']" position="inside">
+                <button name="get_terminal" type="object" class="oe_highlight" string="Asociar terminales" attrs="{'invisible':[('state', '==', 'draft')]}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

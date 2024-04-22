@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_inherit_mp_qr" model="ir.ui.view">
+        <field name="name">res.config.form.inherit.mp</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="point_of_sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+                <xpath expr="//div[@id='pos_payment_terminals_section']" position="inside">
+                    <div class="col-12 col-lg-6 o_setting_box" id="mp_payment_terminal_setting"
+                        title="The transactions are processed by MP. Set your MP credentials on the related payment method.">
+                        <div class="o_setting_left_pane">
+                            <field name="module_pos_mp_qr"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <label for="module_pos_mp_qr" string="MP QR"/>
+                            <div class="text-muted">
+                                Accept payments with a MP payment terminal
+                            </div>
+                            <div class="content-group" attrs="{'invisible': [('module_pos_mp_qr', '=', False)]}">
+                                <div class="mt16" id="btn_use_pos_mp">
+                                    <button name="%(pos_mercadopago.view_mp_credential_form)d" icon="fa-arrow-right" type="action" string="MP QR Accounts" class="btn-link"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </xpath>
+        </field>
+    </record>
+</odoo>
