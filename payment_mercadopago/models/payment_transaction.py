@@ -96,8 +96,10 @@ class PaymentTransaction(models.Model):
             amount_to_refund=amount_to_refund,
         )
         if self.provider_code == 'mercadopago':
-            # TODO: implement
-            raise UserError("MercadoPago: _send_refund_request not implemented")
+            mercadopago_API = self.provider_id._get_mercadopago_request()
+            response = mercadopago_API.payment_refund(self.external_id, amount=amount_to_refund)
+            res.external_id = response.id
+            res._set_done()
         return res
 
     def _send_void_request(self):
