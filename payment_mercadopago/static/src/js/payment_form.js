@@ -404,7 +404,7 @@ odoo.define('payment_mercadopago.payment_form', require => {
                     'mercadopago_payment_method': document.getElementById('o_mercadopago_payment_method_' + processingValues.provider_id).value,
                     'installments': parseInt(document.getElementById('o_mercadopago_installments_' + processingValues.provider_id).value),
                     'issuer': parseInt(document.getElementById('o_mercadopago_issuer_' + processingValues.provider_id).value),
-                    'email': document.getElementById('email').value,
+                    'email': document.getElementById('o_email_' + processingValues.provider_id).value,
                 }
             }).then(() => window.location = '/payment/status').catch((error) =>{
                 self._enableButton(); // The submit button is disabled at this point, enable it
