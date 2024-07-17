@@ -7,7 +7,7 @@
             <!-- Email -->
             <div class="form-group">
                 <t t-set="email" t-value="order.partner_id.email if order and request.env.user.id == request.env.ref('base.public_user').id else request.env.user.email"/>
-                <input id="email" placeholder="email" name="email" t-att-value="email" t-att-class="'o_hidden' if email else 'form-control'"></input>
+                <input t-attf-id="o_email_{{provider_id}}" placeholder="email" name="email" t-att-value="email" t-att-class="'o_hidden' if email else 'form-control'"></input>
             </div>
 
             <!-- Card -->

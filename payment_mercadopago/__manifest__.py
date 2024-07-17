@@ -2,7 +2,13 @@
     'name': 'Mercado Pago Payment Acquirer',
     'category': 'Accounting/Payment Acquirers',
     'summary': 'Payment Acquirer: MercadoPago',
+<<<<<<< HEAD
     'version': "16.0.3.2.0",
+||||||| parent of ef59419 (temp)
+    'version': "16.0.4.3.0",
+=======
+    'version': "16.0.4.4.0",
+>>>>>>> ef59419 (temp)
     'description': """
 Mercado pago Payment
 ===================
