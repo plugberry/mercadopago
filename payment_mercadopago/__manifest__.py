@@ -2,7 +2,13 @@
     'name': 'Mercado Pago Payment Acquirer',
     'category': 'Accounting/Payment Acquirers',
     'summary': 'Payment Acquirer: MercadoPago',
+<<<<<<< HEAD
     'version': "16.0.3.2.0",
+||||||| parent of c80d13e (temp)
+    'version': "16.0.4.4.0",
+=======
+    'version': "16.0.4.5.0",
+>>>>>>> c80d13e (temp)
     'description': """
 Mercado pago Payment
 ===================
