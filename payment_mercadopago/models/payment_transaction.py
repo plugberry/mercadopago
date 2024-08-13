@@ -34,7 +34,7 @@ class PaymentTransaction(models.Model):
         for tx in tx_ids:
             try:
                 mercadopago_API = tx.provider_id._get_mercadopago_request()
-                mercadopago_API.payment_refund(tx.external_id, amount= tx.amount)
+                mercadopago_API.payment_refund(tx.provider_reference, amount= tx.amount)
             except:
                 _logger.error(_('No pudimos devolver la transaccion id %s' % tx.id))
             tx.mercadopago_delay_refund = False
