@@ -20,6 +20,46 @@ class PaymentTransaction(models.Model):
 
     mercadopago_tmp_token = fields.Char('MercadoPago temporal token')
 
+<<<<<<< HEAD
+||||||| parent of d8251fe (temp)
+    @api.depends('operation', 'provider_id')
+    def _compute_mercadopago_delay_refund(self):
+        to_delay_refund =  self.filtered(lambda x: x.provider_id.mercadopago_capture_method == 'delay_refund_payment' and x.operation == 'validation')
+        to_delay_refund.mercadopago_delay_refund = True
+        (self - to_delay_refund).mercadopago_delay_refund = False
+
+    @api.model
+    def _cron_mercadopago_delay_refund(self):
+        tx_ids = self.search([('mercadopago_delay_refund', '=', 'True'), ('provider_reference', '!=', False)])
+        for tx in tx_ids:
+            try:
+                mercadopago_API = tx.provider_id._get_mercadopago_request()
+                mercadopago_API.payment_refund(tx.external_id, amount= tx.amount)
+            except:
+                _logger.error(_('No pudimos devolver la transaccion id %s' % tx.id))
+            tx.mercadopago_delay_refund = False
+
+
+=======
+    @api.depends('operation', 'provider_id')
+    def _compute_mercadopago_delay_refund(self):
+        to_delay_refund =  self.filtered(lambda x: x.provider_id.mercadopago_capture_method == 'delay_refund_payment' and x.operation == 'validation')
+        to_delay_refund.mercadopago_delay_refund = True
+        (self - to_delay_refund).mercadopago_delay_refund = False
+
+    @api.model
+    def _cron_mercadopago_delay_refund(self):
+        tx_ids = self.search([('mercadopago_delay_refund', '=', 'True'), ('provider_reference', '!=', False)])
+        for tx in tx_ids:
+            try:
+                mercadopago_API = tx.provider_id._get_mercadopago_request()
+                mercadopago_API.payment_refund(tx.provider_reference, amount= tx.amount)
+            except:
+                _logger.error(_('No pudimos devolver la transaccion id %s' % tx.id))
+            tx.mercadopago_delay_refund = False
+
+
+>>>>>>> d8251fe (temp)
     def _get_specific_processing_values(self, processing_values):
         """ Override of payment to return an access token as acquirer-specific processing values.
 
