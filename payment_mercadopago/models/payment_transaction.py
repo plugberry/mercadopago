@@ -120,7 +120,7 @@ class PaymentTransaction(models.Model):
         if self.provider_code == 'mercadopago':
             mercadopago_API = self.provider_id._get_mercadopago_request()
             response = mercadopago_API.payment_refund(self.provider_reference, amount=amount_to_refund)
-            res.provider_reference = response.id
+            res.provider_reference = response.get('id')
             res._set_done()
         return res
 
