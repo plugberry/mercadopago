@@ -23,7 +23,7 @@ class PaymentToken(models.Model):
 
         return super().unlink()
 
-    def _handle_deactivation_request(self):
+    def _handle_archiving(self):
         """ Override of payment to request Authorize.Net to delete the token.
 
         Note: self.ensure_one()
@@ -35,19 +35,7 @@ class PaymentToken(models.Model):
             mercado_pago = self.provider_id._get_mercadopago_request()
             mercado_pago.unlink_card_token(self.customer_id, self.card_token)
 
-        return super()._handle_deactivation_request()
-
-    def _handle_reactivation_request(self):
-        """ Override of payment to raise an error informing that Auth.net tokens cannot be restored.
-
-        Note: self.ensure_one()
-
-        :return: None
-        """
-        if self.provider_id.code == 'mercadopago':
-            raise UserError(_('You cannot reactive a Mercadopago token.'))
-
-        return super()._handle_reactivation_request()
+        return super()._handle_archiving()
 
     def mercadopago_fix_token_bin(self):
         for token in self:

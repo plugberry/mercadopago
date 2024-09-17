@@ -2,7 +2,7 @@
     'name': 'Mercado Pago Payment Acquirer',
     'category': 'Accounting/Payment Acquirers',
     'summary': 'Payment Acquirer: MercadoPago',
-    'version': "16.0.3.2.0",
+    'version': "17.0.1.0.0",
     'description': """
 Mercado pago Payment
 ===================
@@ -15,7 +15,7 @@ Supports automated payments without CVV for subscriptions and card authorization
     'author': 'Plugberry',
     'website': 'www.plugberry.com',
     'sequence': 350,
-    'depends': ['payment', 'account'],
+    'depends': ['payment'],
     'external_dependencies': {
         'python': ['mercadopago'],
     },
@@ -24,10 +24,10 @@ Supports automated payments without CVV for subscriptions and card authorization
         'views/payment_views.xml',
         'views/payment_mercadopago_templates.xml',
         'wizards/check_payments.xml',
-        'data/payment_acquirer_data.xml',
+        'data/payment_provider_data.xml',
     ],
     'demo': [
-        'demo/payment_acquirer_demo.xml',
+        'demo/payment_provider_demo.xml',
     ],
     'images':  ['static/description/odoomp.png'],
     'assets': {
@@ -38,6 +38,6 @@ Supports automated payments without CVV for subscriptions and card authorization
     },
     'uninstall_hook': 'uninstall_hook',
     'application': False,
-    'installable': False,
+    'installable': True,
     'license': 'LGPL-3',
 }
