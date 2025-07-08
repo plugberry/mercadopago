@@ -85,7 +85,7 @@ class PaymentAcquirerMercadoPago(models.Model):
     def mercadopago_form_generate_values(self, values):
         self.ensure_one()
         tx_values = dict(values)
-        base_url = self.get_base_url()
+        base_url = self.get_base_url().replace('http://', 'https://')
 
         success_url = MercadoPagoController._success_url
         failure_url = MercadoPagoController._failure_url
