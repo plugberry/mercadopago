@@ -93,6 +93,8 @@ class MercadoPagoAPI():
             _logger.info('Preference Result:\n%s' % resp)
         resp = self.check_response(resp)
 
+        _logger.info('Preference Result:\n%s' % resp)
+
         if resp.get('err_code'):
             raise UserError(_("MercadoPago Error:\nCode: %s\nMessage: %s" % (resp.get('err_code'), resp.get('err_msg'))))
         else:
