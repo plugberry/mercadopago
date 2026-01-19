@@ -2,7 +2,7 @@
     'name': 'Mercado Pago Payment Acquirer',
     'category': 'Accounting/Payment Acquirers',
     'summary': 'Payment Acquirer: MercadoPago',
-    'version': "16.0.3.2.0",
+    'version': "17.0.1.0.0",
     'description': """
 Mercado pago Payment
 ===================
@@ -38,6 +38,6 @@ Supports automated payments without CVV for subscriptions and card authorization
     },
     'uninstall_hook': 'uninstall_hook',
     'application': False,
-    'installable': False,
+    'installable': True,
     'license': 'LGPL-3',
 }
